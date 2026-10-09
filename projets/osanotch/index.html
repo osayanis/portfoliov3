@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OsaNotch · Étude de cas · Yanis</title>
+    <meta name="description" content="OsaNotch transforme l'encoche du MacBook en petite île dynamique. Au survol, elle s'ouvre avec une animation à ressort et regroupe la musique et ses parole" />
+    <meta name="theme-color" content="#f1edff" />
+    <link rel="canonical" href="https://yanis.pro/projets/osanotch/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="OsaNotch · Ton encoche, enfin vivante." />
+    <meta property="og:description" content="OsaNotch transforme l'encoche du MacBook en petite île dynamique. Au survol, elle s'ouvre avec une animation à ressort et regroupe la musique et ses parole" />
+    <meta property="og:url" content="https://yanis.pro/projets/osanotch/" />
+    <meta property="og:image" content="https://yanis.pro/media/osanotch/banner.webp" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  </head>
+  <body class="cs-page" style="--p:#c4b5fd;--p-deep:#7c5cf0;--p-soft:#f1edff">
+    <a class="skip" href="#main">Aller au contenu</a>
+
+    <header class="nav">
+      <a class="logo" href="/" aria-label="Retour à l'accueil">yanis<span>.</span></a>
+      <nav class="nav-links" aria-label="Navigation principale">
+        <a href="/#notch">Projets</a>
+        <a href="/#labo">Labo</a>
+        <a href="/#apropos">À propos</a>
+        <a href="/#github">GitHub</a>
+        <button class="sound-toggle" type="button" aria-pressed="true" title="Activer / couper le son">
+          <span class="sound-on">Son</span><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+        </button>
+        <a class="nav-cta" href="/#contact">On se parle ?</a>
+      </nav>
+    </header>
+
+    <main id="main" class="cs">
+      <!-- HERO -->
+      <section class="cs-hero">
+        <a class="cs-back" href="/#notch"><span aria-hidden="true">←</span> Tous les projets</a>
+        <div class="cs-hero-grid">
+          <div class="cs-hero-copy">
+            <p class="eyebrow"><span class="dot" style="--c:#c4b5fd"></span>App macOS native · Swift</p>
+            <h1 class="cs-title"><span>OsaNotch</span></h1>
+            <p class="cs-tagline">Ton encoche, <em>enfin vivante.</em></p>
+            <p class="lead">OsaNotch transforme l'encoche du MacBook en petite île dynamique. Au survol, elle s'ouvre avec une animation à ressort et regroupe la musique et ses paroles, une étagère de fichiers, les réglages système et toutes les apps OsaLabs. Au centre, une mascotte qui suit ton curseur des yeux.</p>
+            <div class="btn-row"><a class="btn btn-dark" href="https://notch.osalabs.fr" target="_blank" rel="noopener">Télécharger le .dmg <span aria-hidden="true">↗</span></a><a class="btn" href="https://github.com/osayanis/osanotch-native" target="_blank" rel="noopener">Voir le code <span aria-hidden="true">↗</span></a></div>
+          </div>
+          <div class="cs-cap" aria-hidden="true">
+            <button type="button" class="cs-key" tabindex="-1"><span class="cs-key-top"><b>N</b><small>OsaNotch</small></span></button>
+          </div>
+        </div>
+        <dl class="cs-meta">
+          <div><dt>Rôle</dt><dd>Conception, design et développement</dd></div>
+          <div><dt>Période</dt><dd>7 → 9 octobre 2026</dd></div>
+          <div><dt>Statut</dt><dd>Disponible en .dmg, mises à jour automatiques</dd></div>
+          <div class="cs-meta-stack"><dt>Stack</dt><dd><span>Swift</span><span>SwiftUI</span><span>AppKit</span><span>WebKit</span><span>IOKit</span><span>EventKit</span><span>Accessibility API</span></dd></div>
+        </dl>
+      </section>
+
+      <!-- CHIFFRES -->
+      <section class="cs-stats" aria-label="En chiffres">
+        <div class="cs-stat reveal" style="--d:0s"><b>44</b><span>commits en 3 jours</span></div><div class="cs-stat reveal" style="--d:0.07s"><b>4 379</b><span>lignes de Swift</span></div><div class="cs-stat reveal" style="--d:0.14s"><b>23</b><span>fichiers source</span></div><div class="cs-stat reveal" style="--d:0.21000000000000002s"><b>2</b><span>versions : Electron, puis natif</span></div>
+      </section>
+
+      <!-- POINT DE DÉPART -->
+      <section class="cs-section cs-problem">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">01</span>Le point de départ</p></div>
+        <div class="cs-problem-grid">
+          <blockquote class="reveal"><p>« L'encoche, c'est 3 cm de vide en plein milieu de l'écran. Je voulais qu'elle serve à quelque chose. »</p></blockquote>
+          <div class="cs-prose reveal"><p>Sur un MacBook récent, l'encoche de la caméra mange le centre de la barre des menus. Des apps comme NotchNook ont montré qu'on pouvait en faire une zone utile, mais je voulais la mienne : connectée à mes propres outils, et avec un peu de personnalité.</p><p>Le premier prototype, le matin du 7 octobre, était une app Electron : une fenêtre transparente plein écran qui dessinait dans la bande de l'encoche. Ça marchait, mais l'interrogation de macOS par <code>osascript</code> s'accumulait et l'app pesait lourd pour ce qu'elle faisait. Le soir même, j'ai tout réécrit en Swift natif.</p></div>
+        </div>
+      </section>
+
+      <!-- VISUELS -->
+      <section class="cs-section cs-visuals">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">02</span>En images</p><h2>À quoi ça <em>ressemble.</em></h2></div>
+        <div class="vis-grid vis-grid-mixed"><figure class="vis vis-image wide reveal"><div class="frame-image"><img src="/media/osanotch/banner.webp" alt="Bannière d'OsaNotch : la mascotte dans l'encoche" loading="lazy" decoding="async"></div><figcaption>La bannière du projet, avec la mascotte dans son encoche.</figcaption></figure><figure class="vis vis-browser reveal"><div class="frame-browser"><div class="fb-bar"><i></i><i></i><i></i><span>notch.osalabs.fr</span></div><img src="/media/osanotch/site.webp" alt="Page de téléchargement d'OsaNotch" loading="lazy" decoding="async"></div><figcaption>Le site de téléchargement, qui sert aussi les mises à jour automatiques.</figcaption></figure></div>
+      </section>
+
+      <!-- FONCTIONNEMENT -->
+      <section class="cs-section cs-how">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">03</span>Comment ça marche</p><h2>Sous le <em>capot.</em></h2><p class="lead narrow">OsaNotch est une seule app SwiftUI qui va chercher ses données à plein d'endroits de macOS, sans jamais faire de polling lourd.</p></div>
+        <div class="diagram-card reveal"><svg class="diagram" viewBox="0 0 820 380" role="img" aria-label="Schéma d'architecture de OsaNotch">
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="d-arrow"/></marker>
+      <marker id="arr-s" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="d-arrow"/></marker>
+    </defs>
+    <g class="d-edges"><path class="d-edge" style="--i:0" d="M221.4 109.2 L304.6 144.8" marker-end="url(#arr)"/><g class="d-elabel" transform="translate(263.0 127.0)"><rect x="-71.2" y="-11" width="142.4" height="22" rx="11"/><text text-anchor="middle" dy="4">musique, batterie</text></g><path class="d-edge" style="--i:1" d="M221.4 270.8 L304.6 235.2" marker-end="url(#arr)"/><g class="d-elabel" transform="translate(263.0 253.0)"><rect x="-56.800000000000004" y="-11" width="113.60000000000001" height="22" rx="11"/><text text-anchor="middle" dy="4">IA en cours ?</text></g><path class="d-edge" style="--i:2" d="M598.6 109.2 L515.4 144.8" marker-end="url(#arr)"/><g class="d-elabel" transform="translate(557.0 127.0)"><rect x="-35.2" y="-11" width="70.4" height="22" rx="11"/><text text-anchor="middle" dy="4">touches</text></g><path class="d-edge" style="--i:3" d="M515.4 235.2 L598.6 270.8" marker-end="url(#arr)" marker-start="url(#arr-s)"/><g class="d-elabel" transform="translate(557.0 253.0)"><rect x="-64" y="-11" width="128" height="22" rx="11"/><text text-anchor="middle" dy="4">fichiers, écran</text></g><path class="d-edge" style="--i:4" d="M410.0 76.0 L410.0 140.0" marker-end="url(#arr)"/></g><g class="d-node" style="--i:0;--c:#c4b5fd">
+      <rect class="d-shadow" x="310" y="153" width="200" height="84" rx="14"/>
+      <rect class="d-box" x="310" y="148" width="200" height="84" rx="14"/>
+      <text class="d-label" x="410" y="187" text-anchor="middle">OsaNotch</text>
+      <text class="d-sub" x="410" y="206" text-anchor="middle">SwiftUI + AppKit</text>
+    </g><g class="d-node" style="--i:1;--c:#e5e7eb">
+      <rect class="d-shadow" x="25" y="39" width="210" height="72" rx="14"/>
+      <rect class="d-box" x="25" y="34" width="210" height="72" rx="14"/>
+      <text class="d-label" x="130" y="67" text-anchor="middle">macOS</text>
+      <text class="d-sub" x="130" y="86" text-anchor="middle">AppleScript · IOKit · EventKit</text>
+    </g><g class="d-node" style="--i:2;--c:#fde68a">
+      <rect class="d-shadow" x="25" y="279" width="210" height="72" rx="14"/>
+      <rect class="d-box" x="25" y="274" width="210" height="72" rx="14"/>
+      <text class="d-label" x="130" y="307" text-anchor="middle">Accessibilité</text>
+      <text class="d-sub" x="130" y="326" text-anchor="middle">état des apps d'IA</text>
+    </g><g class="d-node" style="--i:3;--c:#a7e8bd">
+      <rect class="d-shadow" x="585" y="39" width="210" height="72" rx="14"/>
+      <rect class="d-box" x="585" y="34" width="210" height="72" rx="14"/>
+      <text class="d-label" x="690" y="67" text-anchor="middle">CGEventTap</text>
+      <text class="d-sub" x="690" y="86" text-anchor="middle">volume &amp; luminosité</text>
+    </g><g class="d-node" style="--i:4;--c:#93c5fd">
+      <rect class="d-shadow" x="585" y="279" width="210" height="72" rx="14"/>
+      <rect class="d-box" x="585" y="274" width="210" height="72" rx="14"/>
+      <text class="d-label" x="690" y="307" text-anchor="middle">WKWebView pont</text>
+      <text class="d-sub" x="690" y="326" text-anchor="middle">WebRTC OsaLabs</text>
+    </g><g class="d-node" style="--i:5;--c:#f3a6cf">
+      <rect class="d-shadow" x="315" y="17" width="190" height="56" rx="14"/>
+      <rect class="d-box" x="315" y="12" width="190" height="56" rx="14"/>
+      <text class="d-label" x="410" y="37" text-anchor="middle">iTunes · LRCLIB</text>
+      <text class="d-sub" x="410" y="56" text-anchor="middle">pochettes &amp; paroles</text>
+    </g>
+  </svg></div>
+        <ol class="cs-steps">
+          <li class="reveal" style="--d:0s"><span class="step-key" aria-hidden="true">1</span><div><h3>Une fenêtre au-dessus de la barre des menus</h3><p>Un <code>NSPanel</code> sans bordure, placé juste au-dessus du niveau de la barre des menus. Hors de l'île, les clics passent au travers.</p></div></li><li class="reveal" style="--d:0.06s"><span class="step-key" aria-hidden="true">2</span><div><h3>Un survol qui réveille tout</h3><p>Un moniteur global d'événements détecte la souris près de l'encoche. L'île s'ouvre avec un ressort SwiftUI, et la mascotte, dessinée dans un <code>Canvas</code>, se réveille.</p></div></li><li class="reveal" style="--d:0.12s"><span class="step-key" aria-hidden="true">3</span><div><h3>Les vraies données du Mac</h3><p>Musique via AppleScript, pochettes via l'API iTunes, paroles via LRCLIB, batterie via IOKit, agenda via EventKit, luminosité via DisplayServices.</p></div></li><li class="reveal" style="--d:0.18s"><span class="step-key" aria-hidden="true">4</span><div><h3>Un HUD qui remplace celui de macOS</h3><p>Un <code>CGEventTap</code> intercepte les touches volume et luminosité : les gros carrés gris disparaissent, une barre fine glisse sous l'encoche.</p></div></li><li class="reveal" style="--d:0.24s"><span class="step-key" aria-hidden="true">5</span><div><h3>Les apps OsaLabs embarquées</h3><p>Une <code>WKWebView</code> invisible charge les pages « pont » d'OsaDrop, OsaCast et OsaParty. Le notch utilise donc exactement le même moteur WebRTC que les sites.</p></div></li>
+        </ol>
+      </section>
+
+      <!-- DÉMO -->
+      <section class="cs-section cs-demo">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">✦</span>À toi de jouer</p><h2>Survole l'encoche</h2><p class="lead narrow">Une reproduction simplifiée de l'île. Survole-la, change d'onglet, glisse un fichier dessus ou touche au volume.</p></div>
+        <div class="demo reveal" data-demo="notch"><noscript>Cette démo a besoin de JavaScript.</noscript></div>
+      </section>
+
+      <!-- DÉFIS -->
+      <section class="cs-section cs-challenges">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">!</span>Les défis</p><h2>Ce qui a <em>résisté.</em></h2></div>
+        <div class="challenge-grid">
+          <article class="challenge reveal" style="--d:0s">
+            <h3>Dessiner au-dessus de la barre des menus</h3>
+            <p class="ch-problem"><span class="ch-tag bad">Problème</span>Une fenêtre classique passe sous la barre des menus, et une fenêtre trop haute vole le focus des autres apps.</p>
+            <p class="ch-solution"><span class="ch-tag good">Solution</span>J'ai testé plusieurs niveaux de fenêtre (pleine largeur, économiseur d'écran…) avant de retenir <code>mainMenuWindow + 3</code>, avec <code>acceptsFirstMouse</code> pour que le premier clic réagisse.</p>
+          </article><article class="challenge reveal" style="--d:0.06s">
+            <h3>Ne jamais bloquer le Mac</h3>
+            <p class="ch-problem"><span class="ch-tag bad">Problème</span>Une fenêtre posée au-dessus de tout qui garde le focus peut rendre l'ordinateur inutilisable.</p>
+            <p class="ch-solution"><span class="ch-tag good">Solution</span>Un correctif prioritaire : Échap referme toujours l'île, plus aucun vol de focus en boucle, et les clics traversent tout ce qui n'est pas l'île.</p>
+          </article><article class="challenge reveal" style="--d:0.12s">
+            <h3>Savoir quand une IA a fini, sans API</h3>
+            <p class="ch-problem"><span class="ch-tag bad">Problème</span>Lire la barre d'état des outils donnait des faux positifs, et le scan figeait l'interface.</p>
+            <p class="ch-solution"><span class="ch-tag good">Solution</span>Détection par signaux propres à une génération en cours, confirmée par 3 relevés de suite (6 s), et scan déplacé sur un thread d'arrière-plan.</p>
+          </article><article class="challenge reveal" style="--d:0.18s">
+            <h3>Réutiliser plutôt que réécrire</h3>
+            <p class="ch-problem"><span class="ch-tag bad">Problème</span>Ma première version native d'OsaCast utilisait une autre bibliothèque WebRTC et ne parlait pas au site.</p>
+            <p class="ch-solution"><span class="ch-tag good">Solution</span>Une page « pont » chargée dans une WebView : un seul moteur pour le web et le Mac, donc tout est interopérable.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- JOURNAL -->
+      <section class="cs-section cs-journal">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">⏱</span>Journal de bord</p><h2>Comment c'est <em>arrivé.</em></h2></div>
+        <ol class="journal">
+          <li class="reveal"><time>7 oct · 10h09</time><span class="j-dot" aria-hidden="true"></span><div><h3>Prototype Electron</h3><p>Overlay transparent avec de vraies données : musique, pochette, batteries, agenda.</p></div></li><li class="reveal"><time>7 oct · 11h10</time><span class="j-dot" aria-hidden="true"></span><div><h3>La mascotte prend vie</h3><p>Yeux qui suivent le curseur, respiration, clignements, émotions.</p></div></li><li class="reveal"><time>7 oct · 18h34</time><span class="j-dot" aria-hidden="true"></span><div><h3>Réécriture en Swift natif</h3><p>NSPanel dans l'encoche, mascotte dessinée en Canvas SwiftUI.</p></div></li><li class="reveal"><time>8 oct · 08h32</time><span class="j-dot" aria-hidden="true"></span><div><h3>Correctif anti-blocage</h3><p>Échap referme toujours, plus de vol de focus.</p></div></li><li class="reveal"><time>8 oct · 09h05</time><span class="j-dot" aria-hidden="true"></span><div><h3>Moteur OsaDrop unifié</h3><p>Pont WebRTC natif via une WebView qui réutilise le site.</p></div></li><li class="reveal"><time>8 oct · 15h43</time><span class="j-dot" aria-hidden="true"></span><div><h3>HUD volume &amp; luminosité</h3><p>Une barre blanche sous l'encoche, l'affichage natif supprimé.</p></div></li><li class="reveal"><time>8 oct · 16h33</time><span class="j-dot" aria-hidden="true"></span><div><h3>Paroles animées</h3><p>Lecteur compact avec défilement des paroles façon Apple Music.</p></div></li><li class="reveal"><time>8 oct · 21h58</time><span class="j-dot" aria-hidden="true"></span><div><h3>Mises à jour automatiques</h3><p>L'app lit un manifeste sur mon serveur et se met à jour en un clic.</p></div></li><li class="reveal"><time>9 oct · 08h53</time><span class="j-dot" aria-hidden="true"></span><div><h3>Étagère &amp; installateur</h3><p>Presse-papier de fichiers, mode cinéma OsaCast, icône et DMG.</p></div></li><li class="reveal"><time>9 oct · 14h09</time><span class="j-dot" aria-hidden="true"></span><div><h3>Pont OsaParty</h3><p>Le notch envoie la position de lecture au salon web pour synchroniser les paroles.</p></div></li>
+        </ol>
+      </section>
+
+      <!-- ET ENSUITE -->
+      <section class="cs-section cs-next">
+        <div class="cs-next-card reveal">
+          <div>
+            <p class="eyebrow"><span class="num">→</span>Et ensuite</p>
+            <h2>La suite <em>du projet.</em></h2>
+            
+          </div>
+          <ul><li>Notariser l'app auprès d'Apple pour supprimer le « clic droit → Ouvrir » au premier lancement.</li><li>Rendre les modules activables un par un dans les réglages.</li><li>Ouvrir une petite API locale pour que d'autres outils puissent afficher leurs notifications dans l'île.</li></ul>
+        </div>
+      </section>
+
+      <!-- NAVIGATION -->
+      <nav class="cs-pager" aria-label="Autres projets">
+        <a class="pager-key prev" href="/projets/proxmox/" style="--c:#fde68a" data-key="ArrowLeft">
+          <span class="pager-top"><small>← Projet précédent</small><b>Proxmox Automatisation</b></span>
+        </a>
+        <a class="pager-key next" href="/projets/osaparty/" style="--c:#f3a6cf" data-key="ArrowRight">
+          <span class="pager-top"><small>Projet suivant →</small><b>OsaParty</b></span>
+        </a>
+      </nav>
+      <p class="pager-hint">Astuce : les flèches <kbd>←</kbd> <kbd>→</kbd> de ton clavier passent d'un projet à l'autre.</p>
+    </main>
+
+    <footer class="footer">
+      <p>Fait main par Yanis. <a href="/">Retour à l'accueil</a></p>
+      <p class="muted">OsaNotch · étude de cas</p>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+    <dialog class="zoom" id="zoom"><img alt="" /><button type="button" aria-label="Fermer">✕</button></dialog>
+
+    <script type="module" src="/src/project.js"></script>
+  </body>
+</html>

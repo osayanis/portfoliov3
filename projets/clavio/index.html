@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clavio · Étude de cas · Yanis</title>
+    <meta name="description" content="Clavio apprend le piano façon Duolingo, avec un Casio CT-S100 ou n'importe quel clavier MIDI branché en USB. Un parcours de 28 leçons, des séries de jours," />
+    <meta name="theme-color" content="#eefaf1" />
+    <link rel="canonical" href="https://yanis.pro/projets/clavio/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Clavio · Apprendre le piano, une note à la fois." />
+    <meta property="og:description" content="Clavio apprend le piano façon Duolingo, avec un Casio CT-S100 ou n'importe quel clavier MIDI branché en USB. Un parcours de 28 leçons, des séries de jours," />
+    <meta property="og:url" content="https://yanis.pro/projets/clavio/" />
+    <meta property="og:image" content="https://yanis.pro/media/clavio/morceau-pas-a-pas.webp" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  </head>
+  <body class="cs-page" style="--p:#a7e8bd;--p-deep:#22a35a;--p-soft:#eefaf1">
+    <a class="skip" href="#main">Aller au contenu</a>
+
+    <header class="nav">
+      <a class="logo" href="/" aria-label="Retour à l'accueil">yanis<span>.</span></a>
+      <nav class="nav-links" aria-label="Navigation principale">
+        <a href="/#notch">Projets</a>
+        <a href="/#labo">Labo</a>
+        <a href="/#apropos">À propos</a>
+        <a href="/#github">GitHub</a>
+        <button class="sound-toggle" type="button" aria-pressed="true" title="Activer / couper le son">
+          <span class="sound-on">Son</span><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+        </button>
+        <a class="nav-cta" href="/#contact">On se parle ?</a>
+      </nav>
+    </header>
+
+    <main id="main" class="cs">
+      <!-- HERO -->
+      <section class="cs-hero">
+        <a class="cs-back" href="/#notch"><span aria-hidden="true">←</span> Tous les projets</a>
+        <div class="cs-hero-grid">
+          <div class="cs-hero-copy">
+            <p class="eyebrow"><span class="dot" style="--c:#a7e8bd"></span>App web · Web MIDI · zéro dépendance</p>
+            <h1 class="cs-title"><span>Clavio</span></h1>
+            <p class="cs-tagline">Apprendre le piano, <em>une note à la fois.</em></p>
+            <p class="lead">Clavio apprend le piano façon Duolingo, avec un Casio CT-S100 ou n'importe quel clavier MIDI branché en USB. Un parcours de 28 leçons, des séries de jours, et surtout : on importe n'importe quel fichier MIDI et l'app nous l'apprend note par note.</p>
+            <div class="btn-row"><a class="btn btn-dark" href="https://github.com/osayanis/clavio" target="_blank" rel="noopener">Voir le code <span aria-hidden="true">↗</span></a></div>
+          </div>
+          <div class="cs-cap" aria-hidden="true">
+            <button type="button" class="cs-key" tabindex="-1"><span class="cs-key-top"><b>K</b><small>Clavio</small></span></button>
+          </div>
+        </div>
+        <dl class="cs-meta">
+          <div><dt>Rôle</dt><dd>Conception et développement</dd></div>
+          <div><dt>Période</dt><dd>Octobre 2026</dd></div>
+          <div><dt>Statut</dt><dd>Open source</dd></div>
+          <div class="cs-meta-stack"><dt>Stack</dt><dd><span>JavaScript</span><span>Web MIDI API</span><span>Web Audio</span><span>HTML</span><span>CSS</span></dd></div>
+        </dl>
+      </section>
+
+      <!-- CHIFFRES -->
+      <section class="cs-stats" aria-label="En chiffres">
+        <div class="cs-stat reveal" style="--d:0s"><b>28</b><span>leçons en 8 unités</span></div><div class="cs-stat reveal" style="--d:0.07s"><b>3 988</b><span>lignes, sans aucune dépendance</span></div><div class="cs-stat reveal" style="--d:0.14s"><b>16</b><span>badges à débloquer</span></div><div class="cs-stat reveal" style="--d:0.21000000000000002s"><b>61</b><span>touches gérées</span></div>
+      </section>
+
+      <!-- POINT DE DÉPART -->
+      <section class="cs-section cs-problem">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">01</span>Le point de départ</p></div>
+        <div class="cs-problem-grid">
+          <blockquote class="reveal"><p>« J'avais un clavier Casio et aucune idée de par où commencer. »</p></blockquote>
+          <div class="cs-prose reveal"><p>Les applis pour apprendre le piano sont souvent payantes, en anglais, ou ne savent pas lire ce qu'on joue vraiment. Or un petit clavier comme le CT-S100 a un port USB qui parle MIDI : le navigateur peut savoir exactement quelle touche est enfoncée.</p><p>Clavio part de là : un vrai parcours pour débutant, la motivation d'un jeu (cœurs, XP, séries, badges), et un lecteur MIDI maison pour apprendre ensuite les morceaux de son choix.</p></div>
+        </div>
+      </section>
+
+      <!-- VISUELS -->
+      <section class="cs-section cs-visuals">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">02</span>En images</p><h2>À quoi ça <em>ressemble.</em></h2></div>
+        <div class="vis-grid vis-grid-shots"><figure class="vis vis-shot reveal"><button type="button" class="frame-shot" data-zoom="/media/clavio/morceau-pas-a-pas.webp" aria-label="Agrandir : Mode pas à pas : les notes tombent vers le clavier"><img src="/media/clavio/morceau-pas-a-pas.webp" alt="Mode pas à pas : les notes tombent vers le clavier" loading="lazy" decoding="async"></button><figcaption>Mode pas à pas : la musique attend la bonne note.</figcaption></figure><figure class="vis vis-shot reveal"><button type="button" class="frame-shot" data-zoom="/media/clavio/parcours.webp" aria-label="Agrandir : Parcours d'apprentissage"><img src="/media/clavio/parcours.webp" alt="Parcours d'apprentissage" loading="lazy" decoding="async"></button><figcaption>Le parcours : 8 unités, 28 leçons.</figcaption></figure><figure class="vis vis-shot reveal"><button type="button" class="frame-shot" data-zoom="/media/clavio/lecon-portee.webp" aria-label="Agrandir : Leçon de lecture de portée"><img src="/media/clavio/lecon-portee.webp" alt="Leçon de lecture de portée" loading="lazy" decoding="async"></button><figcaption>Lire la portée, en clé de Sol puis de Fa.</figcaption></figure><figure class="vis vis-shot reveal"><button type="button" class="frame-shot" data-zoom="/media/clavio/rythme.webp" aria-label="Agrandir : Exercice de rythme"><img src="/media/clavio/rythme.webp" alt="Exercice de rythme" loading="lazy" decoding="async"></button><figcaption>Des exercices de rythme.</figcaption></figure><figure class="vis vis-shot reveal"><button type="button" class="frame-shot" data-zoom="/media/clavio/lecon-erreur.webp" aria-label="Agrandir : Retour d'erreur pendant une leçon"><img src="/media/clavio/lecon-erreur.webp" alt="Retour d'erreur pendant une leçon" loading="lazy" decoding="async"></button><figcaption>Une erreur ? L'exercice revient à la fin.</figcaption></figure><figure class="vis vis-shot reveal"><button type="button" class="frame-shot" data-zoom="/media/clavio/reglages-morceau.webp" aria-label="Agrandir : Réglages d'un morceau importé"><img src="/media/clavio/reglages-morceau.webp" alt="Réglages d'un morceau importé" loading="lazy" decoding="async"></button><figcaption>Pour chaque piste : je joue, l'app joue, ou muet.</figcaption></figure></div>
+      </section>
+
+      <!-- FONCTIONNEMENT -->
+      <section class="cs-section cs-how">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">03</span>Comment ça marche</p><h2>Sous le <em>capot.</em></h2><p class="lead narrow">Tout tourne dans le navigateur, en JavaScript pur, découpé en petits modules.</p></div>
+        <div class="diagram-card reveal"><svg class="diagram" viewBox="0 0 820 330" role="img" aria-label="Schéma d'architecture de Clavio">
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="d-arrow"/></marker>
+      <marker id="arr-s" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="d-arrow"/></marker>
+    </defs>
+    <g class="d-edges"><path class="d-edge" style="--i:0" d="M213.0 165.0 L247.0 165.0" marker-end="url(#arr)"/><g class="d-elabel" transform="translate(230.0 165.0)"><rect x="-28" y="-11" width="56" height="22" rx="11"/><text text-anchor="middle" dy="4">notes</text></g><path class="d-edge" style="--i:1" d="M413.0 165.0 L452.0 165.0" marker-end="url(#arr)"/><path class="d-edge" style="--i:2" d="M540.0 88.0 L540.0 124.0" marker-end="url(#arr)"/><g class="d-elabel" transform="translate(540.0 106.0)"><rect x="-38.8" y="-11" width="77.6" height="22" rx="11"/><text text-anchor="middle" dy="4">morceaux</text></g><path class="d-edge" style="--i:3" d="M540.0 242.0 L540.0 206.0" marker-end="url(#arr)"/><path class="d-edge" style="--i:4" d="M628.0 165.0 L652.0 165.0" marker-end="url(#arr)"/></g><g class="d-node" style="--i:0;--c:#fde68a">
+      <rect class="d-shadow" x="35" y="132" width="170" height="76" rx="14"/>
+      <rect class="d-box" x="35" y="127" width="170" height="76" rx="14"/>
+      <text class="d-label" x="120" y="162" text-anchor="middle">Casio CT-S100</text>
+      <text class="d-sub" x="120" y="181" text-anchor="middle">USB · MIDI</text>
+    </g><g class="d-node" style="--i:1;--c:#a7e8bd">
+      <rect class="d-shadow" x="255" y="137" width="150" height="66" rx="14"/>
+      <rect class="d-box" x="255" y="132" width="150" height="66" rx="14"/>
+      <text class="d-label" x="330" y="162" text-anchor="middle">input.js</text>
+      <text class="d-sub" x="330" y="181" text-anchor="middle">Web MIDI</text>
+    </g><g class="d-node" style="--i:2;--c:#a7e8bd">
+      <rect class="d-shadow" x="460" y="137" width="160" height="66" rx="14"/>
+      <rect class="d-box" x="460" y="132" width="160" height="66" rx="14"/>
+      <text class="d-label" x="540" y="162" text-anchor="middle">practice.js</text>
+      <text class="d-sub" x="540" y="181" text-anchor="middle">modes de jeu</text>
+    </g><g class="d-node" style="--i:3;--c:#93c5fd">
+      <rect class="d-shadow" x="455" y="25" width="170" height="60" rx="14"/>
+      <rect class="d-box" x="455" y="20" width="170" height="60" rx="14"/>
+      <text class="d-label" x="540" y="47" text-anchor="middle">midifile.js</text>
+      <text class="d-sub" x="540" y="66" text-anchor="middle">parseur maison</text>
+    </g><g class="d-node" style="--i:4;--c:#f3a6cf">
+      <rect class="d-shadow" x="455" y="255" width="170" height="60" rx="14"/>
+      <rect class="d-box" x="455" y="250" width="170" height="60" rx="14"/>
+      <text class="d-label" x="540" y="277" text-anchor="middle">course.js</text>
+      <text class="d-sub" x="540" y="296" text-anchor="middle">28 leçons</text>
+    </g><g class="d-node" style="--i:5;--c:#e5e7eb">
+      <rect class="d-shadow" x="660" y="137" width="140" height="66" rx="14"/>
+      <rect class="d-box" x="660" y="132" width="140" height="66" rx="14"/>
+      <text class="d-label" x="730" y="162" text-anchor="middle">store.js</text>
+      <text class="d-sub" x="730" y="181" text-anchor="middle">XP, séries</text>
+    </g>
+  </svg></div>
+        <ol class="cs-steps">
+          <li class="reveal" style="--d:0s"><span class="step-key" aria-hidden="true">1</span><div><h3>Le clavier parle MIDI</h3><p>L'API Web MIDI reçoit chaque touche enfoncée sur le piano, avec sa vélocité. Sans clavier, on joue à la souris, au doigt ou avec le clavier de l'ordi.</p></div></li><li class="reveal" style="--d:0.06s"><span class="step-key" aria-hidden="true">2</span><div><h3>Un lecteur MIDI maison</h3><p>Le parseur lit les fichiers <code>.mid</code>, convertit les ticks en secondes grâce à la carte des tempos, sépare les canaux et devine la main (grave à gauche, aigu à droite).</p></div></li><li class="reveal" style="--d:0.12s"><span class="step-key" aria-hidden="true">3</span><div><h3>Trois façons de jouer</h3><p>Pas à pas (la musique attend), en rythme (on est noté « Parfait » ou « Bien »), ou en écoute. Vitesse réglable de 20 % à 150 %.</p></div></li><li class="reveal" style="--d:0.18s"><span class="step-key" aria-hidden="true">4</span><div><h3>La motivation</h3><p>5 cœurs par leçon, XP, niveaux, objectif quotidien, série de jours et 16 badges, sauvegardés dans le navigateur.</p></div></li>
+        </ol>
+      </section>
+
+      <!-- DÉMO -->
+      <section class="cs-section cs-demo">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">✦</span>À toi de jouer</p><h2>Le mode pas à pas</h2><p class="lead narrow">Les notes tombent, et la musique t'attend. Joue à la souris ou avec les touches Q, S, D, F, G, H, J, K.</p></div>
+        <div class="demo reveal" data-demo="falling"><noscript>Cette démo a besoin de JavaScript.</noscript></div>
+      </section>
+
+      <!-- DÉFIS -->
+      <section class="cs-section cs-challenges">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">!</span>Les défis</p><h2>Ce qui a <em>résisté.</em></h2></div>
+        <div class="challenge-grid">
+          <article class="challenge reveal" style="--d:0s">
+            <h3>Lire un fichier MIDI à la main</h3>
+            <p class="ch-problem"><span class="ch-tag bad">Problème</span>Les fichiers MIDI comptent le temps en « ticks », avec des changements de tempo en cours de route, et parfois un en-tête RIFF en plus.</p>
+            <p class="ch-solution"><span class="ch-tag good">Solution</span>Un parseur maison : carte des tempos pour convertir en secondes, gestion des notes jamais relâchées, et séparation des canaux mélangés sur une même piste.</p>
+          </article><article class="challenge reveal" style="--d:0.06s">
+            <h3>Un morceau trop grand pour le clavier</h3>
+            <p class="ch-problem"><span class="ch-tag bad">Problème</span>Un MIDI peut utiliser 88 touches, le CT-S100 n'en a que 61.</p>
+            <p class="ch-solution"><span class="ch-tag good">Solution</span>Les notes hors tessiture sont ramenées dans les octaves disponibles, et le morceau est découpé en parties de 4 mesures notées sur 3 étoiles.</p>
+          </article><article class="challenge reveal" style="--d:0.12s">
+            <h3>Deux sons qui se marchent dessus</h3>
+            <p class="ch-problem"><span class="ch-tag bad">Problème</span>Le piano joue déjà son propre son, et l'app aussi.</p>
+            <p class="ch-solution"><span class="ch-tag good">Solution</span>Par défaut, l'app coupe son propre son pour les notes jouées sur le clavier. Un réglage permet de le rétablir.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- JOURNAL -->
+      <section class="cs-section cs-journal">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">⏱</span>Journal de bord</p><h2>Comment c'est <em>arrivé.</em></h2></div>
+        <ol class="journal">
+          <li class="reveal"><time>Unité 1 à 8</time><span class="j-dot" aria-hidden="true"></span><div><h3>Un programme complet</h3><p>De « trouver le Do » jusqu'aux deux mains, avec un morceau bonus par unité.</p></div></li><li class="reveal"><time>Import MIDI</time><span class="j-dot" aria-hidden="true"></span><div><h3>N'importe quel morceau</h3><p>Glisser-déposer un .mid, choisir les pistes, apprendre partie par partie.</p></div></li><li class="reveal"><time>Jeu libre</time><span class="j-dot" aria-hidden="true"></span><div><h3>Reconnaissance des accords</h3><p>Les 61 touches, les accords nommés en direct, un métronome et un enregistreur.</p></div></li><li class="reveal"><time>7 oct</time><span class="j-dot" aria-hidden="true"></span><div><h3>Publication</h3><p>Mise en ligne sur GitHub avec un README illustré.</p></div></li>
+        </ol>
+      </section>
+
+      <!-- ET ENSUITE -->
+      <section class="cs-section cs-next">
+        <div class="cs-next-card reveal">
+          <div>
+            <p class="eyebrow"><span class="num">→</span>Et ensuite</p>
+            <h2>La suite <em>du projet.</em></h2>
+            
+          </div>
+          <ul><li>Une version en ligne, sans rien télécharger.</li><li>Un mode « deux mains séparées » pour travailler chaque main à part.</li></ul>
+        </div>
+      </section>
+
+      <!-- NAVIGATION -->
+      <nav class="cs-pager" aria-label="Autres projets">
+        <a class="pager-key prev" href="/projets/osaboard/" style="--c:#5eead4" data-key="ArrowLeft">
+          <span class="pager-top"><small>← Projet précédent</small><b>OsaBoard</b></span>
+        </a>
+        <a class="pager-key next" href="/projets/openpod/" style="--c:#fcc48b" data-key="ArrowRight">
+          <span class="pager-top"><small>Projet suivant →</small><b>OpenPod OS</b></span>
+        </a>
+      </nav>
+      <p class="pager-hint">Astuce : les flèches <kbd>←</kbd> <kbd>→</kbd> de ton clavier passent d'un projet à l'autre.</p>
+    </main>
+
+    <footer class="footer">
+      <p>Fait main par Yanis. <a href="/">Retour à l'accueil</a></p>
+      <p class="muted">Clavio · étude de cas</p>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+    <dialog class="zoom" id="zoom"><img alt="" /><button type="button" aria-label="Fermer">✕</button></dialog>
+
+    <script type="module" src="/src/project.js"></script>
+  </body>
+</html>

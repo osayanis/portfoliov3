@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OsaBoard · Étude de cas · Yanis</title>
+    <meta name="description" content="OsaBoard est un espace de travail collaboratif en temps réel. On pose des blocs sur un canvas infini (texte, code, Kanban, sondage, carte, base de données…" />
+    <meta name="theme-color" content="#e8fbf7" />
+    <link rel="canonical" href="https://yanis.pro/projets/osaboard/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="OsaBoard · Un tableau infini, à plusieurs." />
+    <meta property="og:description" content="OsaBoard est un espace de travail collaboratif en temps réel. On pose des blocs sur un canvas infini (texte, code, Kanban, sondage, carte, base de données…" />
+    <meta property="og:url" content="https://yanis.pro/projets/osaboard/" />
+    <meta property="og:image" content="https://yanis.pro/media/osaboard/toolbar.webp" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  </head>
+  <body class="cs-page" style="--p:#5eead4;--p-deep:#0d9488;--p-soft:#e8fbf7">
+    <a class="skip" href="#main">Aller au contenu</a>
+
+    <header class="nav">
+      <a class="logo" href="/" aria-label="Retour à l'accueil">yanis<span>.</span></a>
+      <nav class="nav-links" aria-label="Navigation principale">
+        <a href="/#notch">Projets</a>
+        <a href="/#labo">Labo</a>
+        <a href="/#apropos">À propos</a>
+        <a href="/#github">GitHub</a>
+        <button class="sound-toggle" type="button" aria-pressed="true" title="Activer / couper le son">
+          <span class="sound-on">Son</span><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+        </button>
+        <a class="nav-cta" href="/#contact">On se parle ?</a>
+      </nav>
+    </header>
+
+    <main id="main" class="cs">
+      <!-- HERO -->
+      <section class="cs-hero">
+        <a class="cs-back" href="/#notch"><span aria-hidden="true">←</span> Tous les projets</a>
+        <div class="cs-hero-grid">
+          <div class="cs-hero-copy">
+            <p class="eyebrow"><span class="dot" style="--c:#5eead4"></span>Canvas collaboratif · React Flow + WebRTC</p>
+            <h1 class="cs-title"><span>OsaBoard</span></h1>
+            <p class="cs-tagline">Un tableau infini, <em>à plusieurs.</em></p>
+            <p class="lead">OsaBoard est un espace de travail collaboratif en temps réel. On pose des blocs sur un canvas infini (texte, code, Kanban, sondage, carte, base de données…), on les relie entre eux, et chacun voit les curseurs des autres bouger en direct.</p>
+            <div class="btn-row"><a class="btn btn-dark" href="https://osaboard.osalabs.fr" target="_blank" rel="noopener">Ouvrir OsaBoard <span aria-hidden="true">↗</span></a></div>
+          </div>
+          <div class="cs-cap" aria-hidden="true">
+            <button type="button" class="cs-key" tabindex="-1"><span class="cs-key-top"><b>B</b><small>OsaBoard</small></span></button>
+          </div>
+        </div>
+        <dl class="cs-meta">
+          <div><dt>Rôle</dt><dd>Conception et développement</dd></div>
+          <div><dt>Période</dt><dd>5 → 7 octobre 2026</dd></div>
+          <div><dt>Statut</dt><dd>En ligne</dd></div>
+          <div class="cs-meta-stack"><dt>Stack</dt><dd><span>React Flow</span><span>WebRTC</span><span>Next.js</span><span>Socket.io</span><span>sql.js</span></dd></div>
+        </dl>
+      </section>
+
+      <!-- CHIFFRES -->
+      <section class="cs-stats" aria-label="En chiffres">
+        <div class="cs-stat reveal" style="--d:0s"><b>18</b><span>types de blocs</span></div><div class="cs-stat reveal" style="--d:0.07s"><b>31</b><span>commits en une nuit</span></div><div class="cs-stat reveal" style="--d:0.14s"><b>2 178</b><span>lignes de code</span></div><div class="cs-stat reveal" style="--d:0.21000000000000002s"><b>16 Ko</b><span>par message découpé</span></div>
+      </section>
+
+      <!-- POINT DE DÉPART -->
+      <section class="cs-section cs-problem">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">01</span>Le point de départ</p></div>
+        <div class="cs-problem-grid">
+          <blockquote class="reveal"><p>« Au départ, c'était un tableau blanc. Au bout de quelques heures, c'était devenu un outil de travail. »</p></blockquote>
+          <div class="cs-prose reveal"><p>La première version d'OsaBoard était un simple tableau blanc partagé en WebRTC. Deux heures plus tard, je l'ai réécrite autour de React Flow : au lieu de traits, on manipule des blocs qu'on peut relier.</p><p>Le reste de la nuit a servi à ajouter des blocs utiles : du code, du Markdown, une checklist, un Kanban, un sondage, un minuteur, une carte, un agenda, la météo, et même une petite base SQL qui tourne dans le navigateur.</p></div>
+        </div>
+      </section>
+
+      <!-- VISUELS -->
+      <section class="cs-section cs-visuals">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">02</span>En images</p><h2>À quoi ça <em>ressemble.</em></h2></div>
+        <div class="vis-grid vis-grid-mixed"><figure class="vis vis-image wide reveal"><div class="frame-image dark"><img src="/media/osaboard/toolbar.webp" alt="Barre d'outils d'OsaBoard avec les types de blocs" loading="lazy" decoding="async"></div><figcaption>La barre d'outils : chaque icône ajoute un type de bloc.</figcaption></figure><figure class="vis vis-browser reveal"><div class="frame-browser"><div class="fb-bar"><i></i><i></i><i></i><span>osaboard.osalabs.fr</span></div><img src="/media/osaboard/landing.webp" alt="Accueil d'OsaBoard" loading="lazy" decoding="async"></div><figcaption>Créer une room, en importer une, ou rejoindre par code.</figcaption></figure></div>
+      </section>
+
+      <!-- FONCTIONNEMENT -->
+      <section class="cs-section cs-how">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">03</span>Comment ça marche</p><h2>Sous le <em>capot.</em></h2><p class="lead narrow">Chaque participant garde une copie du tableau. Les changements voyagent directement entre les navigateurs.</p></div>
+        <div class="diagram-card reveal"><svg class="diagram" viewBox="0 0 820 360" role="img" aria-label="Schéma d'architecture de OsaBoard">
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="d-arrow"/></marker>
+      <marker id="arr-s" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="d-arrow"/></marker>
+    </defs>
+    <g class="d-edges"><path class="d-edge" style="--i:0" d="M263.0 90.0 L557.0 90.0" marker-end="url(#arr)" marker-start="url(#arr-s)"/><path class="d-edge" style="--i:1" d="M263.0 290.0 L557.0 290.0" marker-end="url(#arr)" marker-start="url(#arr-s)"/><path class="d-edge" style="--i:2" d="M170.0 133.0 L170.0 247.0" marker-end="url(#arr)" marker-start="url(#arr-s)"/><path class="d-edge" style="--i:3" d="M650.0 133.0 L650.0 247.0" marker-end="url(#arr)" marker-start="url(#arr-s)"/><path class="d-edge dashed" style="--i:4" d="M261.4 128.1 L325.8 154.9" marker-end="url(#arr)"/><path class="d-edge dashed" style="--i:5" d="M558.6 251.9 L494.2 225.1" marker-end="url(#arr)"/></g><g class="d-node" style="--i:0;--c:#5eead4">
+      <rect class="d-shadow" x="85" y="60" width="170" height="70" rx="14"/>
+      <rect class="d-box" x="85" y="55" width="170" height="70" rx="14"/>
+      <text class="d-label" x="170" y="87" text-anchor="middle">Alice</text>
+      <text class="d-sub" x="170" y="106" text-anchor="middle">navigateur</text>
+    </g><g class="d-node" style="--i:1;--c:#5eead4">
+      <rect class="d-shadow" x="565" y="60" width="170" height="70" rx="14"/>
+      <rect class="d-box" x="565" y="55" width="170" height="70" rx="14"/>
+      <text class="d-label" x="650" y="87" text-anchor="middle">Bob</text>
+      <text class="d-sub" x="650" y="106" text-anchor="middle">navigateur</text>
+    </g><g class="d-node" style="--i:2;--c:#5eead4">
+      <rect class="d-shadow" x="85" y="260" width="170" height="70" rx="14"/>
+      <rect class="d-box" x="85" y="255" width="170" height="70" rx="14"/>
+      <text class="d-label" x="170" y="287" text-anchor="middle">Chloé</text>
+      <text class="d-sub" x="170" y="306" text-anchor="middle">mobile</text>
+    </g><g class="d-node" style="--i:3;--c:#5eead4">
+      <rect class="d-shadow" x="565" y="260" width="170" height="70" rx="14"/>
+      <rect class="d-box" x="565" y="255" width="170" height="70" rx="14"/>
+      <text class="d-label" x="650" y="287" text-anchor="middle">Dan</text>
+      <text class="d-sub" x="650" y="306" text-anchor="middle">navigateur</text>
+    </g><g class="d-node" style="--i:4;--c:#e5e7eb">
+      <rect class="d-shadow" x="325" y="163" width="170" height="64" rx="14"/>
+      <rect class="d-box" x="325" y="158" width="170" height="64" rx="14"/>
+      <text class="d-label" x="410" y="187" text-anchor="middle">Serveur</text>
+      <text class="d-sub" x="410" y="206" text-anchor="middle">présentation</text>
+    </g>
+  </svg></div>
+        <ol class="cs-steps">
+          <li class="reveal" style="--d:0s"><span class="step-key" aria-hidden="true">1</span><div><h3>Une room et un code</h3><p>Le serveur Socket.io ne sert qu'à présenter les participants.</p></div></li><li class="reveal" style="--d:0.06s"><span class="step-key" aria-hidden="true">2</span><div><h3>Un maillage WebRTC</h3><p>Chaque participant ouvre un DataChannel avec chacun des autres : un vrai réseau à N personnes, sans serveur central.</p></div></li><li class="reveal" style="--d:0.12s"><span class="step-key" aria-hidden="true">3</span><div><h3>Des messages découpés</h3><p>Les gros contenus (images compressées, tableaux) sont découpés en morceaux de 16 Ko et réassemblés à l'arrivée.</p></div></li><li class="reveal" style="--d:0.18s"><span class="step-key" aria-hidden="true">4</span><div><h3>Des blocs React Flow</h3><p>18 types de nœuds personnalisés, reliés par des liens animés. Les curseurs de chacun s'affichent en direct.</p></div></li><li class="reveal" style="--d:0.24s"><span class="step-key" aria-hidden="true">5</span><div><h3>Export et import</h3><p>Un tableau entier se sauvegarde dans un fichier et se rouvre dans une nouvelle room.</p></div></li>
+        </ol>
+      </section>
+
+      <!-- DÉMO -->
+      <section class="cs-section cs-demo">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">✦</span>À toi de jouer</p><h2>Bouge les blocs</h2><p class="lead narrow">Une version miniature du canvas : déplace les blocs, ajoutes-en, et regarde les liens suivre.</p></div>
+        <div class="demo reveal" data-demo="board"><noscript>Cette démo a besoin de JavaScript.</noscript></div>
+      </section>
+
+      <!-- DÉFIS -->
+      <section class="cs-section cs-challenges">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">!</span>Les défis</p><h2>Ce qui a <em>résisté.</em></h2></div>
+        <div class="challenge-grid">
+          <article class="challenge reveal" style="--d:0s">
+            <h3>Des boucles de rendu infinies</h3>
+            <p class="ch-problem"><span class="ch-tag bad">Problème</span>Synchroniser l'état React Flow avec le réseau dans un <code>useEffect</code> relançait le rendu à l'infini.</p>
+            <p class="ch-solution"><span class="ch-tag good">Solution</span>Les mises à jour réseau passent par des fonctions de mise à jour ciblées, sans effet qui se déclenche lui-même.</p>
+          </article><article class="challenge reveal" style="--d:0.06s">
+            <h3>Les candidats ICE perdus</h3>
+            <p class="ch-problem"><span class="ch-tag bad">Problème</span>Certaines connexions ne s'établissaient jamais.</p>
+            <p class="ch-solution"><span class="ch-tag good">Solution</span>Les candidats ICE n'étaient pas envoyés à temps : ils sont maintenant transmis dès qu'ils arrivent.</p>
+          </article><article class="challenge reveal" style="--d:0.12s">
+            <h3>Passer de 2 à N personnes</h3>
+            <p class="ch-problem"><span class="ch-tag bad">Problème</span>Le premier modèle ne reliait que deux participants.</p>
+            <p class="ch-solution"><span class="ch-tag good">Solution</span>Une topologie maillée : chaque nouvel arrivant ouvre une connexion avec chacun des participants déjà présents.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- JOURNAL -->
+      <section class="cs-section cs-journal">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">⏱</span>Journal de bord</p><h2>Comment c'est <em>arrivé.</em></h2></div>
+        <ol class="journal">
+          <li class="reveal"><time>5 oct · 17h03</time><span class="j-dot" aria-hidden="true"></span><div><h3>Tableau blanc WebRTC</h3><p>Première version, en verre dépoli.</p></div></li><li class="reveal"><time>5 oct · 18h39</time><span class="j-dot" aria-hidden="true"></span><div><h3>Réécriture avec React Flow</h3><p>On passe des traits aux blocs reliés.</p></div></li><li class="reveal"><time>5 oct · 20h45</time><span class="j-dot" aria-hidden="true"></span><div><h3>Une salve de fonctionnalités</h3><p>YouTube, Markdown, curseurs, chat, glisser-déposer.</p></div></li><li class="reveal"><time>5 oct · 21h14</time><span class="j-dot" aria-hidden="true"></span><div><h3>Messages découpés</h3><p>Les gros contenus passent enfin par le DataChannel.</p></div></li><li class="reveal"><time>6 oct · 06h41</time><span class="j-dot" aria-hidden="true"></span><div><h3>Agenda, météo, base SQL</h3><p>De vrais outils sur le canvas.</p></div></li><li class="reveal"><time>6 oct · 08h19</time><span class="j-dot" aria-hidden="true"></span><div><h3>N participants</h3><p>Maillage WebRTC et support mobile.</p></div></li>
+        </ol>
+      </section>
+
+      <!-- ET ENSUITE -->
+      <section class="cs-section cs-next">
+        <div class="cs-next-card reveal">
+          <div>
+            <p class="eyebrow"><span class="num">→</span>Et ensuite</p>
+            <h2>La suite <em>du projet.</em></h2>
+            
+          </div>
+          <ul><li>Un historique pour annuler les actions des autres.</li><li>Des modèles de tableaux prêts à l'emploi (rétro, brainstorming, planning).</li></ul>
+        </div>
+      </section>
+
+      <!-- NAVIGATION -->
+      <nav class="cs-pager" aria-label="Autres projets">
+        <a class="pager-key prev" href="/projets/osacast/" style="--c:#a5b4fc" data-key="ArrowLeft">
+          <span class="pager-top"><small>← Projet précédent</small><b>OsaCast</b></span>
+        </a>
+        <a class="pager-key next" href="/projets/clavio/" style="--c:#a7e8bd" data-key="ArrowRight">
+          <span class="pager-top"><small>Projet suivant →</small><b>Clavio</b></span>
+        </a>
+      </nav>
+      <p class="pager-hint">Astuce : les flèches <kbd>←</kbd> <kbd>→</kbd> de ton clavier passent d'un projet à l'autre.</p>
+    </main>
+
+    <footer class="footer">
+      <p>Fait main par Yanis. <a href="/">Retour à l'accueil</a></p>
+      <p class="muted">OsaBoard · étude de cas</p>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+    <dialog class="zoom" id="zoom"><img alt="" /><button type="button" aria-label="Fermer">✕</button></dialog>
+
+    <script type="module" src="/src/project.js"></script>
+  </body>
+</html>

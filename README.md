@@ -29,6 +29,15 @@ Mets ton adresse dans `profile.email` pour que le bouton « Écris-moi » ouvre 
 | R | Parcours |
 | ⏎ | Contact |
 
+## Études de cas
+
+Chaque projet a sa page : `/projets/<slug>/` (OsaNotch, OsaParty, OsaDrop, OsaCast, OsaBoard, Clavio, OpenPod OS, Proxmox).
+
+- Le contenu est dans `src/projects.js` : textes, chiffres, schéma d'architecture, journal de bord, défis.
+- `scripts/build-pages.mjs` génère le HTML statique dans `projets/` (lancé par `npm run dev` et `npm run build`, ou à la main avec `npm run pages`).
+- Chaque page a une démo interactive, chargée à la demande depuis `src/demos/`.
+- Les captures sont dans `public/media/<slug>/`.
+
 ## Section GitHub
 
 Elle charge les données en direct dans le navigateur (API GitHub publique + `github-contributions-api.jogruber.de` pour le graphe), avec un cache de 15 min.
