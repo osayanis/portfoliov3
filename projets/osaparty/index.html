@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OsaParty · Étude de cas · Yanis</title>
+    <meta name="description" content="OsaParty crée des salons d'écoute partagée. L'hôte diffuse depuis son Mac, les invités rejoignent avec un code ou un QR code et suivent la même musique en " />
+    <meta name="theme-color" content="#fdeef6" />
+    <link rel="canonical" href="https://yanis.pro/projets/osaparty/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="OsaParty · La même chanson, à la seconde près." />
+    <meta property="og:description" content="OsaParty crée des salons d'écoute partagée. L'hôte diffuse depuis son Mac, les invités rejoignent avec un code ou un QR code et suivent la même musique en " />
+    <meta property="og:url" content="https://yanis.pro/projets/osaparty/" />
+    <meta property="og:image" content="https://yanis.pro/media/osaparty/room.webp" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  </head>
+  <body class="cs-page" style="--p:#f3a6cf;--p-deep:#d6408e;--p-soft:#fdeef6">
+    <a class="skip" href="#main">Aller au contenu</a>
+
+    <header class="nav">
+      <a class="logo" href="/" aria-label="Retour à l'accueil">yanis<span>.</span></a>
+      <nav class="nav-links" aria-label="Navigation principale">
+        <a href="/#notch">Projets</a>
+        <a href="/#labo">Labo</a>
+        <a href="/#apropos">À propos</a>
+        <a href="/#github">GitHub</a>
+        <button class="sound-toggle" type="button" aria-pressed="true" title="Activer / couper le son">
+          <span class="sound-on">Son</span><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+        </button>
+        <a class="nav-cta" href="/#contact">On se parle ?</a>
+      </nav>
+    </header>
+
+    <main id="main" class="cs">
+      <!-- HERO -->
+      <section class="cs-hero">
+        <a class="cs-back" href="/#notch"><span aria-hidden="true">←</span> Tous les projets</a>
+        <div class="cs-hero-grid">
+          <div class="cs-hero-copy">
+            <p class="eyebrow"><span class="dot" style="--c:#f3a6cf"></span>App web temps réel · Next.js + Socket.io</p>
+            <h1 class="cs-title"><span>OsaParty</span></h1>
+            <p class="cs-tagline">La même chanson, <em>à la seconde près.</em></p>
+            <p class="lead">OsaParty crée des salons d'écoute partagée. L'hôte diffuse depuis son Mac, les invités rejoignent avec un code ou un QR code et suivent la même musique en direct, avec les paroles synchronisées, un chat, des réactions, un blind test et un récap de fin de soirée.</p>
+            <div class="btn-row"><a class="btn btn-dark" href="https://osaparty.osalabs.fr" target="_blank" rel="noopener">Ouvrir OsaParty <span aria-hidden="true">↗</span></a><a class="btn" href="https://github.com/osayanis/osaparty" target="_blank" rel="noopener">Voir le code <span aria-hidden="true">↗</span></a></div>
+          </div>
+          <div class="cs-cap" aria-hidden="true">
+            <button type="button" class="cs-key" tabindex="-1"><span class="cs-key-top"><b>P</b><small>OsaParty</small></span></button>
+          </div>
+        </div>
+        <dl class="cs-meta">
+          <div><dt>Rôle</dt><dd>Développé à deux, avec pirrokin</dd></div>
+          <div><dt>Période</dt><dd>1 → 9 octobre 2026</dd></div>
+          <div><dt>Statut</dt><dd>En ligne</dd></div>
+          <div class="cs-meta-stack"><dt>Stack</dt><dd><span>Next.js</span><span>React</span><span>Socket.io</span><span>Python</span><span>AppleScript</span><span>iTunes Search API</span><span>LRCLIB</span></dd></div>
+        </dl>
+      </section>
+
+      <!-- CHIFFRES -->
+      <section class="cs-stats" aria-label="En chiffres">
+        <div class="cs-stat reveal" style="--d:0s"><b>22</b><span>commits</span></div><div class="cs-stat reveal" style="--d:0.07s"><b>2 247</b><span>lignes de code</span></div><div class="cs-stat reveal" style="--d:0.14s"><b>13</b><span>types d'événements temps réel</span></div><div class="cs-stat reveal" style="--d:0.21000000000000002s"><b>6</b><span>chiffres pour rejoindre un salon</span></div>
+      </section>
+
+      <!-- POINT DE DÉPART -->
+      <section class="cs-section cs-problem">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">01</span>Le point de départ</p></div>
+        <div class="cs-problem-grid">
+          <blockquote class="reveal"><p>« Apple réserve son API musicale aux comptes développeur payants. On a contourné le problème par le Mac. »</p></blockquote>
+          <div class="cs-prose reveal"><p>L'idée : écouter de la musique ensemble à distance, comme si on était dans la même pièce. Le problème : MusicKit, l'API web d'Apple Music, demande un compte développeur payant.</p><p>La solution ressemble au « Rich Presence » de Discord. Un petit pont tourne sur le Mac de l'hôte : il lit l'état de l'app Musique (titre, position, file d'attente) et l'envoie au serveur. Les invités n'ont besoin que d'un navigateur. Depuis, OsaNotch peut jouer ce rôle de pont nativement.</p></div>
+        </div>
+      </section>
+
+      <!-- VISUELS -->
+      <section class="cs-section cs-visuals">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">02</span>En images</p><h2>À quoi ça <em>ressemble.</em></h2></div>
+        <div class="vis-grid vis-grid-mixed"><figure class="vis vis-browser wide reveal"><div class="frame-browser"><div class="fb-bar"><i></i><i></i><i></i><span>osaparty.osalabs.fr/room</span></div><img src="/media/osaparty/room.webp" alt="Un salon OsaParty prêt, en attente d'un Mac" loading="lazy" decoding="async"></div><figcaption>Un salon tout juste créé : la mascotte attend qu'un Mac diffuse.</figcaption></figure><figure class="vis vis-browser reveal"><div class="frame-browser"><div class="fb-bar"><i></i><i></i><i></i><span>osaparty.osalabs.fr</span></div><img src="/media/osaparty/landing.webp" alt="Page d'accueil d'OsaParty" loading="lazy" decoding="async"></div><figcaption>Créer ou rejoindre un salon, en deux clics.</figcaption></figure><figure class="vis vis-phone reveal"><div class="frame-phone"><span class="fp-notch"></span><img src="/media/osaparty/mobile.webp" alt="OsaParty sur mobile" loading="lazy" decoding="async"></div><figcaption>Pensé pour rejoindre depuis un téléphone.</figcaption></figure></div>
+      </section>
+
+      <!-- FONCTIONNEMENT -->
+      <section class="cs-section cs-how">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">03</span>Comment ça marche</p><h2>Sous le <em>capot.</em></h2><p class="lead narrow">Le serveur ne fait que relayer. Toute l'intelligence musicale vient du Mac de l'hôte.</p></div>
+        <div class="diagram-card reveal"><svg class="diagram" viewBox="0 0 820 360" role="img" aria-label="Schéma d'architecture de OsaParty">
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="d-arrow"/></marker>
+      <marker id="arr-s" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="d-arrow"/></marker>
+    </defs>
+    <g class="d-edges"><path class="d-edge" style="--i:0" d="M203.0 180.0 L232.0 180.0" marker-end="url(#arr)" marker-start="url(#arr-s)"/><g class="d-elabel" transform="translate(217.5 180.0)"><rect x="-49.6" y="-11" width="99.2" height="22" rx="11"/><text text-anchor="middle" dy="4">AppleScript</text></g><path class="d-edge" style="--i:1" d="M408.0 180.0 L452.0 180.0" marker-end="url(#arr)"/><g class="d-elabel" transform="translate(430.0 180.0)"><rect x="-53.2" y="-11" width="106.4" height="22" rx="11"/><text text-anchor="middle" dy="4">bridge-state</text></g><path class="d-edge" style="--i:2" d="M609.1 140.0 L671.3 104.0" marker-end="url(#arr)"/><path class="d-edge" style="--i:3" d="M628.0 180.0 L652.0 180.0" marker-end="url(#arr)"/><path class="d-edge" style="--i:4" d="M609.1 220.0 L671.3 256.0" marker-end="url(#arr)"/><path class="d-edge dashed" style="--i:5" d="M632.9 305.3 L652.1 302.3" marker-end="url(#arr)"/></g><g class="d-node" style="--i:0;--c:#f9a8a8">
+      <rect class="d-shadow" x="25" y="149" width="170" height="72" rx="14"/>
+      <rect class="d-box" x="25" y="144" width="170" height="72" rx="14"/>
+      <text class="d-label" x="110" y="177" text-anchor="middle">Apple Music</text>
+      <text class="d-sub" x="110" y="196" text-anchor="middle">sur le Mac de l'hôte</text>
+    </g><g class="d-node" style="--i:1;--c:#fde68a">
+      <rect class="d-shadow" x="240" y="149" width="160" height="72" rx="14"/>
+      <rect class="d-box" x="240" y="144" width="160" height="72" rx="14"/>
+      <text class="d-label" x="320" y="177" text-anchor="middle">Pont</text>
+      <text class="d-sub" x="320" y="196" text-anchor="middle">Python ou OsaNotch</text>
+    </g><g class="d-node" style="--i:2;--c:#e5e7eb">
+      <rect class="d-shadow" x="460" y="149" width="160" height="72" rx="14"/>
+      <rect class="d-box" x="460" y="144" width="160" height="72" rx="14"/>
+      <text class="d-label" x="540" y="177" text-anchor="middle">Serveur</text>
+      <text class="d-sub" x="540" y="196" text-anchor="middle">Socket.io</text>
+    </g><g class="d-node" style="--i:3;--c:#f3a6cf">
+      <rect class="d-shadow" x="660" y="45" width="140" height="60" rx="14"/>
+      <rect class="d-box" x="660" y="40" width="140" height="60" rx="14"/>
+      <text class="d-label" x="730" y="67" text-anchor="middle">Invité</text>
+      <text class="d-sub" x="730" y="86" text-anchor="middle">navigateur</text>
+    </g><g class="d-node" style="--i:4;--c:#f3a6cf">
+      <rect class="d-shadow" x="660" y="155" width="140" height="60" rx="14"/>
+      <rect class="d-box" x="660" y="150" width="140" height="60" rx="14"/>
+      <text class="d-label" x="730" y="177" text-anchor="middle">Invité</text>
+      <text class="d-sub" x="730" y="196" text-anchor="middle">navigateur</text>
+    </g><g class="d-node" style="--i:5;--c:#f3a6cf">
+      <rect class="d-shadow" x="660" y="265" width="140" height="60" rx="14"/>
+      <rect class="d-box" x="660" y="260" width="140" height="60" rx="14"/>
+      <text class="d-label" x="730" y="287" text-anchor="middle">Invité</text>
+      <text class="d-sub" x="730" y="306" text-anchor="middle">mobile</text>
+    </g><g class="d-node" style="--i:6;--c:#c4b5fd">
+      <rect class="d-shadow" x="455" y="297" width="170" height="56" rx="14"/>
+      <rect class="d-box" x="455" y="292" width="170" height="56" rx="14"/>
+      <text class="d-label" x="540" y="317" text-anchor="middle">iTunes · LRCLIB</text>
+      <text class="d-sub" x="540" y="336" text-anchor="middle">pochettes, paroles</text>
+    </g>
+  </svg></div>
+        <ol class="cs-steps">
+          <li class="reveal" style="--d:0s"><span class="step-key" aria-hidden="true">1</span><div><h3>Un salon façon Kahoot</h3><p>L'hôte crée un salon : un code à 6 chiffres et un QR code s'affichent à l'écran.</p></div></li><li class="reveal" style="--d:0.06s"><span class="step-key" aria-hidden="true">2</span><div><h3>Le pont lit l'app Musique</h3><p>Un script Python pilote Apple Music en AppleScript (ou OsaNotch le fait nativement) et envoie l'état de lecture au serveur.</p></div></li><li class="reveal" style="--d:0.12s"><span class="step-key" aria-hidden="true">3</span><div><h3>Socket.io relaie à tout le monde</h3><p>Le serveur diffuse le morceau, la position et la file d'attente à tous les invités du salon.</p></div></li><li class="reveal" style="--d:0.18s"><span class="step-key" aria-hidden="true">4</span><div><h3>Le navigateur habille le tout</h3><p>Pochette en 600 × 600 via l'API iTunes, paroles synchronisées via LRCLIB, fond teinté par la couleur dominante de la pochette.</p></div></li><li class="reveal" style="--d:0.24s"><span class="step-key" aria-hidden="true">5</span><div><h3>La soirée prend vie</h3><p>Chat, réactions, vote pour passer un titre, blind test, contrôles de l'hôte, et un « Wrapped » à la fin.</p></div></li>
+        </ol>
+      </section>
+
+      <!-- DÉMO -->
+      <section class="cs-section cs-demo">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">✦</span>À toi de jouer</p><h2>Teste la synchro</h2><p class="lead narrow">L'hôte diffuse, trois invités écoutent avec des connexions différentes. Coupe la synchronisation pour voir les écarts apparaître, et envoie des réactions.</p></div>
+        <div class="demo reveal" data-demo="party"><noscript>Cette démo a besoin de JavaScript.</noscript></div>
+      </section>
+
+      <!-- DÉFIS -->
+      <section class="cs-section cs-challenges">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">!</span>Les défis</p><h2>Ce qui a <em>résisté.</em></h2></div>
+        <div class="challenge-grid">
+          <article class="challenge reveal" style="--d:0s">
+            <h3>Une API Apple payante</h3>
+            <p class="ch-problem"><span class="ch-tag bad">Problème</span>MusicKit sur le web demande un compte développeur Apple payant.</p>
+            <p class="ch-solution"><span class="ch-tag good">Solution</span>Un pont local sur le Mac de l'hôte, en Python et AppleScript, qui lit directement l'app Musique.</p>
+          </article><article class="challenge reveal" style="--d:0.06s">
+            <h3>La file d'attente invisible</h3>
+            <p class="ch-problem"><span class="ch-tag bad">Problème</span>Apple n'expose pas la fonction « Lire ensuite » aux scripts.</p>
+            <p class="ch-solution"><span class="ch-tag good">Solution</span>Lire la playlist en cours : l'hôte lance sa musique depuis une playlist, et le site affiche les 10 titres suivants.</p>
+          </article><article class="challenge reveal" style="--d:0.12s">
+            <h3>Des paroles au bon moment</h3>
+            <p class="ch-problem"><span class="ch-tag bad">Problème</span>Chaque invité reçoit l'état avec un délai différent.</p>
+            <p class="ch-solution"><span class="ch-tag good">Solution</span>L'hôte envoie la position et la durée du morceau, et chaque navigateur cale les paroles LRCLIB sur cette position.</p>
+          </article><article class="challenge reveal" style="--d:0.18s">
+            <h3>Un serveur modeste</h3>
+            <p class="ch-problem"><span class="ch-tag bad">Problème</span>L'optimisation d'images de Next.js coûtait trop cher sur un petit VPS.</p>
+            <p class="ch-solution"><span class="ch-tag good">Solution</span>Optimisation désactivée, pochettes servies directement par Apple en haute définition.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- JOURNAL -->
+      <section class="cs-section cs-journal">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">⏱</span>Journal de bord</p><h2>Comment c'est <em>arrivé.</em></h2></div>
+        <ol class="journal">
+          <li class="reveal"><time>1 oct · 11h24</time><span class="j-dot" aria-hidden="true"></span><div><h3>Première version</h3><p>Le site et le Mac Bridge fonctionnent ensemble.</p></div></li><li class="reveal"><time>1 oct · 11h36</time><span class="j-dot" aria-hidden="true"></span><div><h3>Installable</h3><p>Le site devient une PWA, utilisable comme un petit widget.</p></div></li><li class="reveal"><time>1 oct · 11h43</time><span class="j-dot" aria-hidden="true"></span><div><h3>App de barre des menus</h3><p>Le pont devient une vraie app macOS.</p></div></li><li class="reveal"><time>1 oct · 13h41</time><span class="j-dot" aria-hidden="true"></span><div><h3>Grosse mise à jour</h3><p>Chat, paroles, vote pour passer, volume et support de Spotify.</p></div></li><li class="reveal"><time>1 oct · 13h59</time><span class="j-dot" aria-hidden="true"></span><div><h3>Look Apple Music</h3><p>Paroles synchronisées et fonds dynamiques.</p></div></li><li class="reveal"><time>1 oct · 14h03</time><span class="j-dot" aria-hidden="true"></span><div><h3>Blind test &amp; Wrapped</h3><p>Un mode quiz et un récap de soirée.</p></div></li><li class="reveal"><time>2 oct · 10h47</time><span class="j-dot" aria-hidden="true"></span><div><h3>Contrôles de l'hôte</h3><p>Verrouiller le salon, exclure, exporter la playlist.</p></div></li><li class="reveal"><time>5 oct · 08h54</time><span class="j-dot" aria-hidden="true"></span><div><h3>ListenParty devient OsaParty</h3><p>Le projet rejoint l'écosystème OsaLabs.</p></div></li><li class="reveal"><time>9 oct · 14h09</time><span class="j-dot" aria-hidden="true"></span><div><h3>Salon refait</h3><p>Nouvelle interface, et OsaNotch comme pont natif.</p></div></li>
+        </ol>
+      </section>
+
+      <!-- ET ENSUITE -->
+      <section class="cs-section cs-next">
+        <div class="cs-next-card reveal">
+          <div>
+            <p class="eyebrow"><span class="num">→</span>Et ensuite</p>
+            <h2>La suite <em>du projet.</em></h2>
+            <p class="cs-credits">Projet mené avec <a href="https://github.com/pirrokin" target="_blank" rel="noopener">pirrokin</a>.</p>
+          </div>
+          <ul><li>Un mode « DJ tournant » où chaque invité ajoute un titre à son tour.</li><li>Un historique des soirées pour retrouver ce qu'on a écouté.</li></ul>
+        </div>
+      </section>
+
+      <!-- NAVIGATION -->
+      <nav class="cs-pager" aria-label="Autres projets">
+        <a class="pager-key prev" href="/projets/osanotch/" style="--c:#c4b5fd" data-key="ArrowLeft">
+          <span class="pager-top"><small>← Projet précédent</small><b>OsaNotch</b></span>
+        </a>
+        <a class="pager-key next" href="/projets/osadrop/" style="--c:#93c5fd" data-key="ArrowRight">
+          <span class="pager-top"><small>Projet suivant →</small><b>OsaDrop</b></span>
+        </a>
+      </nav>
+      <p class="pager-hint">Astuce : les flèches <kbd>←</kbd> <kbd>→</kbd> de ton clavier passent d'un projet à l'autre.</p>
+    </main>
+
+    <footer class="footer">
+      <p>Fait main par Yanis. <a href="/">Retour à l'accueil</a></p>
+      <p class="muted">OsaParty · étude de cas</p>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+    <dialog class="zoom" id="zoom"><img alt="" /><button type="button" aria-label="Fermer">✕</button></dialog>
+
+    <script type="module" src="/src/project.js"></script>
+  </body>
+</html>

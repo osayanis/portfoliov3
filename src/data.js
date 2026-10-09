@@ -25,6 +25,7 @@ export const heroKeys = [
 export const osalabsApps = [
   {
     name: 'OsaParty',
+    page: '/projets/osaparty/',
     url: 'https://osaparty.osalabs.fr',
     color: '#f472b6',
     tag: 'Écoute synchronisée',
@@ -35,6 +36,7 @@ export const osalabsApps = [
   },
   {
     name: 'OsaDrop',
+    page: '/projets/osadrop/',
     url: 'https://osadrop.osalabs.fr',
     color: '#60a5fa',
     tag: 'Transfert P2P',
@@ -45,6 +47,7 @@ export const osalabsApps = [
   },
   {
     name: 'OsaCast',
+    page: '/projets/osacast/',
     url: 'https://osacast.osalabs.fr',
     color: '#818cf8',
     tag: "Partage d'écran",
@@ -55,12 +58,13 @@ export const osalabsApps = [
   },
   {
     name: 'OsaBoard',
+    page: '/projets/osaboard/',
     url: 'https://osaboard.osalabs.fr',
     color: '#2dd4bf',
-    tag: 'Tableau blanc',
-    desc: 'Un tableau blanc collaboratif en temps réel. Les dessins ne touchent jamais une base de données.',
-    detail: "Un canvas virtuel mis à l'échelle : ce que tu dessines sur mobile tombe pile au bon endroit sur desktop.",
-    stack: ['Canvas', 'WebRTC', 'Socket.io'],
+    tag: 'Canvas collaboratif',
+    desc: "Un canvas collaboratif en temps réel : 18 types de blocs à poser et relier, avec les curseurs des autres en direct.",
+    detail: 'Un maillage WebRTC entre tous les participants : aucune base de données au milieu.',
+    stack: ['React Flow', 'WebRTC', 'Socket.io'],
     visual: 'board',
   },
 ]

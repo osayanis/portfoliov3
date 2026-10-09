@@ -1,163 +1,8 @@
 import './style.css'
 import { profile, heroKeys, osalabsApps, stack, timeline, method } from './data.js'
 import { initGithub } from './github.js'
+import { $, $$, reduceMotion, sound, toast, confetti, io, onceVisible, updateEyes } from './core.js'
 
-const $ = (s, el = document) => el.querySelector(s)
-const $$ = (s, el = document) => [...el.querySelectorAll(s)]
-const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
-
-/* ================= SON ================= */
-// Tout est synthétisé en WebAudio : pas de fichiers audio à charger.
-const sound = (() => {
-  let ctx = null
-  let enabled = true
-  try { enabled = localStorage.getItem('sound') !== 'off' } catch {}
-
-  const ac = () => {
-    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)()
-    if (ctx.state === 'suspended') ctx.resume()
-    return ctx
-  }
-
-  // "thock" de clavier mécanique : bruit filtré + petit corps grave
-  function click(pitch = 1) {
-    if (!enabled) return
-    const a = ac(), t = a.currentTime
-    const len = 0.06
-    const buf = a.createBuffer(1, a.sampleRate * len, a.sampleRate)
-    const data = buf.getChannelData(0)
-    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 4)
-    const noise = a.createBufferSource()
-    noise.buffer = buf
-    const bp = a.createBiquadFilter()
-    bp.type = 'bandpass'
-    bp.frequency.value = 2400 * pitch
-    bp.Q.value = 0.9
-    const ng = a.createGain()
-    ng.gain.value = 0.35
-    noise.connect(bp).connect(ng).connect(a.destination)
-    noise.start(t)
-
-    const osc = a.createOscillator()
-    const og = a.createGain()
-    osc.type = 'sine'
-    osc.frequency.setValueAtTime(190 * pitch, t)
-    osc.frequency.exponentialRampToValueAtTime(70, t + 0.08)
-    og.gain.setValueAtTime(0.4, t)
-    og.gain.exponentialRampToValueAtTime(0.001, t + 0.09)
-    osc.connect(og).connect(a.destination)
-    osc.start(t)
-    osc.stop(t + 0.1)
-  }
-
-  // petite note de piano (deux oscillateurs + enveloppe)
-  function note(freq, dur = 0.9) {
-    if (!enabled) return
-    const a = ac(), t = a.currentTime
-    const g = a.createGain()
-    g.gain.setValueAtTime(0.0001, t)
-    g.gain.exponentialRampToValueAtTime(0.32, t + 0.012)
-    g.gain.exponentialRampToValueAtTime(0.0001, t + dur)
-    const lp = a.createBiquadFilter()
-    lp.type = 'lowpass'
-    lp.frequency.setValueAtTime(freq * 6, t)
-    lp.frequency.exponentialRampToValueAtTime(freq * 1.5, t + dur)
-    g.connect(lp).connect(a.destination)
-    ;[['triangle', 1, 1], ['sine', 2, 0.35]].forEach(([type, mult, vol]) => {
-      const o = a.createOscillator()
-      const og = a.createGain()
-      o.type = type
-      o.frequency.value = freq * mult
-      og.gain.value = vol
-      o.connect(og).connect(g)
-      o.start(t)
-      o.stop(t + dur + 0.05)
-    })
-  }
-
-  function blip(freq = 880) {
-    if (!enabled) return
-    const a = ac(), t = a.currentTime
-    const o = a.createOscillator(), g = a.createGain()
-    o.type = 'square'
-    o.frequency.value = freq
-    g.gain.setValueAtTime(0.06, t)
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.07)
-    o.connect(g).connect(a.destination)
-    o.start(t)
-    o.stop(t + 0.08)
-  }
-
-  function chime() {
-    ;[523.25, 659.25, 783.99, 1046.5].forEach((f, i) => setTimeout(() => note(f, 0.7), i * 90))
-  }
-
-  const toggle = () => {
-    enabled = !enabled
-    try { localStorage.setItem('sound', enabled ? 'on' : 'off') } catch {}
-    return enabled
-  }
-  return { click, note, blip, chime, toggle, get enabled() { return enabled } }
-})()
-
-const soundBtn = $('.sound-toggle')
-soundBtn.setAttribute('aria-pressed', String(sound.enabled))
-soundBtn.addEventListener('click', () => {
-  soundBtn.setAttribute('aria-pressed', String(sound.toggle()))
-  sound.click()
-})
-
-/* ================= TOAST + CONFETTIS ================= */
-let toastTimer
-function toast(msg) {
-  const el = $('#toast')
-  el.textContent = msg
-  el.classList.add('show')
-  clearTimeout(toastTimer)
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2800)
-}
-
-function confetti() {
-  if (reduceMotion) return
-  const cv = $('#confetti'), cx = cv.getContext('2d')
-  const dpr = Math.min(devicePixelRatio || 1, 2)
-  cv.width = innerWidth * dpr
-  cv.height = innerHeight * dpr
-  cx.scale(dpr, dpr)
-  const colors = heroKeys.map(k => k.c).concat('#fde68a', '#c2337a')
-  const parts = Array.from({ length: 160 }, () => ({
-    x: innerWidth / 2 + (Math.random() - 0.5) * 200,
-    y: innerHeight * 0.55,
-    vx: (Math.random() - 0.5) * 16,
-    vy: -Math.random() * 18 - 6,
-    s: 7 + Math.random() * 9,
-    r: Math.random() * Math.PI,
-    vr: (Math.random() - 0.5) * 0.4,
-    c: colors[(Math.random() * colors.length) | 0],
-  }))
-  let frame = 0
-  ;(function tick() {
-    cx.clearRect(0, 0, innerWidth, innerHeight)
-    parts.forEach(p => {
-      p.vy += 0.42
-      p.vx *= 0.99
-      p.x += p.vx
-      p.y += p.vy
-      p.r += p.vr
-      cx.save()
-      cx.translate(p.x, p.y)
-      cx.rotate(p.r)
-      cx.fillStyle = p.c
-      cx.strokeStyle = '#161616'
-      cx.lineWidth = 1.5
-      cx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * 0.7)
-      cx.strokeRect(-p.s / 2, -p.s / 2, p.s, p.s * 0.7)
-      cx.restore()
-    })
-    if (++frame < 220) requestAnimationFrame(tick)
-    else cx.clearRect(0, 0, innerWidth, innerHeight)
-  })()
-}
 
 /* ================= CLAVIER DU HERO ================= */
 const keyboard = $('#keyboard')
@@ -248,50 +93,6 @@ document.addEventListener('keydown', e => {
   }
 })
 
-/* ================= NAV ================= */
-const nav = $('.nav')
-addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 10), { passive: true })
-
-/* ================= REVEAL ================= */
-const io = new IntersectionObserver(entries => {
-  entries.forEach(en => {
-    if (en.isIntersecting) {
-      en.target.classList.add('in')
-      io.unobserve(en.target)
-    }
-  })
-}, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' })
-
-function onceVisible(el, cb, threshold = 0.35) {
-  const o = new IntersectionObserver(([en]) => {
-    if (en.isIntersecting) { cb(); o.disconnect() }
-  }, { threshold })
-  o.observe(el)
-}
-
-/* ================= MASCOTTES : les yeux suivent la souris ================= */
-let mx = innerWidth / 2, my = innerHeight / 3, eyeRaf = 0
-function updateEyes() {
-  eyeRaf = 0
-  $$('[data-mascot]').forEach(m => {
-    const r = m.getBoundingClientRect()
-    if (r.width === 0 || r.bottom < 0 || r.top > innerHeight) return
-    const dx = mx - (r.left + r.width / 2)
-    const dy = my - (r.top + r.height / 2)
-    const d = Math.hypot(dx, dy) || 1
-    const k = Math.min(1, d / 300)
-    m.style.setProperty('--ex', `${(dx / d) * 60 * k}%`)
-    m.style.setProperty('--ey', `${(dy / d) * 90 * k}%`)
-    $$('.eye > i', m).forEach(p => {
-      p.style.transform = `translate(${(dx / d) * 60 * k}%, ${(dy / d) * 110 * k}%)`
-    })
-  })
-}
-addEventListener('pointermove', e => {
-  mx = e.clientX
-  my = e.clientY
-  if (!eyeRaf) eyeRaf = requestAnimationFrame(updateEyes)
-}, { passive: true })
 
 /* ================= OSANOTCH ================= */
 const island = $('#island')
@@ -329,17 +130,18 @@ const visuals = {
   party: () => `<div class="v-party"><span class="v-pin">PIN 482 913</span>${'<i></i>'.repeat(7)}</div>`,
   drop: () => `<div class="v-drop"><div class="device laptop"></div><span class="packet"></span><div class="device"></div><span class="v-code">K7QX2M</span></div>`,
   cast: () => `<div class="v-cast"><div class="screen"><span class="ripple"></span></div><span class="live">● LIVE</span></div>`,
-  board: () => `<div class="v-board"><svg viewBox="0 0 200 150"><path d="M20 110 C 40 40, 70 40, 80 90 S 120 140, 135 70 S 170 30, 182 60"/><path d="M30 40 L60 30 M120 115 Q150 100 175 118"/></svg></div>`,
+  board: () => `<div class="v-board"><svg viewBox="0 0 200 150"><path d="M64 46 C100 46, 92 100, 128 100"/></svg><span class="v-node" style="left:8%;top:14%"><b>T</b>Idée</span><span class="v-node" style="left:54%;top:52%"><b>✓</b>À faire</span><span class="v-cur">Bob</span></div>`,
 }
 $('#apps').innerHTML = osalabsApps.map((a, i) => `
-  <a class="app reveal" href="${a.url}" target="_blank" rel="noopener" style="--c:${a.color};--d:${i * 0.08}s;--tilt:${i % 2 ? 1 : -1}deg">
+  <a class="app reveal" href="${a.page}" style="--c:${a.color};--d:${i * 0.08}s;--tilt:${i % 2 ? 1 : -1}deg">
     <div class="app-visual">${visuals[a.visual]()}</div>
     <div class="app-body">
       <span class="app-tag">${a.tag}</span>
-      <h3>${a.name}<span aria-hidden="true">↗</span></h3>
+      <h3>${a.name}<span aria-hidden="true">→</span></h3>
       <p>${a.desc}</p>
       <p class="app-detail">${a.detail}</p>
       <div class="app-stack">${a.stack.map(s => `<span>${s}</span>`).join('')}</div>
+      <span class="app-more">Lire l'étude de cas</span>
     </div>
   </a>`).join('')
 
@@ -445,18 +247,18 @@ $$('[data-pod]', pod).forEach(b => b.addEventListener('click', () => {
 
 /* ================= TERMINAL PROXMOX ================= */
 const termLines = [
-  ['$ ', 'c-dim'], ['sudo ./proxmox-auto.sh\n', ''],
-  ['╭─ Automatisation Proxmox VE ─╮\n', 'c-acc'],
-  ['  1) Créer des conteneurs (CT)\n  2) Créer des VM\n  3) Templates & ISOs\n', ''],
-  ['> ', 'c-dim'], ['1\n', ''],
-  ['Combien de CT ? ', ''], ['3\n', 'c-acc'],
-  ['Template : ', ''], ['debian-12-standard\n', 'c-acc'],
-  ['Stockage [local/local-lvm] : ', ''], ['local-lvm\n', 'c-acc'],
-  ['IP de base : ', ''], ['192.168.1.110/24\n', 'c-acc'],
-  ['✔ CT 110 créé · 192.168.1.110\n', 'c-ok'],
-  ['✔ CT 111 créé · 192.168.1.111\n', 'c-ok'],
-  ['✔ CT 112 créé · 192.168.1.112\n', 'c-ok'],
-  ['3 conteneurs prêts en 41 s. ☕\n', ''],
+  ['$ ', 'c-dim'], ['sudo ./proxmox-batch.sh\n', ''],
+  ['=== PROXMOX AUTO-INSTALLER ===\n', 'c-acc'],
+  ['1. Créer des conteneurs (LXC)\n2. Créer des VM\n3. Templates  4. ISO  5. Quitter\n', ''],
+  ['Votre choix : ', 'c-dim'], ['1\n', ''],
+  ['Nombre de conteneurs : ', ''], ['3\n', 'c-acc'],
+  ['Nom : ', ''], ['web-01\n', 'c-acc'],
+  ['RAM (Mo) [512 - 7680] : ', ''], ['2048\n', 'c-acc'],
+  ['Adresse IP : ', ''], ['192.168.1.1\n', 'c-acc'],
+  ['Erreur : IP Gateway interdite.\n', 'c-err'],
+  ['Adresse IP : ', ''], ['192.168.1.42\n', 'c-acc'],
+  ['-> Création CT 101 (web-01)...\n', 'c-dim'],
+  ['SUCCESS : Conteneur web-01 créé !\n', 'c-ok'],
 ]
 const term = $('#term')
 function typeTerminal() {

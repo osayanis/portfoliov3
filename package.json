@@ -4,10 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "node scripts/github-snapshot.mjs || true; vite build",
+    "dev": "node scripts/build-pages.mjs && vite",
+    "build": "node scripts/github-snapshot.mjs || true; node scripts/build-pages.mjs && vite build",
     "preview": "vite preview",
-    "snapshot": "node scripts/github-snapshot.mjs"
+    "snapshot": "node scripts/github-snapshot.mjs",
+    "pages": "node scripts/build-pages.mjs"
   },
   "devDependencies": {
     "vite": "^8.3.4"

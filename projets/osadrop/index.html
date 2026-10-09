@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OsaDrop · Étude de cas · Yanis</title>
+    <meta name="description" content="OsaDrop envoie un fichier d'un appareil à l'autre avec un simple code à 6 caractères ou un QR code. Le fichier va directement d'un navigateur à l'autre : i" />
+    <meta name="theme-color" content="#ecf4ff" />
+    <link rel="canonical" href="https://yanis.pro/projets/osadrop/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="OsaDrop · Un code, un fichier, zéro serveur." />
+    <meta property="og:description" content="OsaDrop envoie un fichier d'un appareil à l'autre avec un simple code à 6 caractères ou un QR code. Le fichier va directement d'un navigateur à l'autre : i" />
+    <meta property="og:url" content="https://yanis.pro/projets/osadrop/" />
+    <meta property="og:image" content="https://yanis.pro/media/osadrop/code.webp" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  </head>
+  <body class="cs-page" style="--p:#93c5fd;--p-deep:#3b82f6;--p-soft:#ecf4ff">
+    <a class="skip" href="#main">Aller au contenu</a>
+
+    <header class="nav">
+      <a class="logo" href="/" aria-label="Retour à l'accueil">yanis<span>.</span></a>
+      <nav class="nav-links" aria-label="Navigation principale">
+        <a href="/#notch">Projets</a>
+        <a href="/#labo">Labo</a>
+        <a href="/#apropos">À propos</a>
+        <a href="/#github">GitHub</a>
+        <button class="sound-toggle" type="button" aria-pressed="true" title="Activer / couper le son">
+          <span class="sound-on">Son</span><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+        </button>
+        <a class="nav-cta" href="/#contact">On se parle ?</a>
+      </nav>
+    </header>
+
+    <main id="main" class="cs">
+      <!-- HERO -->
+      <section class="cs-hero">
+        <a class="cs-back" href="/#notch"><span aria-hidden="true">←</span> Tous les projets</a>
+        <div class="cs-hero-grid">
+          <div class="cs-hero-copy">
+            <p class="eyebrow"><span class="dot" style="--c:#93c5fd"></span>Transfert de fichiers · WebRTC</p>
+            <h1 class="cs-title"><span>OsaDrop</span></h1>
+            <p class="cs-tagline">Un code, un fichier, <em>zéro serveur.</em></p>
+            <p class="lead">OsaDrop envoie un fichier d'un appareil à l'autre avec un simple code à 6 caractères ou un QR code. Le fichier va directement d'un navigateur à l'autre : il ne passe jamais par un serveur et n'est stocké nulle part.</p>
+            <div class="btn-row"><a class="btn btn-dark" href="https://osadrop.osalabs.fr" target="_blank" rel="noopener">Ouvrir OsaDrop <span aria-hidden="true">↗</span></a><a class="btn" href="https://github.com/osayanis/osadrop" target="_blank" rel="noopener">Voir le code <span aria-hidden="true">↗</span></a></div>
+          </div>
+          <div class="cs-cap" aria-hidden="true">
+            <button type="button" class="cs-key" tabindex="-1"><span class="cs-key-top"><b>D</b><small>OsaDrop</small></span></button>
+          </div>
+        </div>
+        <dl class="cs-meta">
+          <div><dt>Rôle</dt><dd>Conception et développement</dd></div>
+          <div><dt>Période</dt><dd>5 → 9 octobre 2026</dd></div>
+          <div><dt>Statut</dt><dd>En ligne</dd></div>
+          <div class="cs-meta-stack"><dt>Stack</dt><dd><span>WebRTC</span><span>Next.js</span><span>React</span><span>TypeScript</span><span>Socket.io</span><span>Nginx</span><span>PM2</span></dd></div>
+        </dl>
+      </section>
+
+      <!-- CHIFFRES -->
+      <section class="cs-stats" aria-label="En chiffres">
+        <div class="cs-stat reveal" style="--d:0s"><b>689</b><span>lignes de code</span></div><div class="cs-stat reveal" style="--d:0.07s"><b>64 Ko</b><span>par morceau envoyé</span></div><div class="cs-stat reveal" style="--d:0.14s"><b>1 Mo</b><span>de tampon maximum</span></div><div class="cs-stat reveal" style="--d:0.21000000000000002s"><b>0</b><span>octet stocké sur le serveur</span></div>
+      </section>
+
+      <!-- POINT DE DÉPART -->
+      <section class="cs-section cs-problem">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">01</span>Le point de départ</p></div>
+        <div class="cs-problem-grid">
+          <blockquote class="reveal"><p>« Envoyer une photo de mon téléphone à un PC qui n'est pas le mien ne devrait pas demander un compte. »</p></blockquote>
+          <div class="cs-prose reveal"><p>AirDrop ne marche qu'entre appareils Apple. Les autres solutions passent par un cloud : on téléverse, on attend, on télécharge, et le fichier reste quelque part.</p><p>OsaDrop prend le chemin le plus court : les deux navigateurs se connectent directement en WebRTC. Le serveur ne sert qu'à les présenter l'un à l'autre, puis il n'entend plus parler du fichier.</p></div>
+        </div>
+      </section>
+
+      <!-- VISUELS -->
+      <section class="cs-section cs-visuals">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">02</span>En images</p><h2>À quoi ça <em>ressemble.</em></h2></div>
+        <div class="vis-grid vis-grid-mixed"><figure class="vis vis-browser wide reveal"><div class="frame-browser"><div class="fb-bar"><i></i><i></i><i></i><span>osadrop.osalabs.fr</span></div><img src="/media/osadrop/code.webp" alt="OsaDrop affiche un code et un QR code" loading="lazy" decoding="async"></div><figcaption>L'expéditeur reçoit un code et un QR code à partager.</figcaption></figure><figure class="vis vis-browser reveal"><div class="frame-browser"><div class="fb-bar"><i></i><i></i><i></i><span>osadrop.osalabs.fr</span></div><img src="/media/osadrop/landing.webp" alt="Accueil d'OsaDrop" loading="lazy" decoding="async"></div><figcaption>Envoyer ou recevoir, sur un seul écran.</figcaption></figure><figure class="vis vis-phone reveal"><div class="frame-phone"><span class="fp-notch"></span><img src="/media/osadrop/mobile.webp" alt="OsaDrop sur mobile" loading="lazy" decoding="async"></div><figcaption>Côté téléphone, on scanne le QR code.</figcaption></figure></div>
+      </section>
+
+      <!-- FONCTIONNEMENT -->
+      <section class="cs-section cs-how">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">03</span>Comment ça marche</p><h2>Sous le <em>capot.</em></h2><p class="lead narrow">Deux phases : une courte présentation par le serveur, puis une conversation directe entre les deux appareils.</p></div>
+        <div class="diagram-card reveal"><svg class="diagram" viewBox="0 0 820 340" role="img" aria-label="Schéma d'architecture de OsaDrop">
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="d-arrow"/></marker>
+      <marker id="arr-s" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="d-arrow"/></marker>
+    </defs>
+    <g class="d-edges"><path class="d-edge dashed" style="--i:0" d="M211.7 176.2 L335.7 109.8" marker-end="url(#arr)" marker-start="url(#arr-s)"/><g class="d-elabel" transform="translate(273.7 143.0)"><rect x="-46" y="-11" width="92" height="22" rx="11"/><text text-anchor="middle" dy="4">offre, ICE</text></g><path class="d-edge dashed" style="--i:1" d="M484.3 109.8 L608.3 176.2" marker-end="url(#arr)" marker-start="url(#arr-s)"/><g class="d-elabel" transform="translate(546.3 143.0)"><rect x="-53.2" y="-11" width="106.4" height="22" rx="11"/><text text-anchor="middle" dy="4">réponse, ICE</text></g><path class="d-edge thick" style="--i:2" d="M233.0 220.0 L587.0 220.0" marker-end="url(#arr)"/><g class="d-elabel" transform="translate(410.0 220.0)"><rect x="-96.4" y="-11" width="192.8" height="22" rx="11"/><text text-anchor="middle" dy="4">DataChannel : le fichier</text></g><path class="d-edge dashed" style="--i:3" d="M317.3 273.5 L232.7 249.3" marker-end="url(#arr)"/><path class="d-edge dashed" style="--i:4" d="M502.7 273.5 L587.3 249.3" marker-end="url(#arr)"/></g><g class="d-node" style="--i:0;--c:#93c5fd">
+      <rect class="d-shadow" x="35" y="185" width="190" height="80" rx="14"/>
+      <rect class="d-box" x="35" y="180" width="190" height="80" rx="14"/>
+      <text class="d-label" x="130" y="217" text-anchor="middle">Expéditeur</text>
+      <text class="d-sub" x="130" y="236" text-anchor="middle">navigateur</text>
+    </g><g class="d-node" style="--i:1;--c:#93c5fd">
+      <rect class="d-shadow" x="595" y="185" width="190" height="80" rx="14"/>
+      <rect class="d-box" x="595" y="180" width="190" height="80" rx="14"/>
+      <text class="d-label" x="690" y="217" text-anchor="middle">Destinataire</text>
+      <text class="d-sub" x="690" y="236" text-anchor="middle">navigateur</text>
+    </g><g class="d-node" style="--i:2;--c:#e5e7eb">
+      <rect class="d-shadow" x="305" y="39" width="210" height="72" rx="14"/>
+      <rect class="d-box" x="305" y="34" width="210" height="72" rx="14"/>
+      <text class="d-label" x="410" y="67" text-anchor="middle">Serveur</text>
+      <text class="d-sub" x="410" y="86" text-anchor="middle">Socket.io · signalisation</text>
+    </g><g class="d-node" style="--i:3;--c:#fde68a">
+      <rect class="d-shadow" x="325" y="277" width="170" height="56" rx="14"/>
+      <rect class="d-box" x="325" y="272" width="170" height="56" rx="14"/>
+      <text class="d-label" x="410" y="297" text-anchor="middle">STUN</text>
+      <text class="d-sub" x="410" y="316" text-anchor="middle">trouver son IP</text>
+    </g>
+  </svg></div>
+        <ol class="cs-steps">
+          <li class="reveal" style="--d:0s"><span class="step-key" aria-hidden="true">1</span><div><h3>Un salon à deux</h3><p>L'expéditeur génère un code. Le serveur Socket.io crée un salon qui n'accepte que deux appareils.</p></div></li><li class="reveal" style="--d:0.06s"><span class="step-key" aria-hidden="true">2</span><div><h3>La signalisation</h3><p>Les deux navigateurs échangent leur offre, leur réponse SDP et leurs candidats ICE via le serveur. Un serveur STUN les aide à se trouver.</p></div></li><li class="reveal" style="--d:0.12s"><span class="step-key" aria-hidden="true">3</span><div><h3>Le canal direct</h3><p>Un DataChannel WebRTC s'ouvre entre eux, chiffré par défaut. Le serveur n'est plus utilisé.</p></div></li><li class="reveal" style="--d:0.18s"><span class="step-key" aria-hidden="true">4</span><div><h3>Envoi par morceaux</h3><p>Le fichier est découpé en morceaux de 64 Ko. Si plus de 1 Mo attend dans le tampon, l'envoi fait une pause jusqu'à ce qu'il se vide.</p></div></li><li class="reveal" style="--d:0.24s"><span class="step-key" aria-hidden="true">5</span><div><h3>Reconstitution</h3><p>Le destinataire assemble les morceaux, suit la progression, puis le fichier se télécharge tout seul.</p></div></li>
+        </ol>
+      </section>
+
+      <!-- DÉMO -->
+      <section class="cs-section cs-demo">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">✦</span>À toi de jouer</p><h2>Regarde un fichier voyager</h2><p class="lead narrow">Une simulation du vrai algorithme : le fichier part en morceaux de 64 Ko, et l'envoi s'arrête dès que le tampon dépasse 1 Mo. Décoche le contrôle de débit pour voir ce qui se passait avant le correctif.</p></div>
+        <div class="demo reveal" data-demo="drop"><noscript>Cette démo a besoin de JavaScript.</noscript></div>
+      </section>
+
+      <!-- DÉFIS -->
+      <section class="cs-section cs-challenges">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">!</span>Les défis</p><h2>Ce qui a <em>résisté.</em></h2></div>
+        <div class="challenge-grid">
+          <article class="challenge reveal" style="--d:0s">
+            <h3>Des closures React périmées</h3>
+            <p class="ch-problem"><span class="ch-tag bad">Problème</span>Les gestionnaires Socket.io gardaient une ancienne valeur du code de salon : les messages partaient dans le vide.</p>
+            <p class="ch-solution"><span class="ch-tag good">Solution</span>Les valeurs utilisées par les callbacks passent par des refs React, toujours à jour.</p>
+          </article><article class="challenge reveal" style="--d:0.06s">
+            <h3>Le tampon qui déborde</h3>
+            <p class="ch-problem"><span class="ch-tag bad">Problème</span>Envoyer un gros fichier d'un coup saturait la file du DataChannel et coupait le transfert.</p>
+            <p class="ch-solution"><span class="ch-tag good">Solution</span>Contrôle de débit avec <code>bufferedAmount</code> et l'événement <code>bufferedamountlow</code> : on n'envoie que quand il y a de la place.</p>
+          </article><article class="challenge reveal" style="--d:0.12s">
+            <h3>Des états qui se croisent</h3>
+            <p class="ch-problem"><span class="ch-tag bad">Problème</span>L'interface annonçait « connecté » avant que le canal soit vraiment ouvert.</p>
+            <p class="ch-solution"><span class="ch-tag good">Solution</span>L'interface ne suit plus que l'état réel du canal (<code>readyState</code>), avec un délai de garde en cas de silence.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- JOURNAL -->
+      <section class="cs-section cs-journal">
+        <div class="cs-head reveal"><p class="eyebrow"><span class="num">⏱</span>Journal de bord</p><h2>Comment c'est <em>arrivé.</em></h2></div>
+        <ol class="journal">
+          <li class="reveal"><time>5 oct · 08h16</time><span class="j-dot" aria-hidden="true"></span><div><h3>Première implémentation WebRTC</h3><p>Salon, signalisation et DataChannel.</p></div></li><li class="reveal"><time>5 oct · 08h26</time><span class="j-dot" aria-hidden="true"></span><div><h3>Quatre correctifs en 20 minutes</h3><p>Closures périmées, courses entre états, débordement de la file.</p></div></li><li class="reveal"><time>5 oct · 16h13</time><span class="j-dot" aria-hidden="true"></span><div><h3>Transfert robuste</h3><p>Délai de garde sur le flux et scanner de QR code.</p></div></li><li class="reveal"><time>8 oct · 09h06</time><span class="j-dot" aria-hidden="true"></span><div><h3>Pont OsaNotch</h3><p>Une page qui expose le même moteur à l'app macOS.</p></div></li><li class="reveal"><time>9 oct · 11h55</time><span class="j-dot" aria-hidden="true"></span><div><h3>Documentation</h3><p>README complet avec fonctionnement, déploiement et limites.</p></div></li>
+        </ol>
+      </section>
+
+      <!-- ET ENSUITE -->
+      <section class="cs-section cs-next">
+        <div class="cs-next-card reveal">
+          <div>
+            <p class="eyebrow"><span class="num">→</span>Et ensuite</p>
+            <h2>La suite <em>du projet.</em></h2>
+            
+          </div>
+          <ul><li>Ajouter un serveur TURN pour les réseaux qui bloquent les connexions directes.</li><li>Écrire le fichier en flux sur le disque pour ne plus dépendre de la mémoire du destinataire.</li><li>Envoyer plusieurs fichiers d'un coup et reprendre un transfert interrompu.</li></ul>
+        </div>
+      </section>
+
+      <!-- NAVIGATION -->
+      <nav class="cs-pager" aria-label="Autres projets">
+        <a class="pager-key prev" href="/projets/osaparty/" style="--c:#f3a6cf" data-key="ArrowLeft">
+          <span class="pager-top"><small>← Projet précédent</small><b>OsaParty</b></span>
+        </a>
+        <a class="pager-key next" href="/projets/osacast/" style="--c:#a5b4fc" data-key="ArrowRight">
+          <span class="pager-top"><small>Projet suivant →</small><b>OsaCast</b></span>
+        </a>
+      </nav>
+      <p class="pager-hint">Astuce : les flèches <kbd>←</kbd> <kbd>→</kbd> de ton clavier passent d'un projet à l'autre.</p>
+    </main>
+
+    <footer class="footer">
+      <p>Fait main par Yanis. <a href="/">Retour à l'accueil</a></p>
+      <p class="muted">OsaDrop · étude de cas</p>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+    <dialog class="zoom" id="zoom"><img alt="" /><button type="button" aria-label="Fermer">✕</button></dialog>
+
+    <script type="module" src="/src/project.js"></script>
+  </body>
+</html>
