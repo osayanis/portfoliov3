@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yanis · Portfolio</title>
+    <meta name="description" content="Yanis, développeur web et macOS : apps web WebRTC, app macOS native en Swift, Linux embarqué. L'écosystème OsaLabs, OsaNotch, Clavio, OpenPod." />
+    <meta name="theme-color" content="#f6f3ec" />
+    <meta property="og:title" content="Yanis · Portfolio" />
+    <meta property="og:description" content="Étudiant, je donne vie à mes idées avec l'IA." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Aller au contenu</a>
+
+    <header class="nav">
+      <a class="logo" href="#top" aria-label="Retour en haut">yanis<span>.</span></a>
+      <nav class="nav-links" aria-label="Navigation principale">
+        <a href="#notch">Projets</a>
+        <a href="#labo">Labo</a>
+        <a href="#apropos">À propos</a>
+        <a href="#github">GitHub</a>
+        <button class="sound-toggle" type="button" aria-pressed="true" title="Activer / couper le son des touches">
+          <span class="sound-on">Son</span><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+        </button>
+        <a class="nav-cta" href="#contact">On se parle ?</a>
+      </nav>
+    </header>
+
+    <main id="main">
+      <!-- ============ HERO ============ -->
+      <section class="hero" id="top">
+        <h1 class="hero-title">
+          <span class="line"><span>Bonjour, je suis Yanis.</span></span>
+          <span class="line"><span>Étudiant, je donne vie</span></span>
+          <span class="line"><span>à mes idées <em>avec l'IA.</em></span></span>
+        </h1>
+
+        <div class="keyboard-wrap">
+          <div class="keyboard" id="keyboard" role="group" aria-label="Clavier de navigation">
+            <!-- touches injectées par main.js -->
+            <svg class="enter" viewBox="0 0 585 206" aria-hidden="true">
+              <g class="enter-key">
+                <path class="enter-body" d="M453 4H567Q581 4 581 18V182Q581 196 567 196H518Q504 196 504 182V110Q504 96 490 96H453Q439 96 439 82V18Q439 4 453 4Z" />
+                <g class="enter-cap">
+                  <path class="enter-top" d="M460 12H560Q572 12 572 24V168Q572 180 560 180H525Q513 180 513 168V96Q513 84 501 84H460Q448 84 448 72V24Q448 12 460 12Z" />
+                  <path class="enter-glyph" d="M545 30V52Q545 58 539 58H482M496 44L482 58L496 72" />
+                  <text class="enter-label" transform="translate(546 134) rotate(90)" text-anchor="middle">ON PARLE ?</text>
+                </g>
+              </g>
+            </svg>
+            <button class="enter-hit" type="button" data-target="#contact" aria-label="Entrée : me contacter"></button>
+          </div>
+          <p class="keyboard-hint"><kbd>Clique</kbd> une touche ou <kbd>tape</kbd> sur ton clavier. Il y a un secret.</p>
+        </div>
+
+        <div class="ribbon" aria-hidden="true">
+          <div class="ribbon-track">
+            <span>Des idées joueuses. Des outils qui servent vraiment.</span><b>✦</b>
+            <span>WebRTC, Swift, Linux embarqué, Web MIDI</span><b>✦</b>
+            <span>Je construis ce que j'utilise au quotidien</span><b>✦</b>
+            <span>Des idées joueuses. Des outils qui servent vraiment.</span><b>✦</b>
+            <span>WebRTC, Swift, Linux embarqué, Web MIDI</span><b>✦</b>
+            <span>Je construis ce que j'utilise au quotidien</span><b>✦</b>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ OSANOTCH ============ -->
+      <section class="section notch-section" id="notch">
+        <div class="section-head reveal">
+          <p class="eyebrow"><span class="dot" style="--c:#c4b5fd"></span>Projet phare · Swift natif</p>
+          <h2>OsaNotch. L'encoche de ton Mac, <em>enfin vivante.</em></h2>
+        </div>
+
+        <div class="notch-grid">
+          <div class="notch-copy reveal">
+            <p class="lead">J'ai transformé l'encoche du MacBook en petit compagnon. Une mascotte qui suit ton curseur des yeux et danse quand ta musique joue, avec tes paroles, tes fichiers et tes IA à portée de souris.</p>
+            <ul class="feature-list">
+              <li><b>Paroles synchronisées</b> ligne par ligne, Apple Music et Spotify.</li>
+              <li><b>Étagère à fichiers</b> : glisse sur l'encoche, re-glisse plus tard, avec miniatures Quick Look.</li>
+              <li><b>« Claude Code a terminé ✅ »</b> : le notch te prévient quand ton IA a fini de générer.</li>
+              <li><b>HUD volume & luminosité</b> à la largeur exacte de l'encoche, mises à jour automatiques.</li>
+            </ul>
+            <div class="chips">
+              <span>Swift</span><span>SwiftUI + AppKit</span><span>Apple Silicon</span><span>macOS 14+</span>
+            </div>
+            <div class="btn-row">
+              <a class="btn btn-dark" href="https://notch.osalabs.fr" target="_blank" rel="noopener">Télécharger le .dmg</a>
+              <a class="btn" href="https://github.com/osayanis/osanotch-native" target="_blank" rel="noopener">Voir le code</a>
+            </div>
+          </div>
+
+          <div class="mac reveal" id="mac">
+            <div class="mac-screen">
+              <div class="menubar">
+                <span class="apple" aria-hidden="true"></span><b>Finder</b><span>Fichier</span><span>Édition</span>
+                <span class="menubar-right">jeu. 12:59</span>
+              </div>
+              <div class="island" id="island" data-state="music">
+                <div class="island-collapsed">
+                  <span class="mini-art"></span>
+                  <span class="mini-eq"><i></i><i></i><i></i></span>
+                </div>
+                <div class="island-open">
+                  <div class="pane pane-music">
+                    <div class="art"><span class="mascot" data-mascot><i class="eye"><i></i></i><i class="eye"><i></i></i></span></div>
+                    <div class="lyrics-wrap">
+                      <p class="track"><b>Nuit blanche</b> · Ton artiste préféré</p>
+                      <div class="lyrics" id="lyrics">
+                        <p>Je code jusqu'à pas d'heure</p>
+                        <p>L'encoche danse avec moi</p>
+                        <p>Un petit fantôme crème</p>
+                        <p>Qui suit mon curseur du doigt</p>
+                        <p>Et quand le build est vert</p>
+                        <p>Il me fait coucou tout bas</p>
+                      </div>
+                      <div class="progress"><i></i></div>
+                    </div>
+                  </div>
+                  <div class="pane pane-files">
+                    <div class="file"><span class="thumb t1"></span>maquette.png</div>
+                    <div class="file"><span class="thumb t2"></span>rapport-bts.pdf</div>
+                    <div class="file"><span class="thumb t3"></span>beat-v2.mp3</div>
+                    <div class="file drop-zone">Glisse ici</div>
+                  </div>
+                  <div class="pane pane-ai">
+                    <span class="mascot mascot-big happy" data-mascot><i class="eye"><i></i></i><i class="eye"><i></i></i></span>
+                    <div><b>Claude Code a terminé ✅</b><small>portfolio · 42 fichiers modifiés</small></div>
+                  </div>
+                </div>
+              </div>
+              <div class="wallpaper" aria-hidden="true"></div>
+            </div>
+            <div class="mac-base" aria-hidden="true"></div>
+            <div class="island-tabs" role="tablist" aria-label="Modes du notch">
+              <button role="tab" aria-selected="true" data-state="music">Musique</button>
+              <button role="tab" aria-selected="false" data-state="files">Fichiers</button>
+              <button role="tab" aria-selected="false" data-state="ai">IA</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ OSALABS ============ -->
+      <section class="section" id="osalabs">
+        <div class="section-head reveal">
+          <p class="eyebrow"><span class="dot" style="--c:#93c5fd"></span>L'écosystème OsaLabs</p>
+          <h2>Quatre apps web. <em>Zéro serveur</em> au milieu.</h2>
+          <p class="lead narrow">Tout passe en pair-à-pair via WebRTC : tes fichiers, ton écran, ta musique ou tes dessins vont directement d'un appareil à l'autre. Et OsaNotch embarque les mêmes moteurs, donc tout est interopérable.</p>
+        </div>
+        <div class="apps" id="apps"></div>
+      </section>
+
+      <!-- ============ LABO ============ -->
+      <section class="section" id="labo">
+        <div class="section-head reveal">
+          <p class="eyebrow"><span class="dot" style="--c:#fde68a"></span>Le labo</p>
+          <h2>Des side projects qui <em>font du bruit.</em></h2>
+        </div>
+
+        <div class="lab-grid">
+          <!-- Clavio -->
+          <article class="lab lab-clavio reveal">
+            <div class="lab-text">
+              <p class="tag">Web MIDI · zéro dépendance</p>
+              <h3>Clavio</h3>
+              <p>Apprendre le piano façon Duolingo, avec un Casio CT-S100 ou n'importe quel clavier MIDI. 8 unités, 28 leçons, une mascotte nommée Clavi, et surtout : tu importes un fichier MIDI et l'app te l'apprend note par note.</p>
+              <a class="link" href="https://github.com/osayanis/clavio" target="_blank" rel="noopener">github.com/osayanis/clavio →</a>
+            </div>
+            <div class="piano-card">
+              <div class="piano-head">
+                <span class="clavi" aria-hidden="true">♪</span>
+                <p id="piano-msg">Joue <b>Au clair de la lune</b>. Suis la touche qui brille (souris ou touches <kbd>Q</kbd> à <kbd>K</kbd>).</p>
+              </div>
+              <div class="piano-progress"><i id="piano-bar"></i></div>
+              <div class="piano" id="piano" aria-label="Mini piano"></div>
+            </div>
+          </article>
+
+          <!-- OpenPod -->
+          <article class="lab lab-openpod reveal">
+            <div class="pod" id="pod">
+              <div class="pod-screen">
+                <div class="pod-boot"><b>OpenPod</b><small>boot 2.4 s</small></div>
+                <ul class="pod-menu">
+                  <li class="on">Musique</li><li>Albums</li><li>Artistes</li><li>Bit-perfect ✓</li><li>Réglages</li>
+                </ul>
+              </div>
+              <div class="pod-controls">
+                <button type="button" data-pod="up" aria-label="Monter">▲</button>
+                <button type="button" data-pod="ok" aria-label="Valider">●</button>
+                <button type="button" data-pod="down" aria-label="Descendre">▼</button>
+              </div>
+            </div>
+            <div class="lab-text">
+              <p class="tag">Linux embarqué · phase 1</p>
+              <h3>OpenPod OS</h3>
+              <p>Un baladeur audiophile pour écouter sans distraction. Je développe l'OS : une distribution Linux sur Raspberry Pi Zero 2 W, lecture bit-perfect via MPD et I²S, écran 240×320, et l'objectif de passer du bouton à la musique en moins de 3 secondes.</p>
+              <p class="muted">Inspiré par Apple et Teenage Engineering. Le projet démarre, la feuille de route est publique.</p>
+            </div>
+          </article>
+
+          <!-- Proxmox -->
+          <article class="lab lab-term reveal">
+            <div class="lab-text">
+              <p class="tag">Bash · sysadmin</p>
+              <h3>Proxmox Automatisation</h3>
+              <p>Un script interactif pour créer des conteneurs et des VM en masse sur Proxmox VE : IDs uniques, réseau, DNS, templates et ISOs téléchargés à la volée.</p>
+              <a class="link" href="https://github.com/osayanis/Proxmox-Automatisation-Script" target="_blank" rel="noopener">Voir le script →</a>
+            </div>
+            <div class="terminal" aria-label="Démo du script Proxmox">
+              <div class="term-bar"><i></i><i></i><i></i><span>root@pve: ~</span></div>
+              <pre id="term"></pre>
+            </div>
+          </article>
+
+          <!-- Petits projets -->
+          <article class="lab-mini reveal">
+            <span class="mini-key" style="--c:#fcc48b">🖨️</span>
+            <h3>Imprimante réseau</h3>
+            <p>Serveur Debian 12 avec CUPS et PaperPrint : authentification et quotas d'impression par utilisateur. Projet d'équipe à six.</p>
+          </article>
+          <article class="lab-mini reveal">
+            <span class="mini-key" style="--c:#f3a6cf">🤖</span>
+            <h3>Bot Discord</h3>
+            <p>Bienvenue, tickets, suggestions, giveaways automatisés et commandes slash. Là où tout a commencé.</p>
+          </article>
+          <article class="lab-mini reveal">
+            <span class="mini-key" style="--c:#a7e8bd">🛡️</span>
+            <h3>Data & cybersécurité</h3>
+            <p>Projets de cours sur la valorisation de la donnée et la sécurité des systèmes. Le côté infra me plaît autant que le front.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============ A PROPOS ============ -->
+      <section class="section about" id="apropos">
+        <div class="about-grid">
+          <div class="about-portrait reveal">
+            <div class="blob">
+              <span class="mascot mascot-xl" data-mascot><i class="eye"><i></i></i><i class="eye"><i></i></i></span>
+            </div>
+            <p class="caption">Mon avatar officiel. Il me ressemble beaucoup.</p>
+          </div>
+          <div class="about-copy reveal">
+            <p class="eyebrow"><span class="dot" style="--c:#f9a8a8"></span>Un peu de moi</p>
+            <h2>Étudiant, développeur, et <em>incapable</em> de laisser une idée dans un coin.</h2>
+            <p class="lead">Je m'appelle Yanis, je suis en France et je suis en BTS. J'aime les interfaces claires et maintenables, mais surtout les projets qui touchent au réel : un notch de MacBook, un piano MIDI, un baladeur sur Raspberry Pi, un serveur Proxmox.</p>
+            <p>Mon terrain de jeu va du navigateur (WebRTC, Next.js) jusqu'au système (Swift natif, Linux embarqué, Bash). Je regroupe mes apps sous <a href="https://osalabs.fr" target="_blank" rel="noopener">OsaLabs</a>, mon petit labo perso.</p>
+            <dl class="stats" id="stats">
+              <div><dt data-count="34">0</dt><dd>dépôts GitHub</dd></div>
+              <div><dt data-count="5">0</dt><dd>apps OsaLabs</dd></div>
+              <div><dt data-count="9">0</dt><dd>projets lancés en 8 jours</dd></div>
+              <div><dt data-count="3" data-suffix=" s">0</dt><dd>pour booter OpenPod (objectif)</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ METHODE ============ -->
+      <section class="section" id="methode">
+        <div class="section-head reveal">
+          <p class="eyebrow"><span class="dot" style="--c:#a5b4fc"></span>Ma méthode</p>
+          <h2>Quatre touches, <em>dans l'ordre.</em></h2>
+        </div>
+        <ol class="method" id="method"></ol>
+      </section>
+
+      <!-- ============ STACK ============ -->
+      <section class="section" id="stack">
+        <div class="section-head reveal">
+          <p class="eyebrow"><span class="dot" style="--c:#fcc48b"></span>Boîte à outils</p>
+          <h2>Ce qu'il y a <em>sous mes doigts.</em></h2>
+          <p class="lead narrow">Appuie dessus, elles cliquent vraiment.</p>
+        </div>
+        <div class="keycaps reveal" id="keycaps"></div>
+      </section>
+
+      <!-- ============ PARCOURS ============ -->
+      <section class="section" id="parcours">
+        <div class="section-head reveal">
+          <p class="eyebrow"><span class="dot" style="--c:#a7e8bd"></span>Mon parcours</p>
+          <h2>Du bot Discord <em>au Swift natif.</em></h2>
+        </div>
+        <ol class="timeline" id="timeline"></ol>
+      </section>
+
+      <!-- ============ GITHUB ============ -->
+      <section class="section" id="github">
+        <div class="section-head reveal">
+          <p class="eyebrow"><span class="dot" style="--c:#f3a6cf"></span>Mon GitHub</p>
+          <h2>Ce que je code, <em>en ce moment.</em></h2>
+          <p class="lead narrow">Ces données viennent directement de mon profil GitHub, rien n'est retouché.</p>
+        </div>
+        <div class="gh reveal" id="gh"></div>
+      </section>
+
+      <!-- ============ CONTACT ============ -->
+      <section class="section contact" id="contact">
+        <div class="contact-card reveal">
+          <p class="eyebrow light"><span class="dot" style="--c:#fde68a"></span>Dire bonjour</p>
+          <h2>Un projet, une collab, <em>une idée bizarre ?</em></h2>
+          <p class="lead">Je réponds vite, surtout si c'est un projet qui sort de l'ordinaire.</p>
+          <div class="contact-actions">
+            <a class="big-enter" id="mail-btn" href="https://github.com/osayanis" target="_blank" rel="noopener">
+              <span class="big-enter-top"><span>Écris-moi</span><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M34 3V14Q34 18 30 18H6M14 10L6 18L14 26" /></svg></span>
+            </a>
+            <ul class="contact-links">
+              <li><a href="https://github.com/osayanis" target="_blank" rel="noopener"><span>GitHub</span><b>@osayanis</b></a></li>
+              <li><a href="https://osalabs.fr" target="_blank" rel="noopener"><span>Labo</span><b>osalabs.fr</b></a></li>
+              <li><a href="https://yanis.pro" target="_blank" rel="noopener"><span>Site</span><b>yanis.pro</b></a></li>
+              <li><button type="button" id="discord-copy"><span>Discord</span><b>yanis.osa</b><em>copier</em></button></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Fait main par Yanis, tapé sur un clavier (évidemment).</p>
+      <p class="muted">Psst : tape <kbd>P</kbd><kbd>O</kbd><kbd>R</kbd><kbd>T</kbd><kbd>F</kbd><kbd>O</kbd><kbd>L</kbd><kbd>I</kbd><kbd>O</kbd> n'importe où.</p>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
