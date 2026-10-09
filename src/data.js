@@ -38,7 +38,7 @@ export const osalabsApps = [
     url: 'https://osadrop.osalabs.fr',
     color: '#60a5fa',
     tag: 'Transfert P2P',
-    desc: "Envoie un fichier d'un appareil à l'autre avec un code à 4 caractères. Rien ne passe par un serveur.",
+    desc: "Envoie un fichier d'un appareil à l'autre avec un code à 6 caractères ou un QR code. Rien ne passe par un serveur.",
     detail: 'Envoi par morceaux via les DataChannels WebRTC, donc pas de limite de taille.',
     stack: ['WebRTC', 'Next.js', 'TypeScript'],
     visual: 'drop',

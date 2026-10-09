@@ -327,7 +327,7 @@ lyricLines[0].classList.add('on')
 /* ================= OSALABS ================= */
 const visuals = {
   party: () => `<div class="v-party"><span class="v-pin">PIN 482 913</span>${'<i></i>'.repeat(7)}</div>`,
-  drop: () => `<div class="v-drop"><div class="device laptop"></div><span class="packet"></span><div class="device"></div><span class="v-code">K7QX</span></div>`,
+  drop: () => `<div class="v-drop"><div class="device laptop"></div><span class="packet"></span><div class="device"></div><span class="v-code">K7QX2M</span></div>`,
   cast: () => `<div class="v-cast"><div class="screen"><span class="ripple"></span></div><span class="live">● LIVE</span></div>`,
   board: () => `<div class="v-board"><svg viewBox="0 0 200 150"><path d="M20 110 C 40 40, 70 40, 80 90 S 120 140, 135 70 S 170 30, 182 60"/><path d="M30 40 L60 30 M120 115 Q150 100 175 118"/></svg></div>`,
 }
