@@ -24,6 +24,8 @@ npm run build    # génère dist/
 | Le cadre photo | À propos |
 | Le téléphone | Contact |
 
+Et hors parcours : le **tourne-disque** sur le meuble de gauche lance *It's a Man's Man's Man's World* de Seal via le lecteur YouTube officiel (aucun fichier audio n'est hébergé), et le **chat** sur la banquette a quelques répliques.
+
 - La pièce 3D : `src/room/scene.js`. Les textes des chapitres : `src/room/chapters.js`. L'interface : `src/main.js` et `src/room/room.css`.
 - Navigation : glisser pour tourner, clic sur un objet, flèches ← → pour passer d'un chapitre à l'autre, `T` visite guidée, `C` carnet, `L` lumière, `Échap` pour fermer.
 - Liens directs : `/#osanotch`, `/#github`, `/#contact`… ouvrent l'objet correspondant.
@@ -32,6 +34,9 @@ npm run build    # génère dist/
 - Mets ton adresse dans `profile.email` (`src/data.js`) pour que « Écris-moi » ouvre un mail (sinon il pointe vers GitHub).
 
 ## Études de cas
+
+Chaque étude de cas s'ouvre sur une image du bureau cadrée sur l'objet du projet. Ces images (`public/media/bureau/`) se régénèrent avec le mode prise de vue : `/?shot=macbook`, `/?shot=piano`…
+
 
 Chaque projet a sa page : `/projets/<slug>/` (OsaNotch, OsaParty, OsaDrop, OsaCast, OsaBoard, Clavio, OpenPod OS, Proxmox).
 

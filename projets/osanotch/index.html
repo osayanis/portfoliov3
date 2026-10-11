@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OsaNotch · Étude de cas · Yanis</title>
     <meta name="description" content="OsaNotch transforme l'encoche du MacBook en petite île dynamique. Au survol, elle s'ouvre avec une animation à ressort et regroupe la musique et ses parole" />
-    <meta name="theme-color" content="#f1edff" />
+    <meta name="theme-color" content="#140d0a" />
     <link rel="canonical" href="https://yanis.pro/projets/osanotch/" />
     <meta property="og:type" content="article" />
     <meta property="og:title" content="OsaNotch · Ton encoche, enfin vivante." />
     <meta property="og:description" content="OsaNotch transforme l'encoche du MacBook en petite île dynamique. Au survol, elle s'ouvre avec une animation à ressort et regroupe la musique et ses parole" />
     <meta property="og:url" content="https://yanis.pro/projets/osanotch/" />
-    <meta property="og:image" content="https://yanis.pro/media/osanotch/banner.webp" />
+    <meta property="og:image" content="https://yanis.pro/media/bureau/osanotch.webp" />
     <script>(function(){var t;try{t=localStorage.getItem('theme')}catch(e){}var d=t?t==='dark':true;document.documentElement.classList.toggle('dark',d)})()</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -21,42 +21,31 @@
   <body class="cs-page" style="--p:#c4b5fd;--p-deep:#7c5cf0;--p-soft:#f1edff">
     <a class="skip" href="#main">Aller au contenu</a>
 
-    <header class="nav">
-      <a class="logo" href="/" aria-label="Retour à l'accueil">yanis<span>.</span></a>
+    <header class="nav cs-nav">
+      <a class="logo" href="/" aria-label="Retour au bureau">yanis<span>.</span><small>le bureau</small></a>
       <nav class="nav-links" aria-label="Navigation principale">
-        <a href="/">Le bureau</a>
-        <a href="/#carnet">Carnet</a>
-        <a href="/#github">GitHub</a>
-        <button class="theme-toggle" type="button" aria-label="Basculer le mode sombre" title="Mode sombre / clair"><span class="tt-sun" aria-hidden="true">☀</span><span class="tt-moon" aria-hidden="true">☾</span></button>
-        <button class="sound-toggle" type="button" aria-pressed="true" title="Activer / couper le son">
-          <span class="sound-on">Son</span><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span>
-        </button>
-        <a class="nav-cta" href="/#contact">On se parle ?</a>
+        <a href="/#osanotch" class="nav-pill">← Le bureau</a>
+        <a href="/#carnet" class="nav-pill">Carnet</a>
+        <button class="sound-toggle nav-pill" type="button" aria-pressed="true" title="Activer / couper le son"><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span><span class="sound-on">Son</span></button>
+        <button class="theme-toggle nav-pill" type="button" aria-label="Allumer ou éteindre la lumière" title="Lumière"><span class="tt-sun" aria-hidden="true">☀</span><span class="tt-moon" aria-hidden="true">☾</span></button>
+        <a class="nav-cta nav-pill" href="/#contact">On se parle ?</a>
       </nav>
     </header>
 
     <main id="main" class="cs">
       <!-- HERO -->
       <section class="cs-hero">
-        <div class="cs-floaters" aria-hidden="true">
-          <span class="cube cs-c1" data-depth="1.4"><span class="cube-in"><i class="f0">N</i><i class="f1">N</i><i class="f2">✦</i><i class="f3">✦</i><i class="f4"></i><i class="f5"></i></span></span>
-          <span class="cube cs-c2" data-depth="0.7"><span class="cube-in"><i class="f0">⌘</i><i class="f1">⏎</i><i class="f2">⌥</i><i class="f3">⇧</i><i class="f4"></i><i class="f5"></i></span></span>
-          <span class="orb cs-o1" data-depth="1.8"></span>
-        </div>
-        <a class="cs-back" href="/#osanotch"><span aria-hidden="true">←</span> Retour au bureau</a>
-        <div class="cs-hero-grid">
-          <div class="cs-hero-copy">
-            <p class="eyebrow"><span class="dot" style="--c:#c4b5fd"></span>App macOS native · Swift</p>
-            <h1 class="cs-title"><span style="view-transition-name: t-osanotch">OsaNotch</span></h1>
-            <p class="cs-tagline">Ton encoche, <em>enfin vivante.</em></p>
-            <p class="lead">OsaNotch transforme l'encoche du MacBook en petite île dynamique. Au survol, elle s'ouvre avec une animation à ressort et regroupe la musique et ses paroles, une étagère de fichiers, les réglages système et toutes les apps OsaLabs. Au centre, une mascotte qui suit ton curseur des yeux.</p>
-            <div class="btn-row"><a class="btn btn-dark" href="https://notch.osalabs.fr" target="_blank" rel="noopener">Télécharger le .dmg <span aria-hidden="true">↗</span></a><a class="btn" href="https://github.com/osayanis/osanotch-native" target="_blank" rel="noopener">Voir le code <span aria-hidden="true">↗</span></a></div>
-          </div>
-          <div class="cs-cap" aria-hidden="true">
-            <button type="button" class="cs-key" tabindex="-1"><span class="cs-key-top"><b>N</b><small>OsaNotch</small></span></button>
-          </div>
+        <div class="cs-hero-bg" aria-hidden="true"><img src="/media/bureau/osanotch.webp" alt="" fetchpriority="high"></div>
+        <div class="cs-hero-inner">
+          <a class="cs-back" href="/#osanotch"><span aria-hidden="true">←</span> Retour au bureau</a>
+          <p class="cs-object"><span class="dot" style="--c:#c4b5fd"></span>Dans le bureau : <b>le MacBook</b></p>
+          <h1 class="cs-title"><span style="view-transition-name: t-osanotch">OsaNotch</span></h1>
+          <p class="cs-tagline">Ton encoche, <em>enfin vivante.</em></p>
+          <p class="lead">OsaNotch transforme l'encoche du MacBook en petite île dynamique. Au survol, elle s'ouvre avec une animation à ressort et regroupe la musique et ses paroles, une étagère de fichiers, les réglages système et toutes les apps OsaLabs. Au centre, une mascotte qui suit ton curseur des yeux.</p>
+          <div class="btn-row"><a class="btn btn-dark" href="https://notch.osalabs.fr" target="_blank" rel="noopener">Télécharger le .dmg <span aria-hidden="true">↗</span></a><a class="btn" href="https://github.com/osayanis/osanotch-native" target="_blank" rel="noopener">Voir le code <span aria-hidden="true">↗</span></a></div>
         </div>
         <dl class="cs-meta">
+          <div><dt>Ce que c'est</dt><dd>App macOS native · Swift</dd></div>
           <div><dt>Rôle</dt><dd>Conception, design et développement</dd></div>
           <div><dt>Période</dt><dd>7 → 11 octobre 2026</dd></div>
           <div><dt>Statut</dt><dd>Disponible en .dmg, mises à jour automatiques</dd></div>
@@ -192,7 +181,7 @@
     </main>
 
     <footer class="footer">
-      <p>Fait main par Yanis. <a href="/#osanotch">Retour au bureau</a></p>
+      <p>Fait main par Yanis, dans son bureau. <a href="/#osanotch">Y retourner</a></p>
       <p class="muted">OsaNotch · étude de cas</p>
     </footer>
 

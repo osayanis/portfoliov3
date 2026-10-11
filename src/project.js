@@ -1,6 +1,7 @@
 import './style.css'
 import './project.css'
 import './demos/demos.css'
+import './cs-bureau.css'
 import { $, $$, sound, toast, confetti, onceVisible, updateEyes, observeReveals } from './core.js'
 import { tilt, progressBar, countUp, parallax, magnetic, splitWords } from './fx.js'
 

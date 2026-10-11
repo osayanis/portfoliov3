@@ -235,3 +235,29 @@ html:not(.dark) .carnet { background: rgba(246, 239, 228, .45); }
 @media (prefers-reduced-motion: reduce) {
   .room::before, .loader-ghost { animation: none; }
 }
+
+/* ---------- le tourne-disque ---------- */
+.vinyl-card {
+  position: fixed; z-index: 15; left: clamp(10px, 2vw, 22px); bottom: 16px; width: 264px; padding: 12px; border-radius: 20px;
+  background: var(--glass); border: 1px solid var(--glass-line); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  color: var(--text); box-shadow: 0 24px 60px rgba(0, 0, 0, .4); transform: translateY(calc(100% + 30px)); transition: transform .5s var(--ease-out);
+}
+.vinyl-card.show { transform: none; }
+.vinyl-card header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.vinyl-card header div { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
+.vinyl-card small { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: #ffb35c; }
+.vinyl-card b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vinyl-card header span:not(.vinyl-disc) { font-size: 12px; color: var(--ink-2); }
+.vinyl-disc { flex: none; width: 38px; height: 38px; border-radius: 50%; background: radial-gradient(circle, #d4573a 0 20%, #111 21% 100%); box-shadow: inset 0 0 0 3px #222, inset 0 0 0 6px #111, inset 0 0 0 7px #2a2a2a; }
+.vinyl-card.playing .vinyl-disc { animation: spin-flat 1.8s linear infinite; }
+.vinyl-close { flex: none; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--glass-line); background: var(--glass-2); color: var(--text); font-size: 12px; }
+.vinyl-player { width: 240px; height: 200px; border-radius: 12px; overflow: hidden; background: #000; }
+.vinyl-player iframe { display: block; width: 100%; height: 100%; border: 0; }
+.vinyl-toggle { width: 100%; margin-top: 10px; padding: 9px; border-radius: 12px; border: 0; background: #ffb35c; color: #2a160c; font-weight: 700; font-size: 14px; }
+@media (max-width: 760px) {
+  .vinyl-card { left: 8px; right: auto; bottom: 8px; }
+  .reading .vinyl-card { opacity: 0; pointer-events: none; }
+}
+
+/* mode prise de vue : aucune interface */
+.shot-mode :is(.hud, .room-bubble, .room-hint, .room-controls, .chapter, .vinyl-card, .room-tag, .room-loader) { display: none !important; }
