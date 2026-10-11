@@ -5,6 +5,7 @@ import { $, $$, sound, toast, confetti, updateEyes } from './core.js'
 import { profile, osalabsApps, stack } from './data.js'
 import { chapters, byId } from './room/chapters.js'
 import snapshot from './github-snapshot.json'
+import { RECORDS } from './room/records.js'
 
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
 const order = chapters.map(c => c.id)
@@ -108,6 +109,7 @@ function openChapter(id, { fromTour = false } = {}) {
   const c = byId[id]
   if (!c) return
   if (deckOpen) closeDeck()
+  if (shelfOpen) closeShelf()
   if (!fromTour) touring = false
   current = id
   renderChapter(c)
@@ -161,53 +163,77 @@ $$('.carnet-list li').forEach(li => li.addEventListener('click', e => {
 }))
 
 
-/* ================= le tourne-disque ================= */
+/* ================= le tourne-disque et la discothèque ================= */
 // L'extrait officiel de 30 s fourni par Apple (API iTunes) : aucun fichier audio hébergé,
 // et un lien vers Apple Music pour écouter le morceau en entier. Pas de paroles affichées
 // (elles sont protégées) : à la place, des infos sur le morceau flottent à côté du disque.
-const SONG = { query: "seal it's a man's man's man's world soul", title: "It's a Man's Man's Man's World", artist: 'Seal', album: 'Soul', year: '2008' }
-const FACTS = [
-  'Une chanson de James Brown, 1966',
-  'Reprise par Seal en 2008',
-  "Sur l'album Soul, produit par David Foster",
-  'Le morceau préféré de Yanis pour coder tard',
-  'Posé sur la platine, côté gauche du bureau',
-]
-let track = null, audio = null, playing = false, deckOpen = false
+let cur = 0, tracks = null, audio = null, playing = false, deckOpen = false
 const deck = document.createElement('aside')
 deck.className = 'deck'
 deck.setAttribute('aria-label', 'Platine')
 deck.innerHTML = `
   <div class="deck-card">
     <img class="deck-cover" alt="" />
-    <div class="deck-meta"><small>Sur la platine</small><b>${SONG.title}</b><span>${SONG.artist} · ${SONG.album} · ${SONG.year}</span></div>
+    <div class="deck-meta"><small>Sur la platine</small><b></b><span></span></div>
     <div class="deck-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
     <div class="deck-progress"><i></i></div>
     <div class="deck-actions">
-      <button type="button" class="deck-play">Pause</button>
+      <button type="button" class="deck-play">Lecture</button>
       <a class="deck-apple" target="_blank" rel="noopener">Écouter en entier ↗</a>
     </div>
+    <button type="button" class="deck-swap">Changer de disque</button>
     <p class="deck-credit">Extrait de 30 s fourni par Apple Music</p>
     <button type="button" class="deck-close" aria-label="Revenir au bureau">✕</button>
   </div>
-  <ul class="deck-facts" aria-hidden="true">${FACTS.map((f, i) => `<li style="--i:${i}">${f}</li>`).join('')}</ul>
-  <button type="button" class="deck-mini" aria-label="Revenir à la platine"><span class="deck-mini-disc"></span><span>${SONG.artist}</span></button>`
+  <ul class="deck-facts" aria-hidden="true"></ul>
+  <button type="button" class="deck-mini" aria-label="Revenir à la platine"><span class="deck-mini-disc"></span><span class="deck-mini-name"></span></button>`
 document.body.appendChild(deck)
 
-async function loadTrack() {
-  if (track) return track
-  try {
-    const r = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(SONG.query)}&entity=song&country=fr&limit=5`)
-    const j = await r.json()
-    track = j.results.find(t => t.artistName === 'Seal' && /^It's a Man's Man's Man's World$/i.test(t.trackName) && t.previewUrl) || null
-  } catch { track = null }
-  if (track) {
-    const art = track.artworkUrl100.replace('100x100bb', '600x600bb')
-    $('.deck-cover', deck).src = art
-    $('.deck-apple', deck).href = track.trackViewUrl
-    room?.setRecordArt(art)
-  }
-  return track
+// la carte du disque sorti de la discothèque
+const crateCard = document.createElement('aside')
+crateCard.className = 'deck crate'
+crateCard.setAttribute('aria-label', 'Discothèque')
+crateCard.innerHTML = `
+  <div class="deck-card">
+    <img class="deck-cover" alt="" />
+    <div class="deck-meta"><small>Dans la discothèque</small><b></b><span></span></div>
+    <div class="deck-actions">
+      <button type="button" class="deck-play crate-put">Poser sur la platine</button>
+      <button type="button" class="deck-apple crate-back">Le ranger</button>
+    </div>
+    <button type="button" class="deck-close" aria-label="Ranger le disque">✕</button>
+  </div>`
+document.body.appendChild(crateCard)
+const shelfHint = document.createElement('p')
+shelfHint.className = 'shelf-hint'
+shelfHint.textContent = 'Choisis un vinyle'
+document.body.appendChild(shelfHint)
+
+const artOf = i => tracks?.[i]?.artworkUrl100?.replace('100x100bb', '600x600bb') || ''
+// une seule requête pour tous les disques, puis les pochettes arrivent dans la scène
+let tracksLoading = null
+function loadTracks() {
+  if (tracksLoading) return tracksLoading
+  tracksLoading = fetch(`https://itunes.apple.com/lookup?id=${RECORDS.map(r => r.id).join(',')}&country=fr`)
+    .then(r => r.json())
+    .then(j => {
+      tracks = RECORDS.map(r => j.results.find(t => t.trackId === r.id && t.previewUrl) || null)
+      RECORDS.forEach((r, i) => { if (artOf(i)) room?.setRecordArt(i, artOf(i)) })
+      renderDeck()
+      return tracks
+    })
+    .catch(() => { tracksLoading = null; return null })
+  return tracksLoading
+}
+function renderDeck() {
+  const r = RECORDS[cur]
+  $('.deck-meta b', deck).textContent = r.title
+  $('.deck-meta span', deck).textContent = `${r.artist} · ${r.album} · ${r.year}`
+  $('.deck-mini-name', deck).textContent = r.artist
+  $('.deck-facts', deck).innerHTML = r.facts.map((f, i) => `<li style="--i:${i}">${f}</li>`).join('')
+  const art = artOf(cur)
+  if (art) $('.deck-cover', deck).src = art
+  if (tracks?.[cur]) $('.deck-apple', deck).href = tracks[cur].trackViewUrl
 }
 function setPlaying(p) {
   playing = p
@@ -216,23 +242,30 @@ function setPlaying(p) {
   $('.deck-play', deck).textContent = p ? 'Pause' : 'Lecture'
 }
 async function playMusic() {
-  const t = await loadTrack()
-  if (!t) { say("La platine ne trouve pas le disque… réessaie plus tard.", [], 3500); return }
-  if (!audio) {
+  await loadTracks()
+  const t = tracks?.[cur]
+  if (!t) { say('La platine ne trouve pas le disque… réessaie plus tard.', [], 3500); return }
+  if (!audio || audio.dataset.id !== String(t.trackId)) {
+    audio?.pause()
     audio = new Audio(t.previewUrl)
+    audio.dataset.id = t.trackId
     audio.volume = 0.85
     audio.addEventListener('play', () => setPlaying(true))
     audio.addEventListener('pause', () => setPlaying(false))
     audio.addEventListener('timeupdate', () => { $('.deck-progress i', deck).style.width = (audio.currentTime / (audio.duration || 30)) * 100 + '%' })
     audio.addEventListener('ended', () => { setPlaying(false); say("C'était l'extrait. La suite est sur Apple Music !", [], 4000) })
   }
-  audio.currentTime >= (audio.duration || 30) - 0.2 && (audio.currentTime = 0)
+  if (audio.currentTime >= (audio.duration || 30) - 0.2) audio.currentTime = 0
   audio.play().catch(() => {})
 }
 // la caméra plonge sur la platine, la musique démarre, les infos flottent à côté
 function openDeck() {
   if (current) closeChapter()
+  if (shelfOpen) closeShelf()
   deckOpen = true
+  renderDeck()
+  // on relance l'animation des infos flottantes
+  deck.classList.remove('open'); void deck.offsetWidth
   deck.classList.add('open')
   document.body.classList.add('reading', 'listening')
   room.focus('turntable')
@@ -252,12 +285,73 @@ function closeDeck() {
 $('.deck-play', deck).addEventListener('click', () => { sound.click(); playing ? audio?.pause() : playMusic() })
 $('.deck-close', deck).addEventListener('click', () => { sound.click(); closeDeck() })
 $('.deck-mini', deck).addEventListener('click', () => { sound.click(); openDeck() })
+$('.deck-swap', deck).addEventListener('click', () => { sound.click(); openShelf() })
+
+// la discothèque : on choisit un disque, il sort de sa case, on peut le poser sur la platine
+let shelfOpen = false, picked = -1
+function openShelf() {
+  if (current) closeChapter()
+  if (deckOpen) closeDeck()
+  shelfOpen = true
+  loadTracks()
+  room.focus('vinyls')
+  room.panelOpen = false
+  document.body.classList.add('reading', 'browsing')
+  tag.classList.remove('show')
+  if (innerWidth >= 760) say('Choisis un vinyle, je te le sors de sa case.', [], 4000)
+}
+function closeShelf() {
+  if (!shelfOpen) return
+  shelfOpen = false
+  putBack()
+  room.hoverRecord(-1); hoveredRec = -1; tag.classList.remove('show')
+  document.body.classList.remove('reading', 'browsing')
+  room.unfocus()
+}
+function pickRecord(i) {
+  picked = i
+  room.selectRecord(i)
+  room.panelOpen = true
+  const r = RECORDS[i]
+  $('.deck-meta b', crateCard).textContent = r.title
+  $('.deck-meta span', crateCard).textContent = `${r.artist} · ${r.album} · ${r.year}`
+  const art = artOf(i)
+  $('.deck-cover', crateCard).src = art || ''
+  $('.deck-cover', crateCard).style.background = r.spine
+  crateCard.classList.add('open')
+  hideBubble(); tag.classList.remove('show')
+  sound.blip(200)
+}
+function putBack() {
+  if (picked < 0) return
+  picked = -1
+  room.selectRecord(-1)
+  room.panelOpen = false
+  crateCard.classList.remove('open')
+}
+// le disque choisi part sur la platine ; l'ancien reprend sa place dans la discothèque
+function putOnPlatter() {
+  const i = picked
+  if (i < 0) return
+  audio?.pause(); audio = null
+  $('.deck-progress i', deck).style.width = '0%'
+  cur = i
+  putBack()
+  room.setOnPlatter(i)
+  shelfOpen = false
+  document.body.classList.remove('browsing')
+  openDeck()
+}
+$('.crate-put', crateCard).addEventListener('click', () => { sound.click(); putOnPlatter() })
+$('.crate-back', crateCard).addEventListener('click', () => { sound.click(); putBack() })
+$('.deck-close', crateCard).addEventListener('click', () => { sound.click(); putBack() })
 
 /* ================= étiquette au survol ================= */
 const tag = $('.room-tag')
-let hovered = null
+let hovered = null, hoveredRec = -1
 const CAT = { object: 'Le chat', era: 'ne fait pas partie du portfolio', color: '#fcc48b' }
-const DECK = { object: 'Le tourne-disque', era: "Seal · It's a Man's Man's Man's World", color: '#ffb35c' }
+const DECK = () => ({ object: 'Le tourne-disque', era: `${RECORDS[cur].artist} · ${RECORDS[cur].title}`, color: '#ffb35c' })
+const SHELF = { object: 'La discothèque', era: `${RECORDS.length} vinyles à écouter`, color: '#ffb35c' }
 const CAT_LINES = ["Lui, c'est le chat. Il ne fait pas partie du portfolio, mais il insiste.", 'Chut… il dort. Il a codé toute la nuit, lui aussi.', "Il s'appelle Commit. Il valide tout ce qu'il touche.", 'Ronron. (Traduction : « le bureau est à moi ».)']
 let catLine = 0
 function petCat() {
@@ -270,8 +364,8 @@ function showTag(id) {
   hovered = id
   room.hover(id)
   if (!id || id === current) { tag.classList.remove('show'); return }
-  const c = id === 'cat' ? CAT : id === 'turntable' ? DECK : byId[id]
-  if (id === 'turntable') loadTrack()
+  const c = id === 'cat' ? CAT : id === 'turntable' ? DECK() : id === 'vinyls' ? SHELF : byId[id]
+  if (id === 'turntable' || id === 'vinyls') loadTracks()
   tag.innerHTML = `<b>${c.object}</b><span>${c.era}${found.has(id) ? ' · déjà vu ✓' : ''}</span>`
   tag.style.setProperty('--c', c.color)
   tag.classList.add('show')
@@ -279,7 +373,33 @@ function showTag(id) {
 
 /* ================= la scène ================= */
 const canvas = $('#scene')
-const loader = $('.room-loader')
+const loader = $('.welcome')
+
+/* ================= l'accueil : un mot de bienvenue avant d'entrer ================= */
+// les mots arrivent un à un, en douceur ; le bouton s'active quand la pièce est prête
+let wDelay = reduceMotion ? 0 : 0.35
+$$('[data-words]', loader).forEach(el => {
+  const words = el.textContent.trim().split(/\s+/)
+  el.setAttribute('aria-label', el.textContent.trim())
+  el.innerHTML = words.map(w => `<span class="wd" aria-hidden="true" style="animation-delay:${(wDelay += reduceMotion ? 0 : 0.075).toFixed(3)}s">${w}</span>`).join(' ')
+  wDelay += reduceMotion ? 0 : 0.45
+})
+loader.style.setProperty('--after', `${wDelay.toFixed(2)}s`)
+let entered = false, arrive = () => {}
+// mode prise de vue (?shot=objet) : pas d'accueil
+if (new URLSearchParams(location.search).has('shot')) loader.hidden = true
+const enterBtn = $('.w-enter', loader)
+function enter() {
+  if (entered || enterBtn.disabled) return
+  entered = true
+  sound.click(0.9)
+  loader.classList.add('gone')
+  document.body.classList.add('entered')
+  room?.intro()
+  setTimeout(() => { loader.hidden = true }, 1400)
+  setTimeout(arrive, reduceMotion ? 0 : 1500)
+}
+enterBtn.addEventListener('click', enter)
 
 async function boot() {
   let createRoom
@@ -288,17 +408,13 @@ async function boot() {
     room = await createRoom(canvas, { snapshot, avatar: 'https://avatars.githubusercontent.com/u/90351357?v=4&s=256' })
   } catch (err) {
     console.error(err)
-    loader.classList.add('gone')
     document.body.classList.add('no-3d')
-    openCarnet()
+    arrive = openCarnet
+    enterBtn.disabled = false
+    loader.classList.add('ready')
     return
   }
-  const day = () => !document.documentElement.classList.contains('dark')
-  room.setDay(day())
-  addEventListener('themechange', e => {
-    room.setDay(!e.detail.dark)
-    say(e.detail.dark ? 'Ah, on éteint. Je préfère l\'ambiance de nuit, perso.' : 'Lumière ! On y voit plus clair.', [], 2600)
-  })
+  room.setOnPlatter(cur)
   // décale l'image pour que l'objet reste visible à côté du panneau (ou au-dessus sur mobile)
   const fitShift = () => {
     const mobile = innerWidth < 760
@@ -315,7 +431,10 @@ async function boot() {
     const maxX = (current && innerWidth >= 760 ? innerWidth - panel.offsetWidth - 24 : innerWidth) - w / 2 - 12
     const x = Math.max(w / 2 + 12, Math.min(maxX, m.x)), y = Math.max(h + 76, m.y)
     bubble.style.transform = `translate(${x}px, ${y}px) translate(-50%, -100%)`
-    if (hovered && tag.classList.contains('show')) {
+    if (hoveredRec >= 0 && tag.classList.contains('show')) {
+      const p = room.recordScreen(hoveredRec)
+      tag.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -110%)`
+    } else if (hovered && tag.classList.contains('show')) {
       const p = room.anchorScreen(hovered)
       tag.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -110%)`
     }
@@ -335,6 +454,18 @@ async function boot() {
       }
       return
     }
+    // dans la discothèque, on survole les disques un par un
+    if (shelfOpen && picked < 0) {
+      const i = room.pickRecord(e.clientX, e.clientY)
+      canvas.style.cursor = i >= 0 ? 'pointer' : 'grab'
+      if (i !== hoveredRec) {
+        hoveredRec = i
+        room.hoverRecord(i)
+        if (i >= 0) { const r = RECORDS[i]; tag.innerHTML = `<b>${r.title}</b><span>${r.artist} · ${r.year}</span>`; tag.style.setProperty('--c', r.spine === '#121212' ? '#d8b46a' : '#ffb35c'); tag.classList.add('show'); sound.click(1.4) }
+        else tag.classList.remove('show')
+      }
+      return
+    }
     const id = room.pick(e.clientX, e.clientY)
     canvas.style.cursor = id ? 'pointer' : 'grab'
     if (id !== hovered) showTag(id)
@@ -342,9 +473,18 @@ async function boot() {
   canvas.addEventListener('pointerup', e => {
     canvas.classList.remove('grabbing')
     if (down && !moved) {
+      if (shelfOpen) {
+        const i = picked < 0 ? room.pickRecord(e.clientX, e.clientY) : -1
+        if (i >= 0) { hoveredRec = -1; tag.classList.remove('show'); pickRecord(i) }
+        else if (picked >= 0) putBack()
+        else closeShelf()
+        down = null
+        return
+      }
       const id = room.pick(e.clientX, e.clientY)
       if (id === 'cat') petCat()
       else if (id === 'turntable') openDeck()
+      else if (id === 'vinyls') openShelf()
       else if (id) openChapter(id)
       else if (deckOpen) closeDeck()
       else if (current) closeChapter()
@@ -352,28 +492,33 @@ async function boot() {
     down = null
   })
   canvas.addEventListener('pointerleave', () => { if (!down) showTag(null) })
-  canvas.addEventListener('wheel', e => { e.preventDefault(); room.zoomBy(e.deltaY > 0 ? 0.92 : 1.08) }, { passive: false })
   $$('[data-cam]').forEach(b => b.addEventListener('click', () => {
     sound.click()
-    if (b.dataset.cam === 'in') room.zoomBy(1.2)
-    if (b.dataset.cam === 'out') room.zoomBy(0.83)
-    if (b.dataset.cam === 'home') { closeChapter(); room.reset() }
+    closeChapter(); closeDeck(); closeShelf(); room.reset()
   }))
 
-  loader.classList.add('gone')
   document.body.classList.add('ready')
-  if (import.meta.env.DEV) window.__bureau = { room, openDeck, openChapter }
+  if (import.meta.env.DEV) window.__bureau = { room, openDeck, openChapter, openShelf, pickRecord, putOnPlatter, enter }
 
   // mode prise de vue (?shot=objet) : sert à générer les images des études de cas
   const shot = new URLSearchParams(location.search).get('shot')
   if (shot) {
     document.body.classList.add('shot-mode')
+    loader.hidden = true
+    room.setOnPlatter(+new URLSearchParams(location.search).get('record') || 0)
     room.focus(shot); room.snap()
     room.hideMascot()
+    loadTracks()
     return
   }
+  enterBtn.disabled = false
+  loader.classList.add('ready')
+  enterBtn.focus({ preventScroll: true })
+  // les pochettes arrivent pendant qu'on lit le mot d'accueil
+  loadTracks()
 
-  // arrivée : lien direct, ou accueil par la mascotte
+  // arrivée (après l'accueil) : lien direct, ou accueil par la mascotte
+  arrive = () => {
   const hash = location.hash.slice(1)
   if (hash === 'carnet') { openCarnet(); return }
   const target = byId[hash] ? hash : ALIASES[hash]
@@ -392,17 +537,18 @@ async function boot() {
     } else {
       say('Re ! Tu connais déjà tout le bureau. Le téléphone est toujours là si tu veux parler à Yanis.', [['Ouvrir le téléphone', () => openChapter('phone'), true]], 8000)
     }
-  }, reduceMotion ? 0 : 700)
+  }, reduceMotion ? 0 : 200)
+  }
 }
 boot()
 
 /* ================= clavier ================= */
 document.addEventListener('keydown', e => {
   if (e.metaKey || e.ctrlKey || e.altKey || e.target.closest?.('input, textarea, [contenteditable]')) return
-  if (e.key === 'Escape') { if (carnet.classList.contains('open')) closeCarnet(); else if (deckOpen) closeDeck(); else closeChapter() }
+  if (!entered) { if (e.key === 'Enter' && e.target === document.body) enter(); return }
+  if (e.key === 'Escape') { if (carnet.classList.contains('open')) closeCarnet(); else if (picked >= 0) putBack(); else if (shelfOpen) closeShelf(); else if (deckOpen) closeDeck(); else closeChapter() }
   if (e.key === 'ArrowRight') { e.preventDefault(); step(1) }
   if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1) }
   if (e.key.toLowerCase() === 't' && !e.repeat) startTour()
   if (e.key.toLowerCase() === 'c' && !e.repeat) carnet.classList.contains('open') ? closeCarnet() : openCarnet()
-  if (e.key.toLowerCase() === 'l' && !e.repeat) $('.theme-toggle').click()
 })

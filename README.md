@@ -24,14 +24,16 @@ npm run build    # génère dist/
 | Le cadre photo | À propos |
 | Le téléphone | Contact |
 
-Et hors parcours : le **tourne-disque** sur le meuble de gauche zoome sur la platine vue de dessus et joue *It's a Man's Man's Man's World* de Seal : l'extrait officiel de 30 s fourni par Apple Music (API iTunes Search), avec la pochette sur le macaron du vinyle et un lien pour écouter en entier. Aucun fichier audio n'est hébergé. Le **chat** sur la banquette a quelques répliques.
+On entre par un mot d'accueil, puis la caméra glisse jusqu'au bureau.
+
+Et hors parcours : la **discothèque** sous le portrait contient six vinyles. On en choisit un, il sort de sa case, le disque glisse hors de la pochette, et on peut le poser sur le **tourne-disque**. La platine, vue de dessus, joue l'extrait officiel de 30 s fourni par Apple Music (API iTunes), avec la pochette sur le macaron et un lien pour écouter en entier. Aucun fichier audio n'est hébergé ; la liste des disques est dans `src/room/records.js`. Le **chat** sur la banquette a quelques répliques.
 
 La vue derrière la baie vitrée est une vidéo en boucle de [Mixkit](https://mixkit.co/free-stock-video/new-york-buildings-at-night-4334/) (licence Mixkit Stock Video Free).
 
 - La pièce 3D : `src/room/scene.js`. Les textes des chapitres : `src/room/chapters.js`. L'interface : `src/main.js` et `src/room/room.css`.
-- Navigation : glisser pour tourner, clic sur un objet, flèches ← → pour passer d'un chapitre à l'autre, `T` visite guidée, `C` carnet, `L` lumière, `Échap` pour fermer.
+- Navigation : glisser pour tourner, clic sur un objet, flèches ← → pour passer d'un chapitre à l'autre, `T` visite guidée, `C` carnet, `Échap` pour fermer.
 - Liens directs : `/#osanotch`, `/#github`, `/#contact`… ouvrent l'objet correspondant.
-- L'interrupteur « lumière » passe de la nuit au coucher de soleil (le site est de nuit par défaut).
+- Le site est toujours de nuit : lumière tamisée, feu de cheminée, ville éclairée derrière la baie.
 - Le **carnet** reprend toute l'histoire en texte : il sert de version sans 3D et de contenu pour les moteurs de recherche.
 - Mets ton adresse dans `profile.email` (`src/data.js`) pour que « Écris-moi » ouvre un mail (sinon il pointe vers GitHub).
 
