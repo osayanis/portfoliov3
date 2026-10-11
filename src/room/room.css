@@ -1,24 +1,25 @@
 /* ===== Le bureau de Yanis : interface par-dessus la scène 3D ===== */
 
 .room-page {
-  --glass: rgba(24, 21, 44, .78);
-  --glass-2: rgba(255, 255, 255, .07);
-  --glass-line: rgba(255, 255, 255, .12);
-  --sky: radial-gradient(120% 80% at 70% 0%, #2a2160 0%, #14122e 45%, #0b0a1a 100%);
-  height: 100dvh; overflow: hidden; background: #0b0a1a; overscroll-behavior: none;
+  --glass: rgba(38, 25, 18, .8);
+  --glass-2: rgba(255, 226, 190, .08);
+  --glass-line: rgba(255, 214, 170, .16);
+  --sky: radial-gradient(120% 80% at 50% 30%, #3a2418 0%, #1c120d 60%, #120c0a 100%);
+  height: 100dvh; overflow: hidden; background: #120c0a; overscroll-behavior: none;
 }
 html:not(.dark) .room-page {
-  --glass: rgba(255, 252, 245, .86);
-  --glass-2: rgba(22, 22, 22, .05);
-  --glass-line: rgba(22, 22, 22, .12);
-  --sky: radial-gradient(120% 80% at 70% 0%, #ffe9c7 0%, #f7d9e8 45%, #cfe3ff 100%);
-  background: #f6efe4;
+  --glass: rgba(255, 248, 236, .86);
+  --glass-2: rgba(90, 50, 20, .06);
+  --glass-line: rgba(90, 50, 20, .14);
+  --sky: radial-gradient(120% 80% at 50% 30%, #ffd9a8 0%, #f2b98a 60%, #d98c6a 100%);
+  background: #f2dcc2;
 }
 .room-page body::after, .room-page::after { display: none; }
 
 /* ---------- la pièce ---------- */
 .room { position: fixed; inset: 0; background: var(--sky); }
 .room::before {
+  display: none;
   content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .8;
   background-image: radial-gradient(1.2px 1.2px at 12% 18%, #fff, transparent), radial-gradient(1px 1px at 33% 8%, #fff, transparent),
     radial-gradient(1.4px 1.4px at 58% 22%, #fff, transparent), radial-gradient(1px 1px at 81% 12%, #fff, transparent),
@@ -50,7 +51,7 @@ html:not(.dark) .room::before { opacity: 0; }
 .hud-progress b { color: var(--text); font-family: var(--mono); }
 .hud-dots { display: flex; gap: 5px; }
 .hud-dots i { width: 9px; height: 9px; border-radius: 3px; background: var(--glass-line); transition: background .4s, transform .4s var(--ease-spring); }
-.hud-dots i.on { background: var(--c); transform: rotate(45deg); }
+.hud-dots i.on { background: var(--c); transform: rotate(45deg); box-shadow: 0 0 10px var(--c); }
 .hud-actions { display: flex; gap: 8px; }
 .hud-btn {
   display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border-radius: 999px;
@@ -59,7 +60,7 @@ html:not(.dark) .room::before { opacity: 0; }
 }
 .hud-btn em { font-family: var(--font); font-style: normal; color: inherit; font-weight: 600; letter-spacing: 0; }
 .hud-btn:hover { transform: translateY(-2px); background: var(--glass-2); }
-.hud-btn[data-action='tour'] { background: var(--text); color: var(--bg); border-color: transparent; }
+.hud-btn[data-action='tour'] { background: #ffb35c; color: #2a160c; border-color: transparent; }
 .room-page .sound-toggle.hud-btn { border-radius: 999px; }
 .room-page .sound-bars i { background: currentColor; }
 .room-page .theme-toggle.hud-btn { width: 38px; padding: 0; justify-content: center; }
@@ -93,7 +94,7 @@ html:not(.dark) .room::before { opacity: 0; }
 .bubble-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .bubble-actions:not(:empty) { margin-top: 12px; }
 .bubble-actions button { padding: 7px 12px; border-radius: 10px; border: 2px solid #0b0a10; background: #fffdf8; color: #161616; font-weight: 700; font-size: 14px; box-shadow: 0 3px 0 #0b0a10; }
-.bubble-actions button.primary { background: #f3a6cf; }
+.bubble-actions button.primary { background: #ffb35c; }
 .bubble-actions button:active { transform: translateY(2px); box-shadow: 0 1px 0 #0b0a10; }
 
 /* ---------- commandes & aide ---------- */
@@ -147,7 +148,7 @@ html:not(.dark) .room::before { opacity: 0; }
 .ch-stats dd { margin: 4px 0 0; font-size: 12.5px; color: var(--ink-2); line-height: 1.3; }
 .ch-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
 .ch-link { display: inline-flex; align-items: center; padding: 10px 16px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 14.5px; border: 1px solid var(--glass-line); background: var(--glass-2); color: var(--text); transition: transform .15s; }
-.ch-link.primary { background: var(--text); color: var(--bg); border-color: transparent; }
+.ch-link.primary { background: #ffb35c; color: #2a160c; border-color: transparent; }
 .ch-link:hover { transform: translateY(-2px); }
 .chapter-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 14px; border-top: 1px solid var(--glass-line); }
 .chapter-nav { max-width: 42%; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-line); background: var(--glass-2); color: var(--text); font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

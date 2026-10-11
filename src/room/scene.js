@@ -1,400 +1,466 @@
-// Le bureau de Yanis en 3D (Three.js) : une pièce en diorama, vue en isométrique,
-// où chaque objet est un chapitre. Ce module ne gère que la 3D ; l'interface est dans ui.js.
+// Le bureau de Yanis en 3D (Three.js). On se tient dans la pièce, face au grand bureau
+// en bois, avec la baie vitrée derrière. Chaque objet interactif est un chapitre.
+// Ce module ne gère que la 3D ; l'interface est dans main.js.
 import {
-  Scene, OrthographicCamera, WebGLRenderer, Group, Mesh, MeshToonMaterial, MeshBasicMaterial,
-  BoxGeometry, CylinderGeometry, SphereGeometry, ConeGeometry, PlaneGeometry, TorusGeometry, CircleGeometry,
-  CanvasTexture, DataTexture, RedFormat, NearestFilter, SRGBColorSpace, TextureLoader,
-  HemisphereLight, DirectionalLight, PointLight, AmbientLight, BackSide, AdditiveBlending,
-  Raycaster, Vector2, Vector3, Color, PCFSoftShadowMap, MathUtils,
+  Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, MeshStandardMaterial, MeshBasicMaterial,
+  CylinderGeometry, SphereGeometry, ConeGeometry, PlaneGeometry, TorusGeometry, BufferGeometry, Float32BufferAttribute,
+  Points, PointsMaterial, CanvasTexture, SRGBColorSpace, RepeatWrapping, TextureLoader,
+  HemisphereLight, DirectionalLight, PointLight, SpotLight, AdditiveBlending,
+  Raycaster, Vector2, Vector3, Color, PCFSoftShadowMap, ACESFilmicToneMapping, MathUtils,
 } from 'three'
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 
-const INK = 0x0b0a10
-const T = 0.03 // épaisseur des contours
-
-/* ---------- matériaux & formes de base ---------- */
-const ramp = (() => {
-  const t = new DataTexture(new Uint8Array([70, 150, 255]), 3, 1, RedFormat)
-  t.minFilter = t.magFilter = NearestFilter
-  t.needsUpdate = true
-  return t
-})()
-const toon = (color, extra = {}) => new MeshToonMaterial({ color, gradientMap: ramp, ...extra })
-const inkMat = () => new MeshBasicMaterial({ color: INK, side: BackSide })
-
-// chaque objet interactif garde la liste de ses contours pour pouvoir les colorer au survol
-function outlineFor(parent, mesh, geo) {
-  const o = new Mesh(geo, parent.userData.ink || (parent.userData.ink = inkMat()))
-  mesh.add(o)
-  return o
+/* ---------- outils ---------- */
+const mat = (color, o = {}) => new MeshStandardMaterial({ color, roughness: o.rough ?? 0.75, metalness: o.metal ?? 0, ...o.extra, ...(o.map ? { map: o.map } : {}), ...(o.emissive ? { emissive: o.emissive, emissiveIntensity: o.ei ?? 1 } : {}) })
+const glow = (color, o = {}) => new MeshBasicMaterial({ color, toneMapped: false, ...o })
+function mesh(parent, geo, m, pos, rot, o = {}) {
+  const x = new Mesh(geo, typeof m === 'number' || typeof m === 'string' ? mat(m) : m)
+  x.position.set(...pos)
+  if (rot) x.rotation.set(...rot)
+  x.castShadow = o.cast !== false
+  x.receiveShadow = o.receive !== false
+  parent.add(x)
+  return x
 }
-function box(parent, w, h, d, color, pos, opt = {}) {
-  const r = opt.r ?? Math.min(0.06, w / 4, h / 4, d / 4)
-  const m = new Mesh(new RoundedBoxGeometry(w, h, d, 2, r), opt.mat || toon(color))
-  m.position.set(...pos)
-  if (opt.rot) m.rotation.set(...opt.rot)
-  m.castShadow = opt.shadow !== false
-  m.receiveShadow = true
-  if (opt.outline !== false) outlineFor(parent, m, new RoundedBoxGeometry(w + T * 2, h + T * 2, d + T * 2, 2, r + T))
-  parent.add(m)
-  return m
-}
-function cyl(parent, rt, rb, h, color, pos, opt = {}) {
-  const seg = opt.seg || 24
-  const m = new Mesh(new CylinderGeometry(rt, rb, h, seg, 1, !!opt.open), opt.mat || toon(color, opt.open ? { side: 2 } : {}))
-  m.position.set(...pos)
-  if (opt.rot) m.rotation.set(...opt.rot)
-  m.castShadow = opt.shadow !== false
-  m.receiveShadow = true
-  if (opt.outline !== false) outlineFor(parent, m, new CylinderGeometry(rt + T, rb + T, h + T * 2, seg))
-  parent.add(m)
-  return m
-}
-function sphere(parent, r, color, pos, opt = {}) {
-  const m = new Mesh(new SphereGeometry(r, 24, 16), opt.mat || toon(color))
-  m.position.set(...pos)
-  m.castShadow = opt.shadow !== false
-  if (opt.outline !== false) outlineFor(parent, m, new SphereGeometry(r + T, 24, 16))
-  parent.add(m)
-  return m
-}
-function plane(parent, w, h, tex, pos, rot, opt = {}) {
-  const m = new Mesh(new PlaneGeometry(w, h), new MeshBasicMaterial({ map: tex, transparent: !!opt.transparent, toneMapped: false, ...(opt.blend ? { blending: AdditiveBlending, depthWrite: false } : {}) }))
-  m.position.set(...pos)
-  if (rot) m.rotation.set(...rot)
-  parent.add(m)
-  return m
-}
-function canvasTex(w, h, draw) {
+const box = (p, w, h, d, m, pos, rot, o = {}) => mesh(p, new RoundedBoxGeometry(w, h, d, 2, o.r ?? Math.min(0.02, w / 4, h / 4, d / 4)), m, pos, rot, o)
+const cyl = (p, rt, rb, h, m, pos, rot, o = {}) => mesh(p, new CylinderGeometry(rt, rb, h, o.seg || 24, 1, !!o.open), m, pos, rot, o)
+const ball = (p, r, m, pos, o = {}) => mesh(p, new SphereGeometry(r, o.seg || 24, Math.max(8, (o.seg || 24) * 0.66 | 0)), m, pos, null, o)
+const quad = (p, w, h, m, pos, rot, o = {}) => mesh(p, new PlaneGeometry(w, h), m, pos, rot, { cast: false, ...o })
+function canvasTex(w, h, draw, repeat) {
   const c = document.createElement('canvas')
   c.width = w; c.height = h
   draw(c.getContext('2d'), w, h)
   const t = new CanvasTexture(c)
   t.colorSpace = SRGBColorSpace
-  t.anisotropy = 4
+  t.anisotropy = 8
+  if (repeat) { t.wrapS = t.wrapT = RepeatWrapping; t.repeat.set(...repeat) }
   return t
 }
+const rnd = (() => { let s = 7; return () => (s = (s * 16807) % 2147483647) / 2147483647 })()
 
 /* ---------- textures dessinées ---------- */
-function windowTex(day) {
-  return canvasTex(512, 640, (g, w, h) => {
+function woodTex(base, dark, planks = 0, repeat) {
+  return canvasTex(512, 512, (g, w, h) => {
+    g.fillStyle = base; g.fillRect(0, 0, w, h)
+    for (let i = 0; i < 70; i++) {
+      g.strokeStyle = `rgba(${dark},${0.05 + rnd() * 0.12})`; g.lineWidth = 1 + rnd() * 3
+      const y = rnd() * h
+      g.beginPath(); g.moveTo(0, y)
+      for (let x = 0; x <= w; x += 32) g.lineTo(x, y + Math.sin(x / 60 + i) * 4 + (rnd() - 0.5) * 3)
+      g.stroke()
+    }
+    if (planks) for (let k = 1; k < planks; k++) { g.fillStyle = `rgba(${dark},.45)`; g.fillRect(0, (h / planks) * k - 1, w, 2); const off = rnd() * w; g.fillRect(off, (h / planks) * (k - 1), 2, h / planks) }
+  }, repeat)
+}
+function skyTex(day) {
+  return canvasTex(2048, 1024, (g, w, h) => {
     const sky = g.createLinearGradient(0, 0, 0, h)
-    if (day) { sky.addColorStop(0, '#7cc4ff'); sky.addColorStop(1, '#ffe2b8') } else { sky.addColorStop(0, '#0b0b2a'); sky.addColorStop(1, '#3a2a6b') }
+    if (day) { sky.addColorStop(0, '#5b4b8a'); sky.addColorStop(0.45, '#e98c7a'); sky.addColorStop(0.75, '#ffc27a'); sky.addColorStop(1, '#ffe2a8') }
+    else { sky.addColorStop(0, '#070818'); sky.addColorStop(0.55, '#1a1846'); sky.addColorStop(0.85, '#3d2a5e'); sky.addColorStop(1, '#6b3b4e') }
     g.fillStyle = sky; g.fillRect(0, 0, w, h)
     if (day) {
-      g.fillStyle = '#fff8'; [[120, 160, 70], [340, 120, 90], [260, 260, 60]].forEach(([x, y, r]) => { g.beginPath(); g.arc(x, y, r, 0, 7); g.arc(x + r, y + 10, r * .8, 0, 7); g.arc(x - r * .9, y + 14, r * .7, 0, 7); g.fill() })
-      g.fillStyle = '#ffe9a8'; g.beginPath(); g.arc(400, 300, 46, 0, 7); g.fill()
+      const sun = g.createRadialGradient(w * 0.62, h * 0.7, 10, w * 0.62, h * 0.7, 260)
+      sun.addColorStop(0, '#fff6d8'); sun.addColorStop(0.15, '#ffd27a'); sun.addColorStop(1, 'rgba(255,180,120,0)')
+      g.fillStyle = sun; g.fillRect(0, 0, w, h)
+      g.fillStyle = 'rgba(255,240,220,.35)'
+      ;[[300, 260, 160], [1300, 200, 220], [1700, 330, 140]].forEach(([x, y, r]) => { g.beginPath(); g.ellipse(x, y, r, r * 0.22, 0, 0, 7); g.fill() })
     } else {
-      for (let i = 0; i < 120; i++) { g.fillStyle = `rgba(255,255,255,${Math.random() * .8 + .2})`; g.fillRect(Math.random() * w, Math.random() * h * .7, 2, 2) }
-      g.fillStyle = '#fdf6e3'; g.beginPath(); g.arc(380, 150, 46, 0, 7); g.fill()
-      g.fillStyle = '#0b0b2a'; g.beginPath(); g.arc(400, 136, 42, 0, 7); g.fill()
+      for (let i = 0; i < 380; i++) { g.fillStyle = `rgba(255,255,255,${0.2 + rnd() * 0.8})`; const s = rnd() < 0.08 ? 3 : 1.6; g.fillRect(rnd() * w, rnd() * h * 0.62, s, s) }
+      const m = g.createRadialGradient(w * 0.72, h * 0.22, 4, w * 0.72, h * 0.22, 140)
+      m.addColorStop(0, 'rgba(255,248,225,.55)'); m.addColorStop(1, 'rgba(255,248,225,0)')
+      g.fillStyle = m; g.fillRect(0, 0, w, h)
+      g.fillStyle = '#fff6dc'; g.beginPath(); g.arc(w * 0.72, h * 0.22, 46, 0, 7); g.fill()
     }
-    // la ville au loin, avec quelques fenêtres allumées la nuit
-    for (let x = 0; x < w; x += 46) {
-      const bh = 120 + ((x * 37) % 170)
-      g.fillStyle = day ? '#9aa6c9' : '#14122e'
-      g.fillRect(x, h - bh, 40, bh)
-      if (!day) for (let y = h - bh + 14; y < h - 10; y += 22) for (let wx = x + 6; wx < x + 36; wx += 12) if (((wx * 7 + y) % 5) === 0) { g.fillStyle = '#ffd27a'; g.fillRect(wx, y, 6, 9) }
-    }
-  })
-}
-function macScreenTex() {
-  return canvasTex(512, 320, (g, w, h) => {
-    const bg = g.createLinearGradient(0, 0, w, h)
-    bg.addColorStop(0, '#312e81'); bg.addColorStop(.55, '#a855f7'); bg.addColorStop(1, '#f472b6')
-    g.fillStyle = bg; g.fillRect(0, 0, w, h)
-    g.fillStyle = '#000'; g.beginPath(); g.roundRect(w / 2 - 70, 0, 140, 26, [0, 0, 14, 14]); g.fill()
-    g.fillStyle = '#fdf6e3'; g.beginPath(); g.arc(w / 2 - 9, 12, 5, 0, 7); g.arc(w / 2 + 9, 12, 5, 0, 7); g.fill()
-    g.fillStyle = '#fff3'; g.beginPath(); g.roundRect(w / 2 - 90, h - 34, 180, 24, 10); g.fill()
-  })
-}
-function crtTex() {
-  return canvasTex(320, 256, (g, w, h) => {
-    g.fillStyle = '#062b14'; g.fillRect(0, 0, w, h)
-    g.fillStyle = '#4ade80'; g.font = '600 22px "JetBrains Mono", monospace'
-    ;['> node bot.js', 'Bot connecté ✓', '> /ticket ouvrir', 'Ticket #12 créé', '> _'].forEach((l, i) => g.fillText(l, 18, 40 + i * 42))
-    for (let y = 0; y < h; y += 4) { g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(0, y, w, 2) }
-  })
-}
-function neonTex() {
-  return canvasTex(1024, 320, (g, w, h) => {
-    g.textAlign = 'center'; g.textBaseline = 'middle'
-    g.font = '800 170px "Bricolage Grotesque", sans-serif'
-    g.shadowColor = '#f472b6'; g.shadowBlur = 40
-    g.strokeStyle = '#ff9ad5'; g.lineWidth = 10; g.strokeText('OsaLabs', w / 2, h / 2)
-    g.shadowBlur = 12; g.fillStyle = '#fff0f8'; g.fillText('OsaLabs', w / 2, h / 2)
-  })
-}
-function calendarTex(days) {
-  return canvasTex(512, 600, (g, w, h) => {
-    g.fillStyle = '#fffdf8'; g.fillRect(0, 0, w, h)
-    g.fillStyle = '#f472b6'; g.fillRect(0, 0, w, 120)
-    g.fillStyle = '#fff'; g.font = '800 54px "Bricolage Grotesque", sans-serif'; g.textAlign = 'center'
-    g.fillText(new Date().toLocaleString('fr-FR', { month: 'long' }).toUpperCase(), w / 2, 80)
-    const cols = ['#ebe5d8', '#f9d3e6', '#f3a6cf', '#d877ab', '#c2337a']
-    const recent = days.slice(-42)
-    recent.forEach((d, i) => {
-      const x = 40 + (i % 7) * 64, y = 160 + Math.floor(i / 7) * 68
-      g.fillStyle = cols[d[2]]; g.beginPath(); g.roundRect(x, y, 50, 50, 10); g.fill()
+    // deux rangées d'immeubles pour la profondeur
+    ;[[0.56, day ? '#6b4a6e' : '#1b1736', 0.5], [0.66, day ? '#4a3354' : '#100e24', 1]].forEach(([top, col, k]) => {
+      for (let x = -20; x < w; x += 40 + rnd() * 70) {
+        const bw = 50 + rnd() * 90, bh = h * (1 - top) * (0.4 + rnd() * 0.6) * (k === 1 ? 1.3 : 1)
+        g.fillStyle = col; g.fillRect(x, h - bh, bw, bh)
+        for (let y = h - bh + 12; y < h - 8; y += 18) for (let wx = x + 8; wx < x + bw - 8; wx += 14) {
+          if (rnd() < (day ? 0.08 : 0.32)) { g.fillStyle = rnd() < 0.7 ? '#ffcf7a' : '#ff9b6b'; g.fillRect(wx, y, 6, 9) }
+        }
+      }
     })
-    g.fillStyle = '#4a4740'; g.font = '600 28px "JetBrains Mono", monospace'
-    g.fillText('github.com/osayanis', w / 2, h - 30)
   })
 }
-function screenTex(color, label) {
-  return canvasTex(256, 400, (g, w, h) => {
-    const bg = g.createLinearGradient(0, 0, 0, h); bg.addColorStop(0, '#1e1b4b'); bg.addColorStop(1, color)
-    g.fillStyle = bg; g.fillRect(0, 0, w, h)
-    g.fillStyle = '#fff'; g.font = '700 30px "Bricolage Grotesque", sans-serif'; g.textAlign = 'center'
-    g.fillText(label, w / 2, h / 2)
-    g.fillStyle = '#fff6'; g.beginPath(); g.roundRect(w / 2 - 40, 16, 80, 16, 8); g.fill()
-  })
-}
+function screenTex(draw, w = 512, h = 320) { return canvasTex(w, h, draw) }
+const macScreen = () => screenTex((g, w, h) => {
+  const bg = g.createLinearGradient(0, 0, w, h); bg.addColorStop(0, '#312e81'); bg.addColorStop(0.55, '#a855f7'); bg.addColorStop(1, '#f472b6')
+  g.fillStyle = bg; g.fillRect(0, 0, w, h)
+  g.fillStyle = '#000'; g.beginPath(); g.roundRect(w / 2 - 80, 0, 160, 30, [0, 0, 16, 16]); g.fill()
+  g.fillStyle = '#fdf6e3'; g.beginPath(); g.arc(w / 2 - 10, 14, 6, 0, 7); g.arc(w / 2 + 10, 14, 6, 0, 7); g.fill()
+  g.fillStyle = '#fff3'; g.beginPath(); g.roundRect(w / 2 - 100, h - 38, 200, 26, 12); g.fill()
+})
+const crtScreen = () => screenTex((g, w, h) => {
+  g.fillStyle = '#04210f'; g.fillRect(0, 0, w, h)
+  g.fillStyle = '#4ade80'; g.font = '600 30px "JetBrains Mono", monospace'
+  ;['> node bot.js', 'Bot connecté ✓', '> /ticket ouvrir', 'Ticket #12 créé', '> _'].forEach((l, i) => g.fillText(l, 26, 52 + i * 56))
+  for (let y = 0; y < h; y += 5) { g.fillStyle = 'rgba(0,0,0,.28)'; g.fillRect(0, y, w, 2) }
+}, 420, 320)
+const phoneScreen = () => screenTex((g, w, h) => {
+  const bg = g.createLinearGradient(0, 0, 0, h); bg.addColorStop(0, '#1e1b4b'); bg.addColorStop(1, '#f472b6')
+  g.fillStyle = bg; g.fillRect(0, 0, w, h)
+  g.fillStyle = '#fff'; g.textAlign = 'center'; g.font = '700 34px "Bricolage Grotesque", sans-serif'
+  g.fillText('1 appel', w / 2, h * 0.42); g.font = '500 22px "Bricolage Grotesque", sans-serif'; g.fillText('Toi ?', w / 2, h * 0.5)
+  g.fillStyle = '#22c55e'; g.beginPath(); g.arc(w / 2, h * 0.78, 34, 0, 7); g.fill()
+}, 240, 480)
+const podScreen = () => screenTex((g, w, h) => {
+  g.fillStyle = '#0b0b0c'; g.fillRect(0, 0, w, h)
+  g.fillStyle = '#f5f5f4'; g.font = '600 26px "JetBrains Mono", monospace'
+  ;['Musique', 'Albums', 'Artistes', 'Réglages'].forEach((l, i) => { if (i === 0) { g.fillRect(0, 22, w, 40); g.fillStyle = '#0b0b0c' } else g.fillStyle = '#f5f5f4'; g.fillText(l, 14, 52 + i * 46) })
+}, 240, 300)
+const neonTex = () => canvasTex(1024, 300, (g, w, h) => {
+  g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '800 170px "Bricolage Grotesque", sans-serif'
+  g.shadowColor = '#ff5fae'; g.shadowBlur = 30; g.strokeStyle = '#ff8cc6'; g.lineWidth = 10; g.strokeText('OsaLabs', w / 2, h / 2)
+  g.shadowBlur = 8; g.fillStyle = '#fff0f8'; g.fillText('OsaLabs', w / 2, h / 2)
+})
+const calTex = days => canvasTex(512, 620, (g, w, h) => {
+  g.fillStyle = '#fffdf8'; g.fillRect(0, 0, w, h)
+  g.fillStyle = '#e8618c'; g.fillRect(0, 0, w, 120)
+  g.fillStyle = '#fff'; g.font = '800 56px "Bricolage Grotesque", sans-serif'; g.textAlign = 'center'
+  g.fillText(new Date().toLocaleString('fr-FR', { month: 'long' }).toUpperCase(), w / 2, 82)
+  const cols = ['#ebe5d8', '#f9d3e6', '#f3a6cf', '#d877ab', '#c2337a']
+  days.slice(-42).forEach((d, i) => { g.fillStyle = cols[d[2]]; g.beginPath(); g.roundRect(40 + (i % 7) * 64, 158 + Math.floor(i / 7) * 68, 50, 50, 10); g.fill() })
+  g.fillStyle = '#5b5750'; g.font = '600 26px "JetBrains Mono", monospace'; g.fillText('github.com/osayanis', w / 2, h - 30)
+})
+const rugTex = () => canvasTex(1024, 700, (g, w, h) => {
+  g.fillStyle = '#b4532a'; g.fillRect(0, 0, w, h)
+  g.strokeStyle = '#f2c38b'; g.lineWidth = 14; g.strokeRect(40, 40, w - 80, h - 80)
+  g.strokeStyle = '#7a2e1a'; g.lineWidth = 8; g.strokeRect(80, 80, w - 160, h - 160)
+  for (let i = 0; i < 6; i++) for (let j = 0; j < 4; j++) {
+    const x = 170 + i * 137, y = 170 + j * 120
+    g.fillStyle = (i + j) % 2 ? '#f2c38b' : '#e8875a'
+    g.beginPath(); g.moveTo(x, y - 34); g.lineTo(x + 34, y); g.lineTo(x, y + 34); g.lineTo(x - 34, y); g.fill()
+  }
+  for (let i = 0; i < 4000; i++) { g.fillStyle = `rgba(0,0,0,${rnd() * 0.06})`; g.fillRect(rnd() * w, rnd() * h, 2, 2) }
+})
 
 /* ---------- la pièce ---------- */
 export async function createRoom(canvas, { snapshot, avatar }) {
   await document.fonts?.ready
-  const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true })
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2))
+  const renderer = new WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' })
+  const dpr = Math.min(devicePixelRatio || 1, innerWidth < 760 ? 1.5 : 2)
+  renderer.setPixelRatio(dpr)
   renderer.shadowMap.enabled = true
   renderer.shadowMap.type = PCFSoftShadowMap
+  renderer.toneMapping = ACESFilmicToneMapping
+  renderer.toneMappingExposure = 1.05
+  renderer.setClearColor(0x120c0a)
 
   const scene = new Scene()
-  const camera = new OrthographicCamera(-1, 1, 1, -1, 0.1, 200)
+  const camera = new PerspectiveCamera(50, 1, 0.05, 80)
 
-  // lumières
-  const hemi = new HemisphereLight(0x9fa8ff, 0x2a1a3a, 0.9)
-  const ambient = new AmbientLight(0xffffff, 0.15)
-  const moon = new DirectionalLight(0xa9b8ff, 1.1)
-  moon.position.set(8, 14, 10)
-  moon.castShadow = true
-  moon.shadow.mapSize.set(2048, 2048)
-  Object.assign(moon.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 1, far: 40 })
-  moon.shadow.bias = -0.0008
-  moon.shadow.radius = 4
-  const lamp = new PointLight(0xffb35c, 9, 9, 1.6)
-  scene.add(hemi, ambient, moon, lamp)
+  // lumières : la lampe de bureau, le lampadaire, la suspension, la lune (ou le soleil couchant)
+  const hemi = new HemisphereLight(0xffd8b0, 0x3a2418, 0.35)
+  const sky = new DirectionalLight(0x9db4ff, 1.1)
+  sky.position.set(-2.5, 4.5, -8)
+  sky.target.position.set(0.5, 0, 1.5)
+  sky.castShadow = true
+  sky.shadow.mapSize.set(2048, 2048)
+  Object.assign(sky.shadow.camera, { left: -5, right: 5, top: 5, bottom: -5, near: 1, far: 20 })
+  sky.shadow.bias = -0.0005
+  sky.shadow.radius = 3
+  const deskLamp = new SpotLight(0xffb25e, 5, 4, 0.8, 0.7, 1.6)
+  deskLamp.castShadow = true
+  deskLamp.shadow.mapSize.set(1024, 1024)
+  deskLamp.shadow.bias = -0.0004
+  const floorLampL = new PointLight(0xffa954, 2.2, 6, 1.6)
+  const pendantL = new PointLight(0xffc073, 2.4, 4, 1.6)
+  const fairyL = new PointLight(0xffc98a, 1.2, 6, 1.4)
+  scene.add(hemi, sky, sky.target, deskLamp, deskLamp.target, floorLampL, pendantL, fairyL)
 
   const world = new Group()
   scene.add(world)
   const objects = {}
-  const obj = (id, anchor) => {
+  const obj = (id, anchor, view) => {
     const g = new Group()
-    g.userData = { id, anchor: new Vector3(...anchor), ink: inkMat() }
+    g.userData = { id, anchor: new Vector3(...anchor), view }
     world.add(g)
     objects[id] = g
     return g
   }
-  const deco = new Group()
-  deco.userData.ink = inkMat()
-  world.add(deco)
 
-  // sol, murs, plinthes
-  const floorMat = toon(0x6b4a3a), wallBackMat = toon(0x3b3363), wallLeftMat = toon(0x332c58)
-  box(deco, 10, 0.3, 10, 0, [0, -0.15, 0], { mat: floorMat, r: 0.05, shadow: false })
-  for (let i = -4; i <= 4; i += 2) box(deco, 10, 0.012, 0.03, 0x5a3c2f, [0, 0.006, i], { outline: false, shadow: false })
-  box(deco, 10, 6, 0.3, 0, [0, 3, -5.15], { mat: wallBackMat, r: 0.05, shadow: false })
-  box(deco, 0.3, 6, 10, 0, [-5.15, 3, 0], { mat: wallLeftMat, r: 0.05, shadow: false })
-  box(deco, 10, 0.25, 0.08, 0xd9c7ae, [0, 0.12, -4.96], { outline: false })
-  box(deco, 0.08, 0.25, 10, 0xd9c7ae, [-4.96, 0.12, 0], { outline: false })
+  /* ===== la pièce ===== */
+  const W = 2.6, D0 = -3.0, D1 = 6, H = 3.0
+  const floorMat = mat(0xffffff, { map: woodTex('#9a6b44', '60,34,18', 8, [3, 4]), rough: 0.6 })
+  quad(world, W * 2, D1 - D0, floorMat, [0, 0, (D0 + D1) / 2], [-Math.PI / 2, 0, 0])
+  const wallMat = mat(0xe9d7bf, { rough: 0.95 })
+  quad(world, D1 - D0, H, wallMat, [-W, H / 2, (D0 + D1) / 2], [0, Math.PI / 2, 0])
+  quad(world, D1 - D0, H, wallMat, [W, H / 2, (D0 + D1) / 2], [0, -Math.PI / 2, 0])
+  quad(world, W * 2, D1 - D0, mat(0xd9c2a3, { rough: 1 }), [0, H, (D0 + D1) / 2], [Math.PI / 2, 0, 0], { cast: false })
+  // poutres et plinthes
+  const beamMat = mat(0xffffff, { map: woodTex('#7a4f2e', '40,20,10'), rough: 0.7 })
+  for (let z = -2.2; z < D1; z += 1.8) box(world, W * 2, 0.16, 0.2, beamMat, [0, H - 0.08, z], null, { cast: false })
+  ;[-W + 0.01, W - 0.01].forEach(x => box(world, 0.03, 0.1, D1 - D0, 0xc79f78, [x, 0.05, (D0 + D1) / 2]))
 
-  // tapis
-  const rug = cyl(deco, 2.6, 2.6, 0.04, 0xf3a6cf, [0.6, 0.02, 0.6], { seg: 48, shadow: false })
-  rug.receiveShadow = true
-  cyl(deco, 1.9, 1.9, 0.045, 0xc4b5fd, [0.6, 0.025, 0.6], { seg: 48, shadow: false, outline: false })
+  // la baie vitrée : un mur presque entièrement vitré
+  const skyNight = skyTex(false), skyDay = skyTex(true)
+  const outside = quad(world, 24, 11, glow(0xffffff, { map: skyNight }), [0, 3.4, -10], null, { receive: false })
+  const frameMat = mat(0x3a2a20, { rough: 0.5 })
+  box(world, W * 2, 0.22, 0.2, frameMat, [0, 0.11, D0])
+  box(world, W * 2, 0.3, 0.2, frameMat, [0, H - 0.15, D0])
+  for (let x = -W; x <= W + 0.01; x += (W * 2) / 4) box(world, 0.09, H, 0.14, frameMat, [x, H / 2, D0])
+  box(world, W * 2, 0.06, 0.12, frameMat, [0, 2.25, D0])
+  // vitre (légers reflets)
+  quad(world, W * 2, H, new MeshStandardMaterial({ color: 0x9bb6ff, transparent: true, opacity: 0.06, roughness: 0.05, metalness: 0.3 }), [0, H / 2, D0 + 0.02], null, { cast: false, receive: false })
+  // rideaux
+  const curtainMat = mat(0xb5603a, { rough: 1 })
+  ;[-W + 0.35, W - 0.35].forEach(x => {
+    for (let k = 0; k < 5; k++) cyl(world, 0.08, 0.1, H - 0.25, curtainMat, [x + (k - 2) * 0.12 * Math.sign(-x), (H - 0.25) / 2, D0 + 0.25 + (k % 2) * 0.05], null, { seg: 10 })
+  })
+  cyl(world, 0.02, 0.02, W * 2, mat(0x2b2b2b, { metal: 0.6, rough: 0.4 }), [0, H - 0.22, D0 + 0.25], [0, 0, Math.PI / 2])
 
-  // fenêtre (mur du fond)
-  const win = new Group(); deco.add(win)
-  box(win, 2.6, 3.0, 0.18, 0xe9dcc9, [-3.1, 3.4, -4.94])
-  const nightWin = windowTex(false), dayWin = windowTex(true)
-  const glass = plane(win, 2.3, 2.7, nightWin, [-3.1, 3.4, -4.83])
-  box(win, 0.08, 2.7, 0.1, 0xe9dcc9, [-3.1, 3.4, -4.8], { outline: false })
-  box(win, 2.3, 0.08, 0.1, 0xe9dcc9, [-3.1, 3.4, -4.8], { outline: false })
-  box(win, 2.9, 0.14, 0.4, 0xe9dcc9, [-3.1, 1.85, -4.75])
+  // banquette sous la baie, avec coussins
+  box(world, 3.6, 0.45, 0.6, mat(0xffffff, { map: woodTex('#8a5a36', '50,26,12') }), [0, 0.225, D0 + 0.42])
+  box(world, 3.5, 0.12, 0.58, mat(0xe9d8c2, { rough: 1 }), [0, 0.51, D0 + 0.42], null, { r: 0.05 })
+  ;[[1.45, 0xe08a5c], [1.0, 0x8fb39b], [-1.5, 0xf2c38b]].forEach(([x, c]) => box(world, 0.42, 0.38, 0.14, mat(c, { rough: 1 }), [x, 0.74, D0 + 0.28], [0.2, 0, 0.1], { r: 0.08 }))
 
-  // bureau
-  box(deco, 5.4, 0.18, 2.0, 0xa47148, [0.7, 1.9, -3.85])
-  ;[[-1.85, -4.7], [3.25, -4.7], [-1.85, -3.0], [3.25, -3.0]].forEach(([x, z]) => box(deco, 0.14, 1.8, 0.14, 0x7a5236, [x, 0.9, z]))
-  box(deco, 1.3, 1.0, 1.7, 0x8a5d3d, [2.45, 1.25, -3.85])
-  box(deco, 1.0, 0.04, 0.02, 0xe9dcc9, [2.45, 1.3, -2.98], { outline: false })
+  // le chat qui dort sur la banquette
+  const cat = obj('cat', [-0.95, 0.95, D0 + 0.5], { pos: [-0.6, 1.0, -1.1], look: [-0.95, 0.6, D0 + 0.45] })
+  const catMat = mat(0x3b2f2a, { rough: 1 })
+  box(cat, 0.5, 0.2, 0.3, catMat, [-0.95, 0.66, D0 + 0.45], [0, -0.3, 0], { r: 0.1 })
+  ball(cat, 0.13, catMat, [-0.69, 0.7, D0 + 0.58])
+  ;[-0.06, 0.06].forEach(dx => mesh(cat, new ConeGeometry(0.05, 0.1, 8), catMat, [-0.69 + dx, 0.83, D0 + 0.58], [0, 0, dx * -3]))
+  mesh(cat, new TorusGeometry(0.16, 0.04, 8, 20, Math.PI), catMat, [-1.13, 0.6, D0 + 0.62], [Math.PI / 2, 0, -0.3])
 
-  // chaise
-  const chair = new Group(); chair.userData.ink = deco.userData.ink; deco.add(chair)
-  box(chair, 1.1, 0.16, 1.1, 0x2b2a3a, [0.6, 1.15, -2.0])
-  box(chair, 1.1, 1.2, 0.16, 0x2b2a3a, [0.6, 1.85, -1.45], { rot: [-0.12, 0, 0] })
-  cyl(chair, 0.06, 0.06, 0.9, 0x555, [0.6, 0.6, -2.0])
-  cyl(chair, 0.55, 0.55, 0.06, 0x2b2a3a, [0.6, 0.12, -2.0], { seg: 5 })
+  // la guirlande lumineuse en haut de la baie
+  const bulbs = []
+  for (let i = 0; i <= 28; i++) {
+    const t = i / 28, x = -W + 0.2 + t * (W * 2 - 0.4), y = H - 0.38 - Math.sin(t * Math.PI * 3) ** 2 * 0.22
+    bulbs.push(ball(world, 0.025, glow(i % 3 ? 0xffc46b : 0xff8a5c), [x, y, D0 + 0.18], { cast: false, seg: 8 }))
+  }
+  fairyL.position.set(0, H - 0.5, D0 + 0.6)
+
+  // grand tapis
+  quad(world, 3.4, 2.4, mat(0xffffff, { map: rugTex(), rough: 1 }), [0, 0.006, 0.25], [-Math.PI / 2, 0, 0])
+
+  /* ===== le bureau en bois, au centre ===== */
+  const deskWood = mat(0xffffff, { map: woodTex('#a8703f', '70,36,14'), rough: 0.55 })
+  box(world, 2.0, 0.06, 0.95, deskWood, [0, 0.76, 0], null, { r: 0.02 })
+  ;[-0.85, 0.85].forEach(x => {
+    box(world, 0.07, 0.73, 0.07, deskWood, [x, 0.365, -0.38])
+    box(world, 0.07, 0.73, 0.07, deskWood, [x, 0.365, 0.38])
+    box(world, 0.07, 0.07, 0.76, deskWood, [x, 0.12, 0])
+  })
+  box(world, 0.55, 0.32, 0.85, deskWood, [0.6, 0.55, 0], null, { r: 0.02 })
+  ;[0.62, 0.46].forEach(y => box(world, 0.16, 0.02, 0.02, mat(0xd8b46a, { metal: 0.8, rough: 0.3 }), [0.6, y, 0.43]))
+
+  // le fauteuil, derrière le bureau
+  const leather = mat(0x6b3a22, { rough: 0.55 })
+  box(world, 0.62, 0.12, 0.58, leather, [0, 0.5, -0.82], null, { r: 0.05 })
+  box(world, 0.62, 0.78, 0.12, leather, [0, 0.98, -1.1], [-0.12, 0, 0], { r: 0.06 })
+  ;[-0.33, 0.33].forEach(x => box(world, 0.08, 0.22, 0.5, leather, [x, 0.66, -0.85], null, { r: 0.03 }))
+  cyl(world, 0.035, 0.035, 0.4, mat(0x2b2b2b, { metal: 0.7, rough: 0.3 }), [0, 0.25, -0.82])
+  for (let k = 0; k < 5; k++) { const a = (k / 5) * Math.PI * 2; box(world, 0.32, 0.03, 0.05, mat(0x2b2b2b, { metal: 0.7, rough: 0.3 }), [Math.cos(a) * 0.16, 0.05, -0.82 + Math.sin(a) * 0.16], [0, -a, 0]) }
 
   // lampe de bureau
-  const lampG = new Group(); lampG.userData.ink = deco.userData.ink; deco.add(lampG)
-  cyl(lampG, 0.28, 0.32, 0.08, 0x2b2a3a, [3.05, 2.03, -4.4])
-  box(lampG, 0.07, 1.1, 0.07, 0x2b2a3a, [3.05, 2.6, -4.4], { rot: [0, 0, 0.25] })
-  box(lampG, 0.07, 0.8, 0.07, 0x2b2a3a, [2.75, 3.25, -4.4], { rot: [0, 0, -0.9] })
-  const shade = cyl(lampG, 0.12, 0.42, 0.45, 0xffb35c, [2.35, 3.35, -4.4], { rot: [0, 0, 0.6], open: true })
-  const bulb = sphere(lampG, 0.12, 0xfff3c4, [2.27, 3.2, -4.4], { mat: new MeshBasicMaterial({ color: 0xfff3c4 }), outline: false, shadow: false })
-  lamp.position.set(2.2, 3.0, -4.1)
+  const brass = mat(0xc89a52, { metal: 0.8, rough: 0.3 })
+  cyl(world, 0.09, 0.1, 0.025, brass, [0.78, 0.8, -0.28])
+  box(world, 0.02, 0.42, 0.02, brass, [0.78, 1.0, -0.28], [0.25, 0, 0])
+  cyl(world, 0.05, 0.13, 0.14, mat(0x2f4f3a, { rough: 0.6, extra: { side: 2 } }), [0.78, 1.2, -0.18], [-0.9, 0, 0], { open: true })
+  const lampBulb = ball(world, 0.035, glow(0xfff1c9), [0.78, 1.17, -0.14], { cast: false })
+  deskLamp.position.set(0.78, 1.16, -0.12)
+  deskLamp.target.position.set(0.15, 0.76, 0.2)
 
-  // plante au sol
-  cyl(deco, 0.4, 0.3, 0.7, 0xd97757, [-4.2, 0.35, -4.2])
-  ;[[0, 1.25, 0, 0], [0.18, 1.1, 0.1, 0.5], [-0.2, 1.05, -0.05, -0.5], [0.05, 1.0, -0.2, 0.3]].forEach(([dx, y, dz, r]) => {
-    const c = new Mesh(new ConeGeometry(0.22, 1.2, 10), toon(0x4caf6a)); c.position.set(-4.2 + dx, y, -4.2 + dz); c.rotation.set(r * .5, 0, r); c.castShadow = true; deco.add(c)
-    outlineFor(deco, c, new ConeGeometry(0.22 + T, 1.2 + T * 2, 10))
-  })
+  // mug avec vapeur, petite plante
+  cyl(world, 0.045, 0.04, 0.1, mat(0xf2ead9, { rough: 0.5 }), [-0.62, 0.84, 0.28])
+  mesh(world, new TorusGeometry(0.03, 0.008, 8, 16), mat(0xf2ead9), [-0.575, 0.84, 0.28], [0, 0, Math.PI / 2])
+  const steam = []
+  for (let i = 0; i < 6; i++) steam.push(ball(world, 0.018, new MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.2, depthWrite: false }), [-0.62, 0.9, 0.28], { cast: false, receive: false, seg: 8 }))
+  cyl(world, 0.05, 0.04, 0.08, mat(0xd97757), [-0.85, 0.83, -0.3])
+  for (let k = 0; k < 5; k++) mesh(world, new ConeGeometry(0.025, 0.16, 6), mat(0x4caf6a), [-0.85 + (rnd() - 0.5) * 0.06, 0.92, -0.3 + (rnd() - 0.5) * 0.06], [(rnd() - 0.5) * 0.6, 0, (rnd() - 0.5) * 0.6])
 
-  /* ===== OBJETS INTERACTIFS ===== */
+  /* ===== objets interactifs sur le bureau ===== */
+  // MacBook, écran tourné vers nous
+  const macbook = obj('macbook', [-0.1, 1.12, -0.15], { pos: [-0.1, 1.18, 1.05], look: [-0.1, 0.92, -0.15] })
+  const alu = mat(0xc9ccd4, { metal: 0.6, rough: 0.35 })
+  box(macbook, 0.46, 0.015, 0.32, alu, [-0.1, 0.795, -0.05], null, { r: 0.008 })
+  const lid = new Group(); lid.position.set(-0.1, 0.8, -0.21); lid.rotation.x = -0.22; macbook.add(lid)
+  box(lid, 0.46, 0.31, 0.012, alu, [0, 0.155, 0], null, { r: 0.008 })
+  const macGlow = quad(lid, 0.43, 0.28, glow(0xffffff, { map: macScreen() }), [0, 0.155, 0.008])
 
-  // 1. le vieil écran (étagère du mur gauche)
-  box(deco, 0.7, 0.1, 3.8, 0xa47148, [-4.62, 3.35, 0.4])
-  ;[-1.2, 2.0].forEach(z => box(deco, 0.5, 0.35, 0.08, 0x7a5236, [-4.75, 3.15, z]))
-  const crt = obj('crt', [-4.3, 4.6, -0.5])
-  box(crt, 0.95, 0.8, 0.95, 0xd8cfb8, [-4.5, 3.82, -0.5])
-  box(crt, 0.7, 0.55, 0.5, 0xc9bea3, [-4.75, 3.82, -0.5], { outline: false })
-  plane(crt, 0.66, 0.52, crtTex(), [-4.015, 3.85, -0.5], [0, Math.PI / 2, 0])
-  box(crt, 0.3, 0.06, 0.6, 0xd8cfb8, [-4.2, 3.43, -0.5])
-
-  // 2. le baladeur OpenPod (étagère)
-  const openpod = obj('openpod', [-4.3, 4.35, 1.6])
-  box(openpod, 0.14, 0.62, 0.38, 0xf4f4f5, [-4.45, 3.72, 1.6], { r: 0.05, rot: [0, 0, 0.12] })
-  plane(openpod, 0.26, 0.22, screenTex('#fb923c', '♪ OpenPod'), [-4.37, 3.86, 1.6], [0, Math.PI / 2, 0.12])
-  cyl(openpod, 0.1, 0.1, 0.02, 0xd4d4d8, [-4.4, 3.6, 1.6], { rot: [0, 0, Math.PI / 2 + 0.12] })
-  // petite plante sur l'étagère
-  cyl(deco, 0.16, 0.12, 0.28, 0xfcc48b, [-4.55, 3.54, 2.05])
-  sphere(deco, 0.2, 0x4caf6a, [-4.55, 3.8, 2.05])
-
-  // 3. le piano (sous l'étagère)
-  const piano = obj('piano', [-3.5, 2.6, 0.6])
-  box(piano, 0.8, 0.2, 3.4, 0x27272a, [-4.25, 1.55, 0.6])
-  box(piano, 0.34, 0.06, 3.1, 0xffffff, [-3.98, 1.66, 0.6], { r: 0.01 })
-  // touches noires : motif 2 + 3 sur chaque octave
-  for (let o = 0; o < 2; o++) [0, 1, 3, 4, 5].forEach(b => box(piano, 0.2, 0.06, 0.1, 0x111111, [-4.06, 1.71, -0.85 + (o * 7 + b) * 0.215 + 0.11], { r: 0.01, outline: false }))
-  ;[-0.6, 1.8].forEach(z => {
-    box(piano, 0.08, 1.6, 0.08, 0x3f3f46, [-4.25, 0.75, z], { rot: [0.35, 0, 0] })
-    box(piano, 0.08, 1.6, 0.08, 0x3f3f46, [-4.25, 0.75, z], { rot: [-0.35, 0, 0] })
-  })
-
-  // 4. le calendrier GitHub (mur gauche)
-  const calendar = obj('calendar', [-4.3, 4.4, 3.6])
-  box(calendar, 0.06, 1.55, 1.3, 0xfffdf8, [-4.96, 3.25, 3.6])
-  plane(calendar, 1.25, 1.48, calendarTex(snapshot?.contributions || []), [-4.92, 3.25, 3.6], [0, Math.PI / 2, 0])
-  for (let k = 0; k < 6; k++) cyl(calendar, 0.03, 0.03, 0.1, 0x9ca3af, [-4.9, 4.02, 3.1 + k * 0.2], { rot: [Math.PI / 2, 0, 0], outline: false })
-
-  // 5. le néon OsaLabs (mur du fond)
-  const neon = obj('neon', [0.6, 5.3, -4.5])
-  box(neon, 3.0, 1.0, 0.08, 0x1a1530, [0.6, 4.55, -4.96], { r: 0.1 })
-  const neonGlow = plane(neon, 3.6, 1.4, neonTex(), [0.6, 4.55, -4.9], null, { transparent: true })
-
-  // 6. le cadre photo (mur du fond, à droite)
-  const frameObj = obj('frame', [3.9, 4.6, -4.5])
-  box(frameObj, 1.3, 1.6, 0.1, 0xfde68a, [3.9, 3.55, -4.95])
-  const photoMat = new MeshBasicMaterial({ color: 0xf9a8a8 })
-  const photo = new Mesh(new PlaneGeometry(1.05, 1.32), photoMat)
-  photo.position.set(3.9, 3.55, -4.89)
-  frameObj.add(photo)
-  if (avatar) new TextureLoader().setCrossOrigin('anonymous').load(avatar, t => { t.colorSpace = SRGBColorSpace; photoMat.map = t; photoMat.color.set(0xffffff); photoMat.needsUpdate = true })
-
-  // 7. le MacBook
-  const macbook = obj('macbook', [0.85, 3.4, -3.8])
-  box(macbook, 1.5, 0.06, 1.0, 0xc7c9d1, [0.85, 2.02, -3.65])
-  const lid = new Group()
-  lid.userData.ink = macbook.userData.ink
-  lid.position.set(0.85, 2.05, -4.15)
-  lid.rotation.x = -0.22
-  macbook.add(lid)
-  box(lid, 1.5, 1.0, 0.05, 0xc7c9d1, [0, 0.5, 0])
-  const macScreen = plane(lid, 1.38, 0.88, macScreenTex(), [0, 0.5, 0.03])
-
-  // 8. le clavier PORTFOLIO
-  const keyboard = obj('keyboard', [-0.6, 2.7, -3.15])
-  box(keyboard, 1.5, 0.08, 0.55, 0x23212b, [-0.6, 2.03, -3.15])
-  const capColors = [0xf3a6cf, 0xc4b5fd, 0xa7e8bd, 0xfcc48b, 0x93c5fd, 0xf9a8a8, 0xfde68a, 0xa5b4fc, 0x86efac]
-  capColors.forEach((c, i) => {
+  // clavier mécanique PORTFOLIO
+  const keyboard = obj('keyboard', [0.25, 0.95, 0.3], { pos: [0.25, 1.15, 0.95], look: [0.25, 0.8, 0.28] })
+  box(keyboard, 0.44, 0.03, 0.15, mat(0x2a2733, { rough: 0.5 }), [0.25, 0.805, 0.28], null, { r: 0.01 })
+  ;[0xf3a6cf, 0xc4b5fd, 0xa7e8bd, 0xfcc48b, 0x93c5fd, 0xf9a8a8, 0xfde68a, 0xa5b4fc, 0x86efac].forEach((c, i) => {
     const row = i < 4 ? 0 : 1, col = i < 4 ? i : i - 4
-    box(keyboard, 0.22, 0.09, 0.2, c, [-1.12 + col * 0.26 + (row ? -0.05 : 0.05), 2.12, -3.27 + row * 0.24], { r: 0.03, outline: false })
+    box(keyboard, 0.055, 0.03, 0.055, mat(c, { rough: 0.6 }), [0.1 + col * 0.068 + (row ? -0.015 : 0.015), 0.83, 0.25 + row * 0.068], null, { r: 0.01 })
   })
-  box(keyboard, 0.3, 0.09, 0.44, 0xfde68a, [-0.0, 2.12, -3.15], { r: 0.03, outline: false })
+  box(keyboard, 0.07, 0.03, 0.12, mat(0xfde68a, { rough: 0.6 }), [0.43, 0.83, 0.28], null, { r: 0.01 })
 
-  // 9. le cahier de NSI
-  const notebook = obj('notebook', [-1.75, 2.6, -3.6])
-  box(notebook, 0.75, 0.08, 0.95, 0xfde68a, [-1.75, 2.03, -3.7], { rot: [0, 0.25, 0] })
-  box(notebook, 0.7, 0.05, 0.9, 0xffffff, [-1.73, 2.0, -3.7], { rot: [0, 0.25, 0], outline: false })
-  cyl(notebook, 0.025, 0.025, 0.8, 0xf97316, [-1.3, 2.1, -3.5], { rot: [Math.PI / 2, 0, 0.9] })
+  // cahier de NSI
+  const notebook = obj('notebook', [-0.62, 0.95, 0.05], { pos: [-0.6, 1.2, 0.75], look: [-0.62, 0.8, 0.02] })
+  box(notebook, 0.24, 0.02, 0.32, mat(0xf2c94c, { rough: 0.8 }), [-0.62, 0.8, 0.02], [0, 0.35, 0], { r: 0.008 })
+  box(notebook, 0.22, 0.012, 0.3, mat(0xfffdf6, { rough: 1 }), [-0.615, 0.789, 0.02], [0, 0.35, 0], { r: 0.004 })
+  cyl(notebook, 0.006, 0.006, 0.22, mat(0xf97316), [-0.5, 0.816, 0.08], [Math.PI / 2, 0, 1.1])
 
-  // 10. le téléphone
-  const phone = obj('phone', [1.95, 2.6, -3.05])
-  const phoneBody = box(phone, 0.36, 0.05, 0.7, 0x18181b, [1.95, 2.02, -3.15], { r: 0.04, rot: [0, -0.35, 0] })
-  plane(phoneBody, 0.3, 0.6, screenTex('#f472b6', '1 appel'), [0, 0.03, 0], [-Math.PI / 2, 0, 0])
+  // téléphone
+  const phone = obj('phone', [0.62, 0.95, 0.24], { pos: [0.6, 1.15, 0.85], look: [0.62, 0.8, 0.22] })
+  const phoneBody = box(phone, 0.09, 0.012, 0.18, mat(0x18181b, { rough: 0.3, metal: 0.4 }), [0.62, 0.797, 0.22], [0, -0.4, 0], { r: 0.012 })
+  quad(phoneBody, 0.08, 0.17, glow(0xffffff, { map: phoneScreen() }), [0, 0.007, 0], [-Math.PI / 2, 0, 0])
 
-  // 11. le petit serveur
-  const server = obj('server', [4.25, 2.6, -2.9])
-  box(server, 0.9, 1.9, 1.2, 0x1f2937, [4.25, 0.95, -3.35])
-  const leds = []
-  for (let k = 0; k < 4; k++) {
-    box(server, 0.7, 0.28, 0.02, 0x374151, [4.25, 1.55 - k * 0.38, -2.74], { outline: false })
-    const led = new Mesh(new SphereGeometry(0.035, 8, 8), new MeshBasicMaterial({ color: k % 2 ? 0x86efac : 0x60a5fa }))
-    led.position.set(4.52, 1.55 - k * 0.38, -2.72)
-    server.add(led); leds.push(led)
+  /* ===== mur de gauche : bibliothèque, vieil écran, baladeur, calendrier ===== */
+  const shelfWood = mat(0xffffff, { map: woodTex('#8a5a36', '50,26,12'), rough: 0.6 })
+  const BX = -W + 0.2
+  box(world, 0.4, 2.2, 0.04, shelfWood, [BX, 1.1, -2.72])
+  box(world, 0.4, 2.2, 0.04, shelfWood, [BX, 1.1, -1.52])
+  ;[0.08, 0.6, 1.1, 1.6, 2.18].forEach(y => box(world, 0.4, 0.035, 1.22, shelfWood, [BX, y, -2.12]))
+  const bookCols = [0xb4532a, 0x2f4f3a, 0xe0b04c, 0x6b3a22, 0x3b5b8a, 0xd97757, 0x8fb39b, 0x7a2e1a, 0xf2c38b]
+  ;[[0.1, -2.68, -1.6], [0.62, -1.95, -1.58], [1.12, -2.68, -2.3], [1.62, -2.68, -1.6]].forEach(([y, z0, z1]) => {
+    for (let z = z0; z < z1;) { const t = 0.04 + rnd() * 0.04, h = 0.32 + rnd() * 0.14; box(world, 0.26, h, t, mat(bookCols[(rnd() * bookCols.length) | 0], { rough: 0.9 }), [BX + 0.02, y + h / 2, z + t / 2], [rnd() < 0.15 ? 0.15 : 0, 0, 0], { r: 0.006 }); z += t + 0.006 }
+  })
+  // plante sur la bibliothèque
+  cyl(world, 0.09, 0.07, 0.14, mat(0xd97757), [BX, 2.27, -1.9])
+  for (let k = 0; k < 7; k++) { const a = rnd() * 6.28; mesh(world, new ConeGeometry(0.03, 0.4, 5), mat(0x4caf6a), [BX + Math.cos(a) * 0.08, 2.15, -1.9 + Math.sin(a) * 0.08], [Math.cos(a) * 1.4, 0, Math.sin(a) * 1.4]) }
+
+  const crt = obj('crt', [BX + 0.3, 1.62, -2.0], { pos: [-1.2, 1.45, -1.6], look: [BX, 1.33, -2.0] })
+  box(crt, 0.36, 0.32, 0.38, mat(0xd8cfb8, { rough: 0.8 }), [BX, 1.29, -2.0], null, { r: 0.03 })
+  quad(crt, 0.27, 0.21, glow(0xffffff, { map: crtScreen() }), [BX + 0.181, 1.3, -2.0], [0, Math.PI / 2, 0])
+
+  const openpod = obj('openpod', [BX + 0.25, 0.98, -2.35], { pos: [-1.4, 1.0, -1.9], look: [BX, 0.74, -2.35] })
+  box(openpod, 0.05, 0.2, 0.12, mat(0xf4f4f5, { rough: 0.4 }), [BX + 0.05, 0.72, -2.35], [0, 0, 0.18], { r: 0.015 })
+  quad(openpod, 0.085, 0.07, glow(0xffffff, { map: podScreen() }), [BX + 0.087, 0.77, -2.35], [0, Math.PI / 2, 0.18])
+  cyl(openpod, 0.03, 0.03, 0.006, mat(0xd4d4d8), [BX + 0.075, 0.68, -2.35], [0, 0, Math.PI / 2 + 0.18])
+
+  const calendar = obj('calendar', [-W + 0.15, 2.05, -1.0], { pos: [-1.0, 1.6, -0.6], look: [-W, 1.6, -1.0] })
+  box(calendar, 0.02, 0.62, 0.52, mat(0xfffdf8), [-W + 0.012, 1.6, -1.0])
+  quad(calendar, 0.5, 0.6, mat(0xffffff, { map: calTex(snapshot?.contributions || []), rough: 0.9 }), [-W + 0.025, 1.6, -1.0], [0, Math.PI / 2, 0])
+
+  // lampadaire en arc, devant à gauche
+  cyl(world, 0.16, 0.18, 0.03, mat(0x2b2b2b, { metal: 0.5, rough: 0.4 }), [-1.6, 0.015, -1.45])
+  cyl(world, 0.018, 0.018, 1.8, brass, [-1.6, 0.9, -1.45])
+  mesh(world, new TorusGeometry(0.6, 0.018, 8, 24, Math.PI / 2), brass, [-1.0, 1.8, -1.45], [0, 0, Math.PI / 2])
+  cyl(world, 0.08, 0.22, 0.18, mat(0xf2e6cf, { rough: 0.9, extra: { side: 2 } }), [-1.0, 2.3, -1.45], null, { open: true })
+  ball(world, 0.05, glow(0xfff1c9), [-1.0, 2.25, -1.45], { cast: false })
+  floorLampL.position.set(-1.0, 2.1, -1.45)
+
+  // grande plante dans le coin du fond
+  cyl(world, 0.22, 0.17, 0.42, mat(0xb4532a), [2.2, 0.21, -2.65])
+  for (let k = 0; k < 11; k++) {
+    const a = (k / 11) * 6.28, r = 0.15 + rnd() * 0.15
+    const leaf = mesh(world, new SphereGeometry(0.16, 10, 8), mat(k % 2 ? 0x3f8f5a : 0x4caf6a, { rough: 0.8 }), [2.2 + Math.cos(a) * r, 0.75 + rnd() * 0.7, -2.65 + Math.sin(a) * r])
+    leaf.scale.set(1, 0.25, 1.8); leaf.rotation.set(rnd() - 0.5, a, 0.5)
   }
+
+  /* ===== mur de droite : piano, néon, cadre, serveur, fauteuil ===== */
+  const piano = obj('piano', [W - 0.5, 1.15, -1.75], { pos: [1.1, 1.5, -1.0], look: [W - 0.45, 0.85, -1.75] })
+  box(piano, 0.32, 0.08, 1.2, mat(0x1c1c1f, { rough: 0.4 }), [W - 0.45, 0.85, -1.75], null, { r: 0.015 })
+  box(piano, 0.13, 0.02, 1.12, mat(0xfafafa, { rough: 0.5 }), [W - 0.56, 0.9, -1.75], null, { r: 0.004 })
+  for (let o = 0; o < 3; o++) [0, 1, 3, 4, 5].forEach(b => box(piano, 0.07, 0.022, 0.035, mat(0x111111), [W - 0.53, 0.915, -2.29 + (o * 7 + b) * 0.051 + 0.026], null, { r: 0.003 }))
+  ;[-2.2, -1.3].forEach(z => {
+    box(piano, 0.03, 0.85, 0.03, mat(0x2b2b2b, { metal: 0.6, rough: 0.4 }), [W - 0.45, 0.42, z], [0.35, 0, 0])
+    box(piano, 0.03, 0.85, 0.03, mat(0x2b2b2b, { metal: 0.6, rough: 0.4 }), [W - 0.45, 0.42, z], [-0.35, 0, 0])
+  })
+
+  const neon = obj('neon', [W - 0.2, 2.35, -1.75], { pos: [1.0, 2.0, -0.9], look: [W, 2.0, -1.75] })
+  box(neon, 0.04, 0.42, 1.25, mat(0x1a1424, { rough: 0.5 }), [W - 0.02, 2.0, -1.75], null, { r: 0.04 })
+  const neonGlow = quad(neon, 1.35, 0.4, glow(0xffffff, { map: neonTex(), transparent: true }), [W - 0.05, 2.0, -1.75], [0, -Math.PI / 2, 0])
+
+  const frameObj = obj('frame', [W - 0.15, 2.0, -0.85], { pos: [1.1, 1.6, -0.4], look: [W, 1.6, -0.85] })
+  box(frameObj, 0.04, 0.6, 0.48, mat(0xd8b46a, { metal: 0.5, rough: 0.4 }), [W - 0.02, 1.6, -0.85], null, { r: 0.01 })
+  const photoMat = mat(0xf9a8a8, { rough: 0.6 })
+  const photo = quad(frameObj, 0.4, 0.5, photoMat, [W - 0.045, 1.6, -0.85], [0, -Math.PI / 2, 0])
+  // la matière est clonée plus bas (surbrillance au survol) : on vise celle du mesh
+  if (avatar) new TextureLoader().setCrossOrigin('anonymous').load(avatar, t => { t.colorSpace = SRGBColorSpace; photo.material.map = t; photo.material.color.set(0xffffff); photo.material.needsUpdate = true })
+
+  const server = obj('server', [1.3, 0.9, -1.0], { pos: [0.75, 1.0, 0.4], look: [1.3, 0.4, -1.0] })
+  box(server, 0.26, 0.62, 0.42, mat(0x262a33, { rough: 0.45, metal: 0.35 }), [1.3, 0.31, -1.0], [0, -0.25, 0], { r: 0.02 })
+  const leds = []
+  for (let k = 0; k < 5; k++) {
+    const led = ball(server, 0.012, glow(k % 2 ? 0x86efac : 0x60a5fa), [1.3 + 0.212 * Math.sin(-0.25), 0.52 - k * 0.09, -1.0 + 0.212 * Math.cos(-0.25)], { cast: false, seg: 8 })
+    leds.push(led)
+  }
+
+  // suspension au-dessus du bureau
+  cyl(world, 0.004, 0.004, 0.95, mat(0x222222), [0, H - 0.47, 0.05], null, { cast: false })
+  cyl(world, 0.06, 0.2, 0.18, mat(0x2f4f3a, { rough: 0.5, extra: { side: 2 } }), [0, H - 1.02, 0.05], null, { open: true, cast: false })
+  ball(world, 0.04, glow(0xfff1c9), [0, H - 1.06, 0.05], { cast: false })
+  pendantL.position.set(0, H - 1.15, 0.05)
+
+  // poussière qui flotte dans la lumière
+  const dustGeo = new BufferGeometry()
+  const dustN = 220, dustPos = new Float32Array(dustN * 3)
+  for (let i = 0; i < dustN; i++) { dustPos[i * 3] = (rnd() - 0.5) * 3.2; dustPos[i * 3 + 1] = 0.3 + rnd() * 2.4; dustPos[i * 3 + 2] = -1.8 + rnd() * 3.4 }
+  dustGeo.setAttribute('position', new Float32BufferAttribute(dustPos, 3))
+  const dust = new Points(dustGeo, new PointsMaterial({ color: 0xffd9a0, size: 0.012, transparent: true, opacity: 0.55, blending: AdditiveBlending, depthWrite: false }))
+  world.add(dust)
 
   /* ---------- la mascotte ---------- */
   const mascot = new Group()
-  const mInk = inkMat()
-  mascot.userData.ink = mInk
-  const body = sphere(mascot, 0.34, 0xfdf6e3, [0, 0, 0], { mat: toon(0xfdf6e3, { emissive: 0x6b6250 }) })
+  const body = ball(mascot, 0.075, mat(0xfdf6e3, { rough: 0.6, emissive: 0x6b6250, ei: 0.6 }), [0, 0, 0], { cast: false })
   const eyes = new Group()
-  ;[-0.11, 0.11].forEach(x => {
-    const e = new Mesh(new SphereGeometry(0.06, 12, 12), new MeshBasicMaterial({ color: 0x111111 }))
-    e.scale.set(0.8, 1.15, 0.6); e.position.set(x, 0.04, 0.3)
-    const hl = new Mesh(new SphereGeometry(0.018, 8, 8), new MeshBasicMaterial({ color: 0xffffff }))
-    hl.position.set(-0.015, 0.025, 0.05); e.add(hl)
+  ;[-0.035, 0.035].forEach(x => {
+    const e = new Mesh(new SphereGeometry(0.018, 12, 12), new MeshBasicMaterial({ color: 0x111111 }))
+    e.scale.set(0.8, 1.2, 0.6); e.position.set(x * 0.7, 0.01, 0.068)
     eyes.add(e)
   })
   body.add(eyes)
-  mascot.position.set(1.6, 3.2, 0.8)
+  const homeMascot = new Vector3(-0.35, 1.0, 0.05)
+  mascot.position.copy(homeMascot)
   scene.add(mascot)
 
-  /* ---------- jour / nuit ---------- */
+  /* ---------- rendu avec halo (bloom) ---------- */
+  const composer = new EffectComposer(renderer)
+  composer.addPass(new RenderPass(scene, camera))
+  const bloom = new UnrealBloomPass(new Vector2(256, 256), 0.5, 0.55, 0.92)
+  composer.addPass(bloom)
+  composer.addPass(new OutputPass())
+
+  /* ---------- jour (coucher de soleil) / nuit ---------- */
   function setDay(day) {
-    hemi.color.set(day ? 0xffffff : 0x9fa8ff); hemi.groundColor.set(day ? 0xd9c7ae : 0x2a1a3a); hemi.intensity = day ? 1.7 : 0.9
-    ambient.intensity = day ? 0.35 : 0.15
-    moon.color.set(day ? 0xfff1d6 : 0xa9b8ff); moon.intensity = day ? 2.0 : 1.1
-    lamp.intensity = day ? 2 : 9
-    bulb.material.color.set(day ? 0xfff8e1 : 0xfff3c4)
-    glass.material.map = day ? dayWin : nightWin; glass.material.needsUpdate = true
-    wallBackMat.color.set(day ? 0xf1e4d3 : 0x3b3363)
-    wallLeftMat.color.set(day ? 0xe8d8c4 : 0x332c58)
-    floorMat.color.set(day ? 0xc69c72 : 0x6b4a3a)
-    neonGlow.material.opacity = day ? 0.55 : 1
+    outside.material.map = day ? skyDay : skyNight; outside.material.needsUpdate = true
+    sky.color.set(day ? 0xffa060 : 0x9db4ff); sky.intensity = day ? 1.7 : 1.1
+    sky.position.set(day ? 2.5 : -2.5, day ? 2.2 : 4.5, -8)
+    hemi.intensity = day ? 0.9 : 0.35
+    deskLamp.intensity = day ? 2.5 : 5
+    floorLampL.intensity = day ? 1.2 : 3.2
+    pendantL.intensity = day ? 0.8 : 2.4
+    renderer.toneMappingExposure = day ? 1.0 : 1.05
+    bloom.strength = day ? 0.3 : 0.5
   }
 
   /* ---------- caméra ---------- */
-  const DIR = new Vector3(1, 0.82, 1).normalize()
-  const view = { yaw: 0, pitch: 0, zoom: 1, target: new Vector3(0.1, 2.0, -0.6) }
-  const goal = { yaw: 0, pitch: 0, zoom: 1, target: view.target.clone() }
-  const home = { target: view.target.clone(), zoom: 1 }
-  let frustum = 12, panelShift = 0
+  const HOME = { pos: new Vector3(0, 1.5, 3.2), look: new Vector3(0, 1.1, -1.0) }
+  const cam = { pos: HOME.pos.clone(), look: HOME.look.clone() }
+  const goal = { pos: HOME.pos.clone(), look: HOME.look.clone() }
+  let focusedNow = null
+  let yaw = 0, pitch = 0, gYaw = 0, gPitch = 0, fovK = 1, gFovK = 1, shift = 0, shiftY = 0
+  const mouse = new Vector2()
+  addEventListener('pointermove', e => { mouse.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight * 2 - 1)) }, { passive: true })
 
+  let W2 = 1, H2 = 1
   function resize() {
-    const w = canvas.clientWidth, h = canvas.clientHeight
-    renderer.setSize(w, h, false)
-    const aspect = w / h
-    // assez large pour voir toute la pièce, même sur un téléphone en portrait
-    frustum = Math.max(11.5, 15 / aspect)
-    camera.left = -frustum * aspect / 2; camera.right = frustum * aspect / 2
-    camera.top = frustum / 2; camera.bottom = -frustum / 2
+    W2 = canvas.clientWidth; H2 = canvas.clientHeight
+    // en portrait, on se rapproche du bureau
+    const portrait = W2 < H2
+    HOME.pos.set(0, portrait ? 1.35 : 1.5, portrait ? 2.1 : 3.2)
+    HOME.look.set(0, portrait ? 1.0 : 1.1, -1.0)
+    if (!focusedNow) { goal.pos.copy(HOME.pos); goal.look.copy(HOME.look) }
+    renderer.setSize(W2, H2, false)
+    composer.setSize(W2, H2)
+    camera.aspect = W2 / H2
     camera.updateProjectionMatrix()
   }
   new ResizeObserver(resize).observe(canvas)
   resize()
 
-  const tmp = new Vector3(), right = new Vector3()
+  const tmp = new Vector3(), lookV = new Vector3()
   function placeCamera() {
-    const dir = DIR.clone().applyAxisAngle(new Vector3(0, 1, 0), view.yaw)
-    dir.y += view.pitch; dir.normalize()
-    // décalage latéral quand le panneau est ouvert, pour garder l'objet visible
-    right.crossVectors(new Vector3(0, 1, 0), dir).normalize().multiplyScalar(panelShift * frustum / view.zoom)
-    camera.position.copy(view.target).add(right).addScaledVector(dir, 40)
-    camera.lookAt(tmp.copy(view.target).add(right))
-    camera.zoom = view.zoom
+    // champ horizontal constant : la pièce remplit l'écran, même en portrait
+    const hFov = (camera.aspect < 1 ? 62 : 72) / fovK
+    camera.fov = MathUtils.clamp(2 * Math.atan(Math.tan(MathUtils.degToRad(hFov) / 2) / camera.aspect) * 180 / Math.PI, 30, 100)
+    camera.position.copy(cam.pos)
+    lookV.copy(cam.look).sub(cam.pos)
+    lookV.applyAxisAngle(new Vector3(0, 1, 0), yaw + (api.focused ? 0 : -mouse.x * 0.05))
+    lookV.y += (pitch + (api.focused ? 0 : mouse.y * 0.04)) * lookV.length()
+    camera.lookAt(tmp.copy(cam.pos).add(lookV))
+    // décalage de l'image quand le panneau est ouvert : l'objet reste visible à gauche
+    if (shift > 0.001 || shiftY > 0.001) camera.setViewOffset(W2, H2, shift * W2, shiftY * H2, W2, H2)
+    else camera.clearViewOffset()
     camera.updateProjectionMatrix()
   }
 
@@ -402,58 +468,63 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   const ray = new Raycaster()
   const ptr = new Vector2()
   const pickables = []
-  Object.values(objects).forEach(g => g.traverse(m => { if (m.isMesh && m.material !== g.userData.ink) pickables.push(m) }))
+  const mats = {}
+  Object.values(objects).forEach(g => {
+    mats[g.userData.id] = []
+    g.traverse(m => {
+      if (!m.isMesh) return
+      pickables.push(m)
+      if (m.material.isMeshStandardMaterial) { m.material = m.material.clone(); mats[g.userData.id].push(m.material) }
+    })
+  })
   const findObj = m => { while (m && !m.userData?.anchor) m = m.parent; return m }
-  function pick(clientX, clientY) {
+  function pick(x, y) {
     const r = canvas.getBoundingClientRect()
-    ptr.set(((clientX - r.left) / r.width) * 2 - 1, -((clientY - r.top) / r.height) * 2 + 1)
+    ptr.set(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1)
     ray.setFromCamera(ptr, camera)
     const hit = ray.intersectObjects(pickables, false)[0]
-    return hit ? findObj(hit.object).userData.id : null
+    return hit ? findObj(hit.object)?.userData.id : null
   }
-  let hovered = null, focused = null
-  const HL = new Color(0xffb35c)
+  let hovered = null
+  const warm = new Color(0xff8a3d)
   function paint() {
-    Object.values(objects).forEach(g => {
-      const on = g.userData.id === hovered || g.userData.id === focused
-      g.userData.ink.color.copy(on ? HL : new Color(INK))
-    })
-  }
-
-  /* ---------- mascotte : vole jusqu'à un objet ---------- */
-  const mGoal = mascot.position.clone()
-  function mascotTo(id) {
-    // la mascotte se pose à côté de l'objet, un peu vers le visiteur, sans le masquer
-    if (id) mGoal.copy(objects[id].userData.anchor).add(new Vector3(-0.55, 0.15, 0.95))
-    else mGoal.set(1.6, 3.2, 0.8)
+    Object.entries(mats).forEach(([id, list]) => list.forEach(m => {
+      const on = id === hovered && id !== api.focused
+      m.emissive.copy(on ? warm : new Color(0x000000))
+      m.emissiveIntensity = on ? 0.3 : 1
+    }))
   }
 
   /* ---------- boucle ---------- */
-  let t = 0, last = performance.now(), running = true
+  const mGoal = homeMascot.clone()
+  let t = 0, last = performance.now()
   const listeners = []
   function frame(now) {
-    if (!running) return
     const dt = Math.min(0.05, (now - last) / 1000)
     last = now; t += dt
-    const k = 1 - Math.pow(0.0015, dt)
-    view.yaw += (goal.yaw - view.yaw) * k
-    view.pitch += (goal.pitch - view.pitch) * k
-    view.zoom += (goal.zoom - view.zoom) * k
-    view.target.lerp(goal.target, k)
-    panelShift += ((focused && api.panelOpen ? api.panelShiftGoal : 0) - panelShift) * k
+    const k = 1 - Math.pow(0.002, dt)
+    cam.pos.lerp(goal.pos, k); cam.look.lerp(goal.look, k)
+    yaw += (gYaw - yaw) * k; pitch += (gPitch - pitch) * k
+    fovK += (gFovK - fovK) * k
+    shift += ((api.focused && api.panelOpen ? api.panelShiftGoal : 0) - shift) * k
+    shiftY += ((api.focused && api.panelOpen ? api.panelShiftYGoal : 0) - shiftY) * k
     placeCamera()
-    // vie de la pièce
-    mascot.position.lerp(mGoal, 1 - Math.pow(0.02, dt))
-    body.position.y = Math.sin(t * 2.2) * 0.08
+    mascot.position.lerp(mGoal, 1 - Math.pow(0.03, dt))
+    body.position.y = Math.sin(t * 2.2) * 0.025
     mascot.quaternion.copy(camera.quaternion)
-    eyes.position.x = MathUtils.clamp(ptr.x * 0.04, -0.04, 0.04)
-    eyes.position.y = MathUtils.clamp(ptr.y * 0.03, -0.03, 0.03)
     eyes.scale.y = (t % 4.2) > 4.05 ? 0.15 : 1
+    eyes.position.x = MathUtils.clamp(mouse.x * 0.012, -0.012, 0.012)
     leds.forEach((l, i) => { l.visible = Math.sin(t * (3 + i) + i) > -0.3 })
-    neonGlow.material.opacity = (document.documentElement.classList.contains('dark') ? 1 : 0.55) * (0.88 + Math.sin(t * 7) * 0.04 + (Math.random() < 0.004 ? -0.5 : 0))
-    phone.position.x = (Math.floor(t * 10) % 30 < 4) ? Math.sin(t * 90) * 0.012 : 0
-    macScreen.material.color.setScalar(0.92 + Math.sin(t * 1.5) * 0.08)
-    renderer.render(scene, camera)
+    bulbs.forEach((b, i) => b.material.color.setScalar(0.75 + Math.sin(t * 1.6 + i * 0.7) * 0.25).multiply(new Color(i % 3 ? 0xffc46b : 0xff8a5c)))
+    neonGlow.material.opacity = 0.9 + Math.sin(t * 7) * 0.05 + (Math.random() < 0.004 ? -0.5 : 0)
+    steam.forEach((s, i) => { const p = ((t * 0.25 + i / steam.length) % 1); s.position.set(-0.62 + Math.sin(p * 9 + i) * 0.015, 0.9 + p * 0.22, 0.28); s.material.opacity = (1 - p) * 0.22; s.scale.setScalar(1 + p * 2) })
+    const dp = dustGeo.attributes.position
+    for (let i = 0; i < dustN; i++) { dp.array[i * 3 + 1] += Math.sin(t * 0.3 + i) * 0.0004; dp.array[i * 3] += Math.cos(t * 0.2 + i * 1.7) * 0.0003 }
+    dp.needsUpdate = true
+    phone.position.x = (Math.floor(t * 10) % 40 < 4) ? Math.sin(t * 90) * 0.003 : 0
+    macGlow.material.color.setScalar(0.9 + Math.sin(t * 1.5) * 0.06)
+    lampBulb.scale.setScalar(1 + Math.sin(t * 3) * 0.02)
+    composer.render()
     listeners.forEach(f => f())
     requestAnimationFrame(frame)
   }
@@ -461,38 +532,40 @@ export async function createRoom(canvas, { snapshot, avatar }) {
 
   const project = v => {
     tmp.copy(v).project(camera)
-    return { x: (tmp.x * 0.5 + 0.5) * canvas.clientWidth, y: (-tmp.y * 0.5 + 0.5) * canvas.clientHeight }
+    return { x: (tmp.x * 0.5 + 0.5) * W2, y: (-tmp.y * 0.5 + 0.5) * H2 }
   }
 
   const api = {
     objects: Object.keys(objects),
+    focused: null,
     panelOpen: false,
-    panelShiftGoal: 0.17,
+    panelShiftGoal: 0.18,
+    panelShiftYGoal: 0,
     setDay,
     pick,
     hover(id) { if (hovered !== id) { hovered = id; paint() } },
     focus(id) {
-      focused = id; paint()
+      const v = objects[id].userData.view
+      api.focused = focusedNow = id; paint()
+      goal.pos.set(...v.pos); goal.look.set(...v.look)
+      gYaw = 0; gPitch = 0; gFovK = 1
+      // la mascotte se pose à gauche de l'objet, à sa hauteur, sans le masquer
       const a = objects[id].userData.anchor
-      goal.target.set(a.x, a.y - 0.9 - (innerWidth < 760 ? 1.3 : 0), a.z)
-      goal.zoom = innerWidth < 760 ? 1.5 : 1.75
-      mascotTo(id)
+      const toCam = tmp.copy(goal.pos).sub(a).normalize()
+      const side = new Vector3().crossVectors(new Vector3(0, 1, 0), toCam).normalize()
+      mGoal.copy(a).addScaledVector(side, -0.32).addScaledVector(toCam, 0.15).add(new Vector3(0, -0.05, 0))
     },
     unfocus() {
-      focused = null; paint()
-      goal.target.copy(home.target); goal.zoom = home.zoom
-      mascotTo(null)
+      api.focused = focusedNow = null; paint()
+      goal.pos.copy(HOME.pos); goal.look.copy(HOME.look)
+      mGoal.copy(homeMascot)
     },
-    rotate(dx, dy) {
-      goal.yaw = MathUtils.clamp(goal.yaw + dx, -0.65, 0.65)
-      goal.pitch = MathUtils.clamp(goal.pitch + dy, -0.25, 0.3)
-    },
-    reset() { goal.yaw = 0; goal.pitch = 0; goal.zoom = home.zoom; goal.target.copy(home.target) },
-    zoomBy(f) { goal.zoom = MathUtils.clamp(goal.zoom * f, 0.75, 2.6) },
+    reset() { api.unfocus(); gYaw = 0; gPitch = 0; gFovK = 1 },
+    rotate(dx, dy) { gYaw = MathUtils.clamp(gYaw + dx, -0.55, 0.55); gPitch = MathUtils.clamp(gPitch + dy, -0.2, 0.2) },
+    zoomBy(f) { gFovK = MathUtils.clamp(gFovK * f, 0.8, 1.8) },
     anchorScreen(id) { return project(objects[id].userData.anchor) },
-    mascotScreen() { return project(tmp.copy(mascot.position).add(new Vector3(0, 0.45 + body.position.y, 0))) },
+    mascotScreen() { return project(tmp.copy(mascot.position).add(new Vector3(0, 0.15 + body.position.y, 0))) },
     onFrame(f) { listeners.push(f) },
-    pause(p) { const was = running; running = !p; if (running && !was) { last = performance.now(); requestAnimationFrame(frame) } },
   }
   return api
 }
