@@ -1,6 +1,6 @@
 # yanis. · le bureau
 
-Un portfolio qu'on parcourt au lieu de le faire défiler : **le bureau de Yanis**, une pièce en 3D (Three.js) où chaque objet raconte un chapitre de son parcours. Osa, la mascotte, sert de guide.
+Un portfolio qu'on parcourt au lieu de le faire défiler : **le bureau de Yanis**, une pièce chaleureuse en 3D (Three.js) qui occupe tout l'écran. Un grand bureau en bois au centre, une baie vitrée sur la ville derrière, et chaque objet raconte un chapitre du parcours. Osa, la mascotte, sert de guide ; le chat dort sur la banquette.
 
 ```bash
 npm install
@@ -27,7 +27,7 @@ npm run build    # génère dist/
 - La pièce 3D : `src/room/scene.js`. Les textes des chapitres : `src/room/chapters.js`. L'interface : `src/main.js` et `src/room/room.css`.
 - Navigation : glisser pour tourner, clic sur un objet, flèches ← → pour passer d'un chapitre à l'autre, `T` visite guidée, `C` carnet, `L` lumière, `Échap` pour fermer.
 - Liens directs : `/#osanotch`, `/#github`, `/#contact`… ouvrent l'objet correspondant.
-- L'interrupteur « lumière » passe la pièce de la nuit au jour (le site est de nuit par défaut).
+- L'interrupteur « lumière » passe de la nuit au coucher de soleil (le site est de nuit par défaut).
 - Le **carnet** reprend toute l'histoire en texte : il sert de version sans 3D et de contenu pour les moteurs de recherche.
 - Mets ton adresse dans `profile.email` (`src/data.js`) pour que « Écris-moi » ouvre un mail (sinon il pointe vers GitHub).
 

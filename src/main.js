@@ -162,11 +162,20 @@ $$('.carnet-list li').forEach(li => li.addEventListener('click', e => {
 /* ================= étiquette au survol ================= */
 const tag = $('.room-tag')
 let hovered = null
+const CAT = { object: 'Le chat', era: 'ne fait pas partie du portfolio', color: '#fcc48b' }
+const CAT_LINES = ["Lui, c'est le chat. Il ne fait pas partie du portfolio, mais il insiste.", 'Chut… il dort. Il a codé toute la nuit, lui aussi.', "Il s'appelle Commit. Il valide tout ce qu'il touche.", 'Ronron. (Traduction : « le bureau est à moi ».)']
+let catLine = 0
+function petCat() {
+  room.focus('cat')
+  say(CAT_LINES[catLine++ % CAT_LINES.length], [], 4200)
+  ;[220, 180, 240].forEach((f, i) => setTimeout(() => sound.blip(f), i * 120))
+  setTimeout(() => { if (!current) room.unfocus() }, 4400)
+}
 function showTag(id) {
   hovered = id
   room.hover(id)
   if (!id || id === current) { tag.classList.remove('show'); return }
-  const c = byId[id]
+  const c = id === 'cat' ? CAT : byId[id]
   tag.innerHTML = `<b>${c.object}</b><span>${c.era}${found.has(id) ? ' · déjà vu ✓' : ''}</span>`
   tag.style.setProperty('--c', c.color)
   tag.classList.add('show')
@@ -194,8 +203,14 @@ async function boot() {
     room.setDay(!e.detail.dark)
     say(e.detail.dark ? 'Ah, on éteint. Je préfère l\'ambiance de nuit, perso.' : 'Lumière ! On y voit plus clair.', [], 2600)
   })
-  room.panelShiftGoal = innerWidth < 760 ? 0 : 0.2
-  addEventListener('resize', () => { room.panelShiftGoal = innerWidth < 760 ? 0 : 0.2 })
+  // décale l'image pour que l'objet reste visible à côté du panneau (ou au-dessus sur mobile)
+  const fitShift = () => {
+    const mobile = innerWidth < 760
+    room.panelShiftGoal = mobile ? 0 : (Math.min(480, innerWidth - 20) + 22) / innerWidth / 2
+    room.panelShiftYGoal = mobile ? 0.3 : 0
+  }
+  fitShift()
+  addEventListener('resize', fitShift)
 
   // positions des bulles à chaque image
   room.onFrame(() => {
@@ -232,7 +247,8 @@ async function boot() {
     canvas.classList.remove('grabbing')
     if (down && !moved) {
       const id = room.pick(e.clientX, e.clientY)
-      if (id) openChapter(id)
+      if (id === 'cat') petCat()
+      else if (id) openChapter(id)
       else if (current) closeChapter()
     }
     down = null
