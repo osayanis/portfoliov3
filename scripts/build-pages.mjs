@@ -105,11 +105,16 @@ function page(p, i) {
     <main id="main" class="cs">
       <!-- HERO -->
       <section class="cs-hero">
-        <a class="cs-back" href="/#notch"><span aria-hidden="true">←</span> Tous les projets</a>
+        <div class="cs-floaters" aria-hidden="true">
+          <span class="cube cs-c1" data-depth="1.4"><span class="cube-in"><i class="f0">${esc(p.letter)}</i><i class="f1">${esc(p.letter)}</i><i class="f2">✦</i><i class="f3">✦</i><i class="f4"></i><i class="f5"></i></span></span>
+          <span class="cube cs-c2" data-depth="0.7"><span class="cube-in"><i class="f0">⌘</i><i class="f1">⏎</i><i class="f2">⌥</i><i class="f3">⇧</i><i class="f4"></i><i class="f5"></i></span></span>
+          <span class="orb cs-o1" data-depth="1.8"></span>
+        </div>
+        <a class="cs-back" href="/#projets"><span aria-hidden="true">←</span> Tous les projets</a>
         <div class="cs-hero-grid">
           <div class="cs-hero-copy">
             <p class="eyebrow"><span class="dot" style="--c:${p.color}"></span>${esc(p.kicker)}</p>
-            <h1 class="cs-title"><span>${esc(p.name)}</span></h1>
+            <h1 class="cs-title"><span style="view-transition-name: t-${p.slug}">${esc(p.name)}</span></h1>
             <p class="cs-tagline">${p.tagline}</p>
             <p class="lead">${p.summary}</p>
             ${p.links.length ? `<div class="btn-row">${p.links.map(l => `<a class="btn${l.primary ? ' btn-dark' : ''}" href="${l.url}" target="_blank" rel="noopener">${esc(l.label)} <span aria-hidden="true">↗</span></a>`).join('')}</div>` : '<p class="cs-private">Dépôt privé pour l\'instant. La feuille de route est détaillée plus bas.</p>'}

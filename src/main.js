@@ -2,6 +2,7 @@ import './style.css'
 import { profile, heroKeys, osalabsApps, stack, timeline, method } from './data.js'
 import { initGithub } from './github.js'
 import { $, $$, reduceMotion, sound, toast, confetti, io, onceVisible, updateEyes } from './core.js'
+import { tilt, progressBar, parallax, magnetic, splitWords } from './fx.js'
 
 
 /* ================= CLAVIER DU HERO ================= */
@@ -106,7 +107,17 @@ function setIsland(state) {
 }
 tabs.forEach(t => t.addEventListener('click', () => { sound.click(); setIsland(t.dataset.state) }))
 island.addEventListener('click', () => { island.classList.toggle('open'); sound.click(1.1) })
-onceVisible($('#mac'), () => setTimeout(() => island.classList.add('open'), 500), 0.5)
+// l'écran du MacBook s'ouvre pendant qu'on défile, puis l'île se déploie
+const mac = $('#mac')
+let lidOpen = false
+function lid() {
+  const r = mac.getBoundingClientRect()
+  const p = reduceMotion ? 0 : Math.min(1, Math.max(0, (r.top - innerHeight * 0.3) / (innerHeight * 0.5)))
+  mac.style.setProperty('--lid', p.toFixed(3))
+  if (p === 0 && !lidOpen) { lidOpen = true; setTimeout(() => island.classList.add('open'), 350) }
+}
+addEventListener('scroll', lid, { passive: true })
+lid()
 
 // Paroles qui défilent ligne par ligne
 const lyricLines = $$('#lyrics p')
@@ -137,7 +148,7 @@ $('#apps').innerHTML = osalabsApps.map((a, i) => `
     <div class="app-visual">${visuals[a.visual]()}</div>
     <div class="app-body">
       <span class="app-tag">${a.tag}</span>
-      <h3>${a.name}<span aria-hidden="true">→</span></h3>
+      <h3><span class="vt-name" style="view-transition-name: t-${a.page.split('/')[2]}">${a.name}</span><span aria-hidden="true">→</span></h3>
       <p>${a.desc}</p>
       <p class="app-detail">${a.detail}</p>
       <div class="app-stack">${a.stack.map(s => `<span>${s}</span>`).join('')}</div>
@@ -309,7 +320,7 @@ $('#method').innerHTML = method.map((m, i) => `
   </li>`).join('')
 
 /* ================= STACK ================= */
-$('#keycaps').innerHTML = stack.map(s => `<button type="button" class="cap" style="--c:${s.c}"><span>${s.name}</span></button>`).join('')
+$('#keycaps').innerHTML = stack.map((s, i) => `<button type="button" class="cap" style="--c:${s.c};--i:${i};--r:${i % 2 ? 8 : -8}deg"><span>${s.name}</span></button>`).join('')
 $$('.cap').forEach((c, i) => c.addEventListener('pointerdown', () => sound.click(0.85 + (i % 6) * 0.06)))
 
 /* ================= PARCOURS ================= */
@@ -346,5 +357,40 @@ $('#discord-copy').addEventListener('click', async () => {
 
 /* ================= GO ================= */
 initGithub()
+splitWords('.section-head h2, .about-copy h2')
 $$('.reveal').forEach(el => io.observe(el))
+
+/* ================= EFFETS 3D ================= */
+progressBar()
+parallax('.floaters .cube, .floaters .orb')
+magnetic('.btn, .nav-cta, .big-enter')
+tilt('.app', { max: 10 })
+tilt('.lab-mini, .stats div', { max: 12, lift: 4 })
+tilt('.big-enter', { max: 16, lift: 4 })
+
+// le clavier du hero s'incline vers la souris
+if (!reduceMotion) {
+  const kb = $('#keyboard')
+  let tx = 0, ty = 0, cx = 0, cy = 0
+  addEventListener('pointermove', e => { tx = e.clientX / innerWidth - 0.5; ty = e.clientY / innerHeight - 0.5 }, { passive: true })
+  ;(function loop() {
+    cx += (tx - cx) * 0.07; cy += (ty - cy) * 0.07
+    if (scrollY < innerHeight) {
+      kb.style.setProperty('--krx', `${14 - cy * 16}deg`)
+      kb.style.setProperty('--kry', `${cx * 18}deg`)
+      kb.style.setProperty('--krz', `${-cx * 2}deg`)
+    }
+    requestAnimationFrame(loop)
+  })()
+}
+
+// le clavier 3D des projets : Three.js n'est chargé qu'à l'approche de la section
+const k3 = $('#k3')
+new IntersectionObserver(([en], obs) => {
+  if (!en.isIntersecting) return
+  obs.disconnect()
+  import('./scene3d.js')
+    .then(m => m.default(k3, { sound, reduceMotion }))
+    .catch(() => { $('.k3-fallback', k3).textContent = "La 3D n'est pas disponible sur cet appareil : choisis un projet dans la liste ci-dessous." })
+}, { rootMargin: '600px' }).observe(k3)
 updateEyes()

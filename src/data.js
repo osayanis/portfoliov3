@@ -11,7 +11,7 @@ export const profile = {
 
 // Les touches du clavier du hero. x/y en unités du viewBox (585 × 200).
 export const heroKeys = [
-  { letter: 'P', label: 'Projets phares', target: '#notch', x: 35, y: 0, c: '#f3a6cf', d: '#d877ab' },
+  { letter: 'P', label: 'Projets en 3D', target: '#projets', x: 35, y: 0, c: '#f3a6cf', d: '#d877ab' },
   { letter: 'O', label: 'OsaLabs', target: '#osalabs', x: 135, y: 0, c: '#c4b5fd', d: '#9b86ec' },
   { letter: 'R', label: 'Mon parcours', target: '#parcours', x: 235, y: 0, c: '#a7e8bd', d: '#6fcb90' },
   { letter: 'T', label: 'Ma boîte à outils', target: '#stack', x: 335, y: 0, c: '#fcc48b', d: '#ec9a52' },

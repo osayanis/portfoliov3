@@ -12,5 +12,5 @@ if (existsSync('projets')) {
 }
 
 export default defineConfig({
-  build: { rollupOptions: { input: pages } },
+  build: { rollupOptions: { input: pages }, chunkSizeWarningLimit: 700 },
 })

@@ -19,7 +19,7 @@
     <header class="nav">
       <a class="logo" href="#top" aria-label="Retour en haut">yanis<span>.</span></a>
       <nav class="nav-links" aria-label="Navigation principale">
-        <a href="#notch">Projets</a>
+        <a href="#projets">Projets</a>
         <a href="#labo">Labo</a>
         <a href="#apropos">À propos</a>
         <a href="#github">GitHub</a>
@@ -33,6 +33,13 @@
     <main id="main">
       <!-- ============ HERO ============ -->
       <section class="hero" id="top">
+        <div class="floaters" aria-hidden="true">
+          <span class="cube c1" data-depth="1.6"><span class="cube-in"><i class="f0">⌘</i><i class="f1">⌥</i><i class="f2">⇧</i><i class="f3">⌃</i><i class="f4">⏎</i><i class="f5">⌫</i></span></span>
+          <span class="cube c2" data-depth="0.8"><span class="cube-in"><i class="f0">Y</i><i class="f1">.</i><i class="f2">✦</i><i class="f3">♪</i><i class="f4">✓</i><i class="f5">★</i></span></span>
+          <span class="cube c3" data-depth="1.2"><span class="cube-in"><i class="f0">{</i><i class="f1">}</i><i class="f2">&lt;</i><i class="f3">/</i><i class="f4">&gt;</i><i class="f5">#</i></span></span>
+          <span class="orb o1" data-depth="0.6"></span>
+          <span class="orb o2" data-depth="1.8"></span>
+        </div>
         <h1 class="hero-title">
           <span class="line"><span>Bonjour, je suis Yanis.</span></span>
           <span class="line"><span>Étudiant, je donne vie</span></span>
@@ -67,6 +74,31 @@
             <span>Je construis ce que j'utilise au quotidien</span><b>✦</b>
           </div>
         </div>
+      </section>
+
+      <!-- ============ PROJETS EN 3D ============ -->
+      <section class="section k3-section" id="projets">
+        <div class="section-head reveal">
+          <p class="eyebrow"><span class="dot" style="--c:#f3a6cf"></span>Tous les projets</p>
+          <h2>Huit projets, <em>une touche chacun.</em></h2>
+          <p class="lead narrow">Fais tourner le clavier, survole une touche, clique pour ouvrir l'étude de cas complète.</p>
+        </div>
+        <div class="k3 reveal" id="k3">
+          <canvas aria-label="Clavier 3D des projets : chaque touche ouvre une étude de cas"></canvas>
+          <div class="k3-tip" aria-hidden="true"></div>
+          <p class="k3-hint" aria-hidden="true"><span>⟲</span> Glisse pour tourner</p>
+          <div class="k3-fallback">Chargement du clavier 3D…</div>
+        </div>
+        <ul class="k3-list" aria-label="Études de cas">
+          <li><a href="/projets/osanotch/" style="--c:#c4b5fd"><b>N</b><span style="view-transition-name: t-osanotch">OsaNotch</span></a></li>
+          <li><a href="/projets/osaparty/" style="--c:#f3a6cf"><b>P</b>OsaParty</a></li>
+          <li><a href="/projets/osadrop/" style="--c:#93c5fd"><b>D</b>OsaDrop</a></li>
+          <li><a href="/projets/osacast/" style="--c:#a5b4fc"><b>C</b>OsaCast</a></li>
+          <li><a href="/projets/osaboard/" style="--c:#5eead4"><b>B</b>OsaBoard</a></li>
+          <li><a href="/projets/clavio/" style="--c:#a7e8bd"><b>K</b>Clavio</a></li>
+          <li><a href="/projets/openpod/" style="--c:#fcc48b"><b>O</b>OpenPod OS</a></li>
+          <li><a href="/projets/proxmox/" style="--c:#fde68a"><b>X</b>Proxmox</a></li>
+        </ul>
       </section>
 
       <!-- ============ OSANOTCH ============ -->
@@ -167,7 +199,7 @@
           <article class="lab lab-clavio reveal">
             <div class="lab-text">
               <p class="tag">Web MIDI · zéro dépendance</p>
-              <h3>Clavio</h3>
+              <h3><span style="view-transition-name: t-clavio">Clavio</span></h3>
               <p>Apprendre le piano façon Duolingo, avec un Casio CT-S100 ou n'importe quel clavier MIDI. 8 unités, 28 leçons, une mascotte nommée Clavi, et surtout : tu importes un fichier MIDI et l'app te l'apprend note par note.</p>
               <a class="link" href="/projets/clavio/">Lire l'étude de cas →</a>
             </div>
@@ -198,7 +230,7 @@
             </div>
             <div class="lab-text">
               <p class="tag">Linux embarqué · phase 1</p>
-              <h3>OpenPod OS</h3>
+              <h3><span style="view-transition-name: t-openpod">OpenPod OS</span></h3>
               <p>Un baladeur audiophile pour écouter sans distraction. Je développe l'OS : une distribution Linux sur Raspberry Pi Zero 2 W, lecture bit-perfect via MPD et I²S, écran 240×320, et l'objectif de passer du bouton à la musique en moins de 3 secondes.</p>
               <p class="muted">Inspiré par Apple et Teenage Engineering. Le projet démarre.</p>
               <a class="link" href="/projets/openpod/">Lire l'étude de cas →</a>
@@ -209,7 +241,7 @@
           <article class="lab lab-term reveal">
             <div class="lab-text">
               <p class="tag">Bash · sysadmin</p>
-              <h3>Proxmox Automatisation</h3>
+              <h3><span style="view-transition-name: t-proxmox">Proxmox Automatisation</span></h3>
               <p>Un script interactif pour créer des conteneurs et des VM en masse sur Proxmox VE : IDs uniques, réseau, DNS, templates et ISOs téléchargés à la volée.</p>
               <a class="link" href="/projets/proxmox/">Lire l'étude de cas →</a>
             </div>
