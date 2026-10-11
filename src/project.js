@@ -2,6 +2,7 @@ import './style.css'
 import './project.css'
 import './demos/demos.css'
 import { $, $$, sound, toast, confetti, onceVisible, updateEyes, observeReveals } from './core.js'
+import { tilt, progressBar, countUp, parallax, magnetic, splitWords } from './fx.js'
 
 const demos = import.meta.glob('./demos/*.js')
 
@@ -52,4 +53,16 @@ if (demoEl) {
   }
 }
 
+splitWords('.cs-head h2, .cs-next-card h2')
 observeReveals()
+
+/* Effets 3D */
+progressBar()
+countUp('.cs-stat b')
+parallax('.cs-floaters .cube, .cs-floaters .orb')
+magnetic('.btn, .cs-back')
+tilt('.cs-cap', { max: 26, lift: 0 })
+tilt('.cs-stat', { max: 12, lift: 4 })
+tilt('.challenge', { max: 6, lift: 4 })
+tilt('.frame-browser, .frame-shot, .frame-image, .frame-phone', { max: 7, lift: 6 })
+tilt('.pager-key', { max: 8, lift: 3 })

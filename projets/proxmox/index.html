@@ -37,11 +37,16 @@
     <main id="main" class="cs">
       <!-- HERO -->
       <section class="cs-hero">
-        <a class="cs-back" href="/#notch"><span aria-hidden="true">←</span> Tous les projets</a>
+        <div class="cs-floaters" aria-hidden="true">
+          <span class="cube cs-c1" data-depth="1.4"><span class="cube-in"><i class="f0">X</i><i class="f1">X</i><i class="f2">✦</i><i class="f3">✦</i><i class="f4"></i><i class="f5"></i></span></span>
+          <span class="cube cs-c2" data-depth="0.7"><span class="cube-in"><i class="f0">⌘</i><i class="f1">⏎</i><i class="f2">⌥</i><i class="f3">⇧</i><i class="f4"></i><i class="f5"></i></span></span>
+          <span class="orb cs-o1" data-depth="1.8"></span>
+        </div>
+        <a class="cs-back" href="/#projets"><span aria-hidden="true">←</span> Tous les projets</a>
         <div class="cs-hero-grid">
           <div class="cs-hero-copy">
             <p class="eyebrow"><span class="dot" style="--c:#fde68a"></span>Script Bash · administration système</p>
-            <h1 class="cs-title"><span>Proxmox Automatisation</span></h1>
+            <h1 class="cs-title"><span style="view-transition-name: t-proxmox">Proxmox Automatisation</span></h1>
             <p class="cs-tagline">Dix machines, <em>une seule commande.</em></p>
             <p class="lead">Un script interactif pour créer des conteneurs LXC et des machines virtuelles en série sur Proxmox VE. Il détecte le réseau, propose les templates et les ISO disponibles, trouve un identifiant libre pour chaque machine et refuse toute valeur impossible avant de lancer la création.</p>
             <div class="btn-row"><a class="btn btn-dark" href="https://github.com/osayanis/Proxmox-Automatisation-Script" target="_blank" rel="noopener">Voir le script <span aria-hidden="true">↗</span></a></div>
