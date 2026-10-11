@@ -9,7 +9,7 @@
     <meta property="og:title" content="Le bureau de Yanis" />
     <meta property="og:description" content="Un portfolio à explorer : chaque objet du bureau raconte un chapitre." />
     <meta property="og:image" content="https://yanis.pro/media/osanotch/banner.webp" />
-    <script>(function(){var t;try{t=localStorage.getItem('theme')}catch(e){}var d=t?t==='dark':true;document.documentElement.classList.toggle('dark',d)})()</script>
+    <script>document.documentElement.classList.add('dark')</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,7 +27,6 @@
         <button type="button" class="hud-btn" data-action="tour"><span aria-hidden="true">▶</span><em>Visite guidée</em></button>
         <button type="button" class="hud-btn" data-action="carnet"><span aria-hidden="true">☰</span><em>Carnet</em></button>
         <button class="sound-toggle hud-btn" type="button" aria-pressed="true" title="Son"><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span><em>Son</em></button>
-        <button class="theme-toggle hud-btn" type="button" aria-label="Allumer ou éteindre la lumière" title="Lumière"><span class="tt-sun" aria-hidden="true">☀</span><span class="tt-moon" aria-hidden="true">☾</span></button>
       </nav>
     </header>
 
@@ -36,14 +35,17 @@
       <div class="room-tag" aria-hidden="true"></div>
       <div class="room-bubble" role="status" aria-live="polite"><p></p><div class="bubble-actions"></div></div>
       <div class="room-controls" aria-label="Caméra">
-        <button type="button" data-cam="in" aria-label="Zoomer">+</button>
-        <button type="button" data-cam="out" aria-label="Dézoomer">−</button>
         <button type="button" data-cam="home" aria-label="Recentrer la vue">⌂</button>
       </div>
       <p class="room-hint"><kbd>glisse</kbd> pour tourner · <kbd>clique</kbd> un objet · <kbd>←</kbd><kbd>→</kbd> pour passer de l'un à l'autre</p>
-      <div class="room-loader">
-        <span class="loader-ghost" aria-hidden="true"><i></i><i></i></span>
-        <p><b>Le bureau de Yanis</b><span>On allume la lampe…</span></p>
+      <div class="welcome" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+        <div class="welcome-in">
+          <p class="w-kicker" data-words>Bonsoir,</p>
+          <h1 class="w-title" id="welcome-title" data-words>bienvenue dans mon bureau.</h1>
+          <p class="w-text" data-words>Installe-toi. Ici, chaque objet raconte un bout de mon histoire : mes débuts, mes projets, ma façon de travailler. Prends ton temps, le feu est allumé.</p>
+          <p class="w-sign"><span class="signature">Yanis</span></p>
+          <button type="button" class="w-enter" disabled><span class="w-wait">On allume la lampe…</span><span class="w-go">Entrer dans le bureau</span></button>
+        </div>
       </div>
     </main>
 

@@ -82,7 +82,7 @@ function page(p, i) {
     <meta property="og:description" content="${esc(desc)}" />
     <meta property="og:url" content="${SITE}/projets/${p.slug}/" />
     <meta property="og:image" content="${SITE}/media/bureau/${p.slug}.webp" />
-    <script>(function(){var t;try{t=localStorage.getItem('theme')}catch(e){}var d=t?t==='dark':true;document.documentElement.classList.toggle('dark',d)})()</script>
+    <script>document.documentElement.classList.add('dark')</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -97,7 +97,6 @@ function page(p, i) {
         <a href="/#${p.slug}" class="nav-pill">← Le bureau</a>
         <a href="/#carnet" class="nav-pill">Carnet</a>
         <button class="sound-toggle nav-pill" type="button" aria-pressed="true" title="Activer / couper le son"><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span><span class="sound-on">Son</span></button>
-        <button class="theme-toggle nav-pill" type="button" aria-label="Allumer ou éteindre la lumière" title="Lumière"><span class="tt-sun" aria-hidden="true">☀</span><span class="tt-moon" aria-hidden="true">☾</span></button>
         <a class="nav-cta nav-pill" href="/#contact">On se parle ?</a>
       </nav>
     </header>

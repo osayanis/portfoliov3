@@ -10,6 +10,7 @@ import {
 } from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
+import { RECORDS } from './records.js'
 
 /* ---------- outils ---------- */
 const mat = (color, o = {}) => new MeshStandardMaterial({ color, roughness: o.rough ?? 0.75, metalness: o.metal ?? 0, ...o.extra, ...(o.map ? { map: o.map, bumpMap: o.bump === false ? null : o.map, bumpScale: o.bumpScale ?? 1.2 } : {}), ...(o.emissive ? { emissive: o.emissive, emissiveIntensity: o.ei ?? 1 } : {}) })
@@ -125,6 +126,40 @@ const leafTex = (color, vein) => canvasTex(256, 512, (g, w, h) => {
   g.strokeStyle = 'rgba(255,255,220,.35)'; g.lineWidth = 3; g.beginPath(); g.moveTo(w / 2, h - 4); g.lineTo(w / 2, 10); g.stroke()
 })
 
+// feuille de lierre / pothos, en forme de cœur
+const ivyTex = () => canvasTex(128, 128, (g, w, h) => {
+  g.clearRect(0, 0, w, h)
+  const gr = g.createRadialGradient(w / 2, h * 0.55, 4, w / 2, h * 0.55, w * 0.6); gr.addColorStop(0, '#7cc48a'); gr.addColorStop(1, '#2f6b45')
+  g.fillStyle = gr; g.beginPath(); g.moveTo(w / 2, 6)
+  g.bezierCurveTo(w * 0.1, h * 0.3, w * 0.02, h * 0.78, w * 0.32, h * 0.86)
+  g.bezierCurveTo(w * 0.42, h * 0.9, w * 0.48, h * 0.82, w / 2, h * 0.74)
+  g.bezierCurveTo(w * 0.52, h * 0.82, w * 0.58, h * 0.9, w * 0.68, h * 0.86)
+  g.bezierCurveTo(w * 0.98, h * 0.78, w * 0.9, h * 0.3, w / 2, 6); g.fill()
+  g.strokeStyle = 'rgba(230,255,210,.3)'; g.lineWidth = 2; g.beginPath(); g.moveTo(w / 2, 10); g.lineTo(w / 2, h * 0.74); g.stroke()
+})
+// briques de la cheminée
+const brickTex = () => canvasTex(512, 512, (g, w, h) => {
+  g.fillStyle = '#5a3a2c'; g.fillRect(0, 0, w, h)
+  const bh = 32, bw = 96
+  for (let r = 0; r < h / bh; r++) for (let c = -1; c < w / bw + 1; c++) {
+    const x = c * bw + (r % 2 ? bw / 2 : 0), v = 0.75 + rnd() * 0.35
+    g.fillStyle = `rgb(${150 * v | 0},${82 * v | 0},${58 * v | 0})`; g.fillRect(x + 3, r * bh + 3, bw - 6, bh - 6)
+    for (let k = 0; k < 14; k++) { g.fillStyle = `rgba(30,15,10,${rnd() * 0.18})`; g.fillRect(x + 3 + rnd() * (bw - 10), r * bh + 3 + rnd() * (bh - 8), 4, 3) }
+  }
+}, [1, 1])
+// des feuilles en un seul dessin : [x, y, z, rotX, rotY, rotZ, échelle]
+function addLeaves(parent, material, spots, size = [0.08, 0.08]) {
+  const inst = new InstancedMesh(new PlaneGeometry(...size), material, spots.length)
+  const o = new Object3D(), c = new Color()
+  spots.forEach(([x, y, z, rx, ry, rz, s = 1], i) => {
+    o.position.set(x, y, z); o.rotation.set(rx, ry, rz, 'YXZ'); o.scale.setScalar(s); o.updateMatrix()
+    inst.setMatrixAt(i, o.matrix); inst.setColorAt(i, c.setHSL(0.33 + (rnd() - 0.5) * 0.06, 0.45, 0.42 + rnd() * 0.25))
+  })
+  inst.receiveShadow = true
+  parent.add(inst)
+  return inst
+}
+
 // des livres en un seul dessin : chaque livre est une instance (position, taille, couleur)
 function addBooks(parent, spots, cols, rotY = 0) {
   const inst = new InstancedMesh(new BoxGeometry(1, 1, 1), new MeshStandardMaterial({ roughness: 0.85 }), spots.length)
@@ -174,7 +209,9 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   deskLamp.shadow.bias = -0.0004
   const floorLampL = new PointLight(0xffa954, 2.2, 6, 1.6)
   const pendantL = new PointLight(0xffc073, 2.4, 4, 1.6)
-  scene.add(hemi, sky, sky.target, deskLamp, deskLamp.target, floorLampL, pendantL)
+  // le feu de cheminée, qui vacille
+  const fireL = new PointLight(0xff7a2e, 1.2, 3.4, 1.6)
+  scene.add(hemi, sky, sky.target, deskLamp, deskLamp.target, floorLampL, pendantL, fireL)
   // reflets doux sur le métal, le verre et le bois verni
   const pmrem = new PMREMGenerator(renderer)
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
@@ -217,6 +254,8 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   videoTex.colorSpace = SRGBColorSpace
   video.addEventListener('playing', () => { outside.material.map = videoTex; outside.material.needsUpdate = true }, { once: true })
   video.play().catch(() => addEventListener('pointerdown', () => video.play(), { once: true }))
+  // la ville reste en retrait : on assombrit l'image (un peu bleutée, c'est la nuit)
+  outside.material.color.setRGB(0.34, 0.35, 0.42)
   const frameMat = mat(0x3a2a20, { rough: 0.5 })
   box(world, W * 2, 0.22, 0.2, frameMat, [0, 0.11, D0])
   box(world, W * 2, 0.3, 0.2, frameMat, [0, H - 0.15, D0])
@@ -243,6 +282,14 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   ball(cat, 0.13, catMat, [-0.69, 0.7, D0 + 0.58])
   ;[-0.06, 0.06].forEach(dx => mesh(cat, new ConeGeometry(0.05, 0.1, 8), catMat, [-0.69 + dx, 0.83, D0 + 0.58], [0, 0, dx * -3]))
   mesh(cat, new TorusGeometry(0.16, 0.04, 8, 20, Math.PI), catMat, [-1.13, 0.6, D0 + 0.62], [Math.PI / 2, 0, -0.3])
+  // les yeux du chat, qui brillent un peu dans la pénombre (et clignent de temps en temps)
+  const catEyes = []
+  ;[-1, 1].forEach(sd => {
+    const eye = new Group(); eye.position.set(-0.69 + sd * 0.048, 0.725, D0 + 0.58 + 0.118); eye.rotation.y = sd * 0.35; cat.add(eye)
+    const iris = ball(eye, 0.024, glow(0xc8d65a), [0, 0, 0], { cast: false, seg: 16 }); iris.scale.set(1, 0.72, 0.45)
+    box(eye, 0.007, 0.03, 0.004, glow(0x111111), [0, 0, 0.011], null, { cast: false, r: 0.002 })
+    catEyes.push(eye)
+  })
 
   // la guirlande lumineuse en haut de la baie
   const bulbN = 29
@@ -307,6 +354,23 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   const macbook = obj('macbook', [-0.1, 1.12, -0.15], { pos: [-0.1, 1.18, 1.05], look: [-0.1, 0.92, -0.15] })
   const alu = mat(0xc9ccd4, { metal: 0.6, rough: 0.35 })
   box(macbook, 0.46, 0.015, 0.32, alu, [-0.1, 0.795, -0.05], null, { r: 0.008 })
+  // clavier (une instance par touche), haut-parleurs et trackpad
+  quad(macbook, 0.4, 0.145, mat(0x1b1b1e, { rough: 0.6 }), [-0.1, 0.8028, -0.128], [-Math.PI / 2, 0, 0])
+  const keySpots = []
+  for (let r = 0; r < 6; r++) {
+    const z = -0.188 + r * 0.0235, fn = r === 0
+    if (r === 5) {
+      ;[[-0.27, 0.03], [-0.234, 0.03], [-0.198, 0.034], [-0.1, 0.15], [-0.002, 0.034], [0.034, 0.03], [0.07, 0.03]].forEach(([x, w]) => keySpots.push([x, z, w, 0.02]))
+      continue
+    }
+    for (let c = 0; c < 14; c++) keySpots.push([-0.1 - 0.182 + c * 0.028 + (r % 2 ? 0.006 : 0), z, 0.024, fn ? 0.011 : 0.02])
+  }
+  const keys = new InstancedMesh(new BoxGeometry(1, 1, 1), mat(0x2a2a2e, { rough: 0.55 }), keySpots.length)
+  keySpots.forEach(([x, z, w, d], i) => { tmpO.position.set(x, 0.8045, z); tmpO.scale.set(w, 0.003, d); tmpO.updateMatrix(); keys.setMatrixAt(i, tmpO.matrix) })
+  keys.receiveShadow = true
+  macbook.add(keys)
+  box(macbook, 0.16, 0.001, 0.095, mat(0xb9bcc4, { metal: 0.5, rough: 0.3 }), [-0.1, 0.8028, 0.035], null, { r: 0.006, cast: false })
+  ;[-1, 1].forEach(sd => quad(macbook, 0.03, 0.14, mat(0x8f939b, { rough: 0.7 }), [-0.1 + sd * 0.215, 0.8029, -0.128], [-Math.PI / 2, 0, 0]))
   const lid = new Group(); lid.position.set(-0.1, 0.8, -0.21); lid.rotation.x = -0.22; macbook.add(lid)
   box(lid, 0.46, 0.31, 0.012, alu, [0, 0.155, 0], null, { r: 0.008 })
   const macGlow = quad(lid, 0.43, 0.28, glow(0xffffff, { map: macScreen() }), [0, 0.155, 0.008])
@@ -387,6 +451,27 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   quad(calendar, 0.5, 0.6, mat(0xffffff, { map: calTex(snapshot?.contributions || []), rough: 0.9 }), [-W + 0.025, 1.6, -1.0], [0, Math.PI / 2, 0])
 
 
+  /* ===== végétation sur le mur de gauche : guirlande de lierre, lianes et jardinières ===== */
+  const ivyMat = new MeshStandardMaterial({ map: ivyTex(), alphaTest: 0.5, side: DoubleSide, roughness: 0.65 })
+  const ivy = []
+  const leafAt = (y, z, s = 1) => ivy.push([-W + 0.035 + rnd() * 0.06, y, z, (rnd() - 0.5) * 1.2, Math.PI / 2 + (rnd() - 0.5) * 0.9, rnd() * 6.28, s * (0.8 + rnd() * 0.45)])
+  const swag = z => 2.74 - Math.abs(Math.sin(((z + 2.95) / 2.6) * Math.PI * 3)) * 0.16
+  for (let z = -2.95; z < -0.35; z += 0.018) leafAt(swag(z) + (rnd() - 0.5) * 0.06, z + (rnd() - 0.5) * 0.02)
+  // lianes qui retombent (courtes au-dessus de la bibliothèque)
+  ;[[-2.55, 0.3], [-2.05, 0.25], [-1.6, 0.42], [-1.38, 0.62], [-0.98, 0.5], [-0.62, 0.7], [-0.42, 0.45]].forEach(([z, len]) => {
+    const y0 = swag(z)
+    for (let d = 0; d < len; d += 0.045) leafAt(y0 - d, z + Math.sin(d * 9) * 0.015, 1 - d / len * 0.35)
+  })
+  // deux jardinières murales en terre cuite
+  const terracotta = mat(0xb4532a, { rough: 0.85 })
+  ;[[-0.5, 1.92, 0.55], [-1.37, 2.02, 0.4]].forEach(([z, y, len]) => {
+    box(world, 0.12, 0.12, 0.17, terracotta, [-W + 0.07, y, z], null, { r: 0.02 })
+    box(world, 0.13, 0.02, 0.18, mat(0xc8673a, { rough: 0.8 }), [-W + 0.075, y + 0.06, z], null, { r: 0.008 })
+    for (let k = 0; k < 16; k++) leafAt(y + 0.08 + rnd() * 0.08, z + (rnd() - 0.5) * 0.2, 1.1)
+    ;[-0.06, 0, 0.06].forEach((dz, j) => { const l = len * (0.7 + j * 0.15); for (let d = 0; d < l; d += 0.04) leafAt(y + 0.02 - d, z + dz + Math.sin(d * 8 + j) * 0.018, 1 - d / l * 0.3) })
+  })
+  addLeaves(world, ivyMat, ivy, [0.075, 0.075])
+
   /* ===== meuble bas et tourne-disque (mur de gauche) ===== */
   const sideWood = mat(0xffffff, { map: woodTex('#7a4f2e', '45,22,10'), rough: 0.5 })
   const TX = -W + 0.26
@@ -412,10 +497,14 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   cyl(arm, 0.018, 0.018, 0.03, mat(0xc0c0c0, { metal: 0.9, rough: 0.25 }), [0, 0, 0])
   box(arm, 0.008, 0.008, 0.2, mat(0xc8c8c8, { metal: 0.9, rough: 0.25 }), [0, 0.02, -0.1], null, { r: 0.003 })
   box(arm, 0.02, 0.012, 0.03, mat(0x222222), [0, 0.016, -0.2], null, { r: 0.003 })
-  arm.rotation.y = 0.55
-  // une pochette posée contre le meuble
-  box(turntable, 0.3, 0.3, 0.01, mat(0x1d1d22, { rough: 0.7 }), [TX + 0.16, 0.18, -0.2], [0, Math.PI / 2 - 0.15, -0.12], { r: 0.003 })
-  quad(turntable, 0.24, 0.24, mat(0xffffff, { map: canvasTex(256, 256, (g, w, h) => { const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, '#2b1a14'); gr.addColorStop(1, '#8a5a36'); g.fillStyle = gr; g.fillRect(0, 0, w, h); g.fillStyle = '#f2ead9'; g.font = '700 46px "Instrument Serif", serif'; g.textAlign = 'center'; g.fillText('Soul', w / 2, h * 0.6); g.font = '600 18px "JetBrains Mono", monospace'; g.fillText('SEAL', w / 2, h * 0.75) }), bump: false }), [TX + 0.168, 0.18, -0.2], [0, Math.PI / 2 - 0.15, -0.12])
+  arm.rotation.y = -0.05
+  // la pochette du disque en cours, posée au sol et appuyée contre la façade du meuble
+  const sleeveRest = new Group()
+  sleeveRest.position.set(TX + 0.2295 + 0.3 * Math.sin(0.2) + 0.005, 0, -0.72)
+  sleeveRest.rotation.set(-0.2, Math.PI / 2, 0, 'YXZ')
+  turntable.add(sleeveRest)
+  box(sleeveRest, 0.3, 0.3, 0.008, mat(0x1d1d22, { rough: 0.7 }), [0, 0.15, 0], null, { r: 0.002 })
+  const sleeveArt = quad(sleeveRest, 0.296, 0.296, mat(0xffffff, { map: canvasTex(256, 256, (g, w, h) => { const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, '#2b1a14'); gr.addColorStop(1, '#8a5a36'); g.fillStyle = gr; g.fillRect(0, 0, w, h); g.fillStyle = '#f2ead9'; g.font = '700 46px "Instrument Serif", serif'; g.textAlign = 'center'; g.fillText('Soul', w / 2, h * 0.6); g.font = '600 18px "JetBrains Mono", monospace'; g.fillText('SEAL', w / 2, h * 0.75) }), bump: false, rough: 0.6 }), [0, 0.15, 0.0045])
 
   // lampadaire en arc, devant à gauche
   cyl(world, 0.16, 0.18, 0.03, mat(0x2b2b2b, { metal: 0.5, rough: 0.4 }), [-1.6, 0.015, -1.45])
@@ -435,12 +524,54 @@ export async function createRoom(canvas, { snapshot, avatar }) {
     leaf.rotation.set(-0.9 - rnd() * 0.4, -a + Math.PI / 2, 0, 'YXZ')
   }
 
-  /* ===== mur de droite : piano, néon, cadre, serveur, fauteuil ===== */
-  const piano = obj('piano', [W - 0.5, 1.15, -1.75], { pos: [1.1, 1.5, -1.0], look: [W - 0.45, 0.85, -1.75] })
-  box(piano, 0.32, 0.08, 1.2, mat(0x1c1c1f, { rough: 0.4 }), [W - 0.45, 0.85, -1.75], null, { r: 0.015 })
-  box(piano, 0.13, 0.02, 1.12, mat(0xfafafa, { rough: 0.5 }), [W - 0.56, 0.9, -1.75], null, { r: 0.004 })
-  for (let o = 0; o < 3; o++) [0, 1, 3, 4, 5].forEach(b => box(piano, 0.07, 0.022, 0.035, mat(0x111111), [W - 0.53, 0.915, -2.29 + (o * 7 + b) * 0.051 + 0.026], null, { r: 0.003 }))
-  ;[-2.2, -1.3].forEach(z => {
+  /* ===== mur de droite : cheminée et piano, néon, horloge, portrait, discothèque ===== */
+  const RW = W - 0.01
+  const shelfLeaf = new MeshStandardMaterial({ map: leafTex('#3b7d50', '#62b07a'), alphaTest: 0.5, side: DoubleSide, roughness: 0.6 })
+
+  // la cheminée, derrière le piano : briques, manteau en bois, vrai feu qui vacille
+  const FZ = -1.8
+  const brick = mat(0xffffff, { map: brickTex(), rough: 0.9, bumpScale: 0.8 })
+  ;[-1, 1].forEach(sd => box(world, 0.24, 1.05, 0.175, brick, [W - 0.12, 0.525, FZ + sd * 0.3875], null, { r: 0.01 }))
+  box(world, 0.24, 0.45, 0.6, brick, [W - 0.12, 0.825, FZ], null, { r: 0.01 })
+  box(world, 0.02, 0.5, 0.6, mat(0x140d0a, { rough: 1 }), [W - 0.015, 0.35, FZ], null, { cast: false })
+  box(world, 0.24, 0.08, 0.6, mat(0x1e1612, { rough: 1 }), [W - 0.12, 0.06, FZ], null, { cast: false })
+  const mantelWood = mat(0xffffff, { map: woodTex('#6b4226', '40,20,10'), rough: 0.55 })
+  box(world, 0.32, 0.05, 1.1, mantelWood, [W - 0.16, 1.075, FZ], null, { r: 0.01 })
+  box(world, 0.42, 0.04, 1.1, mat(0x3a302b, { rough: 0.8 }), [W - 0.21, 0.02, FZ], null, { r: 0.008 })
+  // les bûches et les braises
+  const ember = mat(0x3a2015, { rough: 0.9, emissive: 0xff5a1a, ei: 0.55 })
+  cyl(world, 0.035, 0.035, 0.42, ember, [W - 0.12, 0.135, FZ - 0.02], [Math.PI / 2, 0.15, 0], { seg: 10, cast: false })
+  cyl(world, 0.03, 0.03, 0.36, ember, [W - 0.15, 0.18, FZ + 0.03], [Math.PI / 2, -0.45, 0], { seg: 10, cast: false })
+  const flameTex = canvasTex(64, 128, (g, w, h) => {
+    const gr = g.createRadialGradient(w / 2, h * 0.78, 2, w / 2, h * 0.7, h * 0.62)
+    gr.addColorStop(0, 'rgba(255,240,190,1)'); gr.addColorStop(0.25, 'rgba(255,170,60,.9)'); gr.addColorStop(0.6, 'rgba(230,80,20,.35)'); gr.addColorStop(1, 'rgba(200,40,10,0)')
+    g.fillStyle = gr; g.beginPath(); g.moveTo(w / 2, 4); g.bezierCurveTo(w * 0.95, h * 0.5, w, h * 0.95, w / 2, h - 2); g.bezierCurveTo(0, h * 0.95, w * 0.05, h * 0.5, w / 2, 4); g.fill()
+  })
+  const flames = [-0.15, -0.075, 0, 0.075, 0.15].map((dz, i) => {
+    const f = new Sprite(new SpriteMaterial({ map: flameTex, blending: AdditiveBlending, depthWrite: false, transparent: true, toneMapped: false }))
+    f.userData = { dz, h: 0.2 + (2 - Math.abs(i - 2)) * 0.05, seed: i * 1.7 }
+    f.position.set(W - 0.12, 0.2, FZ + dz); world.add(f)
+    return f
+  })
+  fireL.position.set(W - 0.42, 0.4, FZ)
+
+  // sur le manteau : livres, enceinte, petit cadre, plante
+  const shelfBooks = []
+  for (let z = FZ - 0.5; z < FZ - 0.2;) { const t = 0.03 + rnd() * 0.03, h = 0.18 + rnd() * 0.08; shelfBooks.push([RW - 0.13, 1.1, z, t, h]); z += t + 0.004 }
+  addBooks(world, shelfBooks, bookCols)
+  box(world, 0.12, 0.17, 0.12, mat(0x2a2a2e, { rough: 0.6 }), [RW - 0.12, 1.185, FZ - 0.05], null, { r: 0.015 })
+  cyl(world, 0.035, 0.035, 0.005, mat(0x555555, { metal: 0.6, rough: 0.4 }), [RW - 0.182, 1.2, FZ - 0.05], [0, 0, Math.PI / 2])
+  box(world, 0.01, 0.2, 0.16, mat(0x111111, { rough: 0.3 }), [RW - 0.06, 1.2, FZ + 0.17], [0, 0, -0.1], { r: 0.003 })
+  cyl(world, 0.045, 0.035, 0.07, mat(0xd97757), [RW - 0.13, 1.135, FZ + 0.4])
+  for (let k = 0; k < 6; k++) { const a = rnd() * 6.28; const l = mesh(world, new PlaneGeometry(0.06, 0.14), shelfLeaf, [RW - 0.13 + Math.cos(a) * 0.04, 1.22, FZ + 0.4 + Math.sin(a) * 0.04], null); l.rotation.set(-0.9, -a + Math.PI / 2, 0, 'YXZ') }
+
+  // le piano, devant la cheminée
+  const PZ = -1.82
+  const piano = obj('piano', [W - 0.5, 1.15, PZ], { pos: [1.1, 1.5, PZ + 0.75], look: [W - 0.45, 0.8, PZ] })
+  box(piano, 0.32, 0.08, 1.2, mat(0x1c1c1f, { rough: 0.4 }), [W - 0.45, 0.85, PZ], null, { r: 0.015 })
+  box(piano, 0.13, 0.02, 1.12, mat(0xfafafa, { rough: 0.5 }), [W - 0.56, 0.9, PZ], null, { r: 0.004 })
+  for (let o = 0; o < 3; o++) [0, 1, 3, 4, 5].forEach(b => box(piano, 0.07, 0.022, 0.035, mat(0x111111), [W - 0.53, 0.915, PZ - 0.54 + (o * 7 + b) * 0.051 + 0.026], null, { r: 0.003 }))
+  ;[PZ - 0.45, PZ + 0.45].forEach(z => {
     box(piano, 0.03, 0.85, 0.03, mat(0x2b2b2b, { metal: 0.6, rough: 0.4 }), [W - 0.45, 0.42, z], [0.35, 0, 0])
     box(piano, 0.03, 0.85, 0.03, mat(0x2b2b2b, { metal: 0.6, rough: 0.4 }), [W - 0.45, 0.42, z], [-0.35, 0, 0])
   })
@@ -449,58 +580,94 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   box(neon, 0.04, 0.42, 1.25, mat(0x1a1424, { rough: 0.5 }), [W - 0.02, 2.0, -1.75], null, { r: 0.04 })
   const neonGlow = quad(neon, 1.35, 0.4, glow(0xffffff, { map: neonTex(), transparent: true }), [W - 0.05, 2.0, -1.75], [0, -Math.PI / 2, 0])
 
-  const frameObj = obj('frame', [W - 0.15, 2.0, -0.85], { pos: [1.1, 1.6, -0.4], look: [W, 1.6, -0.85] })
-  box(frameObj, 0.04, 0.6, 0.48, mat(0xd8b46a, { metal: 0.5, rough: 0.4 }), [W - 0.02, 1.6, -0.85], null, { r: 0.01 })
-  const photoMat = mat(0xf9a8a8, { rough: 0.6 })
-  const photo = quad(frameObj, 0.4, 0.5, photoMat, [W - 0.045, 1.6, -0.85], [0, -Math.PI / 2, 0])
-  // la matière est clonée plus bas (surbrillance au survol) : on vise celle du mesh
-  if (avatar) new TextureLoader().setCrossOrigin('anonymous').load(avatar, t => { t.colorSpace = SRGBColorSpace; photo.material.map = t; photo.material.color.set(0xffffff); photo.material.needsUpdate = true })
+  // horloge au-dessus du néon
+  const clock = new Group(); clock.position.set(RW - 0.03, 2.52, -1.75); clock.rotation.y = -Math.PI / 2; world.add(clock)
+  cyl(clock, 0.15, 0.15, 0.04, mat(0x2a1b13, { rough: 0.5 }), [0, 0, 0], [Math.PI / 2, 0, 0], { seg: 32 })
+  cyl(clock, 0.13, 0.13, 0.045, mat(0xf3ead9, { rough: 0.8 }), [0, 0, 0.002], [Math.PI / 2, 0, 0], { seg: 32 })
+  for (let k = 0; k < 12; k++) { const a = (k / 12) * Math.PI * 2; box(clock, 0.006, k % 3 ? 0.012 : 0.022, 0.004, mat(0x2a1b13), [Math.sin(a) * 0.11, Math.cos(a) * 0.11, 0.026], [0, 0, -a], { cast: false }) }
+  const hourHand = box(clock, 0.008, 0.065, 0.004, mat(0x2a1b13), [0, 0, 0.03], null, { cast: false })
+  const minHand = box(clock, 0.005, 0.095, 0.004, mat(0xb4532a), [0, 0, 0.032], null, { cast: false })
+  hourHand.geometry.translate(0, 0.028, 0); minHand.geometry.translate(0, 0.042, 0)
 
-  /* ===== mur de droite : étagère, affiche, horloge, guitare, plante suspendue ===== */
-  const RW = W - 0.01
-  // étagère murale au-dessus du piano
-  box(world, 0.22, 0.03, 1.15, shelfWood, [RW - 0.11, 1.38, -1.75], null, { r: 0.006 })
-  ;[-2.25, -1.25].forEach(z => box(world, 0.16, 0.12, 0.02, brass, [RW - 0.08, 1.31, z]))
-  const shelfBooks = []
-  for (let z = -2.28; z < -1.92;) { const t = 0.03 + rnd() * 0.03, h = 0.18 + rnd() * 0.08; shelfBooks.push([RW - 0.1, 1.395, z, t, h]); z += t + 0.004 }
-  addBooks(world, shelfBooks, bookCols)
-  box(world, 0.12, 0.17, 0.12, mat(0x2a2a2e, { rough: 0.6 }), [RW - 0.1, 1.48, -1.72], null, { r: 0.015 })
-  cyl(world, 0.035, 0.035, 0.005, mat(0x555555, { metal: 0.6, rough: 0.4 }), [RW - 0.162, 1.5, -1.72], [0, 0, Math.PI / 2])
-  cyl(world, 0.045, 0.035, 0.07, mat(0xd97757), [RW - 0.1, 1.43, -1.45])
-  const shelfLeaf = new MeshStandardMaterial({ map: leafTex('#3b7d50', '#62b07a'), alphaTest: 0.5, side: DoubleSide, roughness: 0.6 })
-  for (let k = 0; k < 6; k++) { const a = rnd() * 6.28; const l = mesh(world, new PlaneGeometry(0.06, 0.14), shelfLeaf, [RW - 0.1 + Math.cos(a) * 0.04, 1.52, -1.45 + Math.sin(a) * 0.04], null); l.rotation.set(-0.9, -a + Math.PI / 2, 0, 'YXZ') }
-  box(world, 0.01, 0.2, 0.2, mat(0x111111, { rough: 0.3 }), [RW - 0.14, 1.5, -1.25], [0, 0, -0.1], { r: 0.003 })
+  // le portrait, en grand, avec sa petite lampe de tableau
+  const VZ = -0.74
+  const frameObj = obj('frame', [W - 0.15, 2.32, VZ], { pos: [1.05, 1.85, -0.15], look: [W, 1.88, VZ] })
+  box(frameObj, 0.045, 0.94, 0.76, mat(0xd8b46a, { metal: 0.5, rough: 0.4 }), [W - 0.025, 1.9, VZ], null, { r: 0.012 })
+  quad(frameObj, 0.66, 0.84, mat(0xf3ead9, { rough: 0.9 }), [W - 0.049, 1.9, VZ], [0, -Math.PI / 2, 0])
+  const photo = quad(frameObj, 0.56, 0.72, mat(0xf9a8a8, { rough: 0.6 }), [W - 0.05, 1.9, VZ], [0, -Math.PI / 2, 0])
+  // la matière est clonée plus bas (surbrillance au survol) : on vise celle du mesh. La photo carrée est recadrée au centre.
+  if (avatar) new TextureLoader().setCrossOrigin('anonymous').load(avatar, t => {
+    t.colorSpace = SRGBColorSpace; t.repeat.set(0.56 / 0.72, 1); t.offset.set((1 - 0.56 / 0.72) / 2, 0)
+    photo.material.map = t; photo.material.color.set(0xffffff); photo.material.needsUpdate = true
+  })
+  box(world, 0.11, 0.015, 0.015, brass, [W - 0.055, 2.43, VZ], null, { cast: false })
+  cyl(world, 0.022, 0.022, 0.42, brass, [W - 0.11, 2.43, VZ], [Math.PI / 2, 0, 0], { cast: false })
+  box(world, 0.006, 0.006, 0.38, glow(0xffe2b0), [W - 0.11, 2.408, VZ], null, { cast: false, r: 0.002 })
+  const poolTex = canvasTex(128, 256, (g, w, h) => { const gr = g.createRadialGradient(w / 2, -h * 0.15, 4, w / 2, -h * 0.1, h * 0.95); gr.addColorStop(0, 'rgba(255,214,150,.75)'); gr.addColorStop(0.5, 'rgba(255,190,120,.22)'); gr.addColorStop(1, 'rgba(255,170,90,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, h) })
+  quad(world, 0.8, 1.0, new MeshBasicMaterial({ map: poolTex, blending: AdditiveBlending, transparent: true, depthWrite: false, toneMapped: false }), [W - 0.054, 1.93, VZ], [0, -Math.PI / 2, 0], { receive: false })
 
-  // affiche encadrée (coucher de soleil sur la mer), près de la baie
-  box(world, 0.03, 0.62, 0.46, mat(0x2a1b13, { rough: 0.5 }), [RW - 0.015, 2.3, -2.62], null, { r: 0.008 })
-  quad(world, 0.4, 0.56, mat(0xffffff, { map: canvasTex(320, 448, (g, w, h) => {
-    const sky = g.createLinearGradient(0, 0, 0, h * 0.62); sky.addColorStop(0, '#f2c38b'); sky.addColorStop(1, '#e8875a')
-    g.fillStyle = '#f3ead9'; g.fillRect(0, 0, w, h)
-    g.fillStyle = sky; g.fillRect(24, 24, w - 48, h * 0.62)
-    g.fillStyle = '#d4573a'; g.beginPath(); g.arc(w / 2, h * 0.5, 54, Math.PI, 0); g.fill()
-    g.fillStyle = '#2f4f6a'; g.fillRect(24, h * 0.5, w - 48, h * 0.62 - h * 0.5 + 24)
-    for (let k = 0; k < 6; k++) { g.fillStyle = 'rgba(242,195,139,.5)'; g.fillRect(w / 2 - 50 + k * 4, h * 0.53 + k * 9, 100 - k * 8, 3) }
-    g.fillStyle = '#2a1b13'; g.font = '600 26px "JetBrains Mono", monospace'; g.textAlign = 'center'; g.fillText('MARSEILLE · 2026', w / 2, h - 40)
-  }), bump: false, rough: 0.8 }), [RW - 0.032, 2.3, -2.62], [0, -Math.PI / 2, 0])
+  /* ===== la discothèque : un meuble à cases rempli de vinyles, sous le portrait ===== */
+  const vinyls = obj('vinyls', [W - 0.25, 1.35, VZ], { pos: [1.15, 1.12, -0.25], look: [W - 0.2, 0.98, VZ] })
+  const caseWood = mat(0xffffff, { map: woodTex('#b98a5a', '80,45,20'), rough: 0.6 })
+  ;[-0.435, 0, 0.435].forEach(dz => box(vinyls, 0.4, 1.265, 0.03, caseWood, [W - 0.2, 0.6325, VZ + dz], null, { r: 0.006 }))
+  for (let k = 0; k < 4; k++) box(vinyls, 0.4, 0.03, 0.9, caseWood, [W - 0.2, 0.035 + k * 0.405, VZ], null, { r: 0.006 })
+  box(vinyls, 0.01, 1.24, 0.88, caseWood, [W - 0.006, 0.63, VZ], null, { cast: false })
+  const rowY = k => 0.05 + k * 0.405, cubeZ = c => VZ + (c ? 0.2175 : -0.2175)
+  // rangée du milieu : des livres et une enceinte ; en bas : l'ampli et une pile de disques
+  const caseBooks = []
+  for (let z = cubeZ(0) - 0.19; z < cubeZ(0) + 0.17;) { const t = 0.035 + rnd() * 0.035, h = 0.24 + rnd() * 0.1; caseBooks.push([W - 0.2, rowY(1), z, t, h]); z += t + 0.005 }
+  addBooks(vinyls, caseBooks, bookCols)
+  box(vinyls, 0.22, 0.28, 0.18, mat(0x3a2418, { rough: 0.5 }), [W - 0.22, rowY(1) + 0.14, cubeZ(1) - 0.06], null, { r: 0.012 })
+  cyl(vinyls, 0.055, 0.055, 0.01, mat(0x1a1a1a, { rough: 0.8 }), [W - 0.335, rowY(1) + 0.12, cubeZ(1) - 0.06], [0, 0, Math.PI / 2], { cast: false })
+  cyl(vinyls, 0.022, 0.022, 0.01, mat(0x1a1a1a, { rough: 0.8 }), [W - 0.335, rowY(1) + 0.23, cubeZ(1) - 0.06], [0, 0, Math.PI / 2], { cast: false })
+  cyl(vinyls, 0.04, 0.032, 0.07, terracotta, [W - 0.22, rowY(1) + 0.035, cubeZ(1) + 0.11])
+  for (let k = 0; k < 5; k++) { const a = rnd() * 6.28; const l = mesh(vinyls, new PlaneGeometry(0.05, 0.12), shelfLeaf, [W - 0.22 + Math.cos(a) * 0.03, rowY(1) + 0.11, cubeZ(1) + 0.11 + Math.sin(a) * 0.03], null); l.rotation.set(-0.8, -a + Math.PI / 2, 0, 'YXZ') }
+  box(vinyls, 0.34, 0.13, 0.36, mat(0x2a2a2e, { rough: 0.4, metal: 0.3 }), [W - 0.2, rowY(0) + 0.065, cubeZ(0)], null, { r: 0.01 })
+  quad(vinyls, 0.09, 0.05, glow(0xffb35c), [W - 0.372, rowY(0) + 0.075, cubeZ(0) - 0.08], [0, -Math.PI / 2, 0])
+  ;[0.02, 0.09, 0.15].forEach(dz => cyl(vinyls, 0.016, 0.016, 0.02, mat(0xc8c8c8, { metal: 0.8, rough: 0.3 }), [W - 0.375, rowY(0) + 0.065, cubeZ(0) + dz], [0, 0, Math.PI / 2], { cast: false }))
+  for (let k = 0; k < 9; k++) box(vinyls, 0.31, 0.012, 0.31, mat([0x1d1d22, 0xe0b04c, 0x2f4f3a, 0x8f3a3a, 0xf2ead9][k % 5], { rough: 0.8 }), [W - 0.21, rowY(0) + 0.006 + k * 0.013, cubeZ(1)], [0, (rnd() - 0.5) * 0.18, 0], { r: 0.002 })
+  // dessus du meuble : deux bougies et une petite plante retombante
+  ;[0.26, 0.33].forEach((dz, i) => { cyl(vinyls, 0.025, 0.025, 0.09 + i * 0.04, mat(0xf3ead9, { rough: 0.8 }), [W - 0.2, 1.31 + i * 0.02, VZ + dz]); ball(vinyls, 0.01, glow(0xffc46b), [W - 0.2, 1.37 + i * 0.04, VZ + dz], { cast: false, seg: 8 }) })
+  cyl(vinyls, 0.06, 0.045, 0.09, terracotta, [W - 0.2, 1.31, VZ - 0.3])
+  const topIvy = []
+  for (let k = 0; k < 14; k++) topIvy.push([W - 0.2 + (rnd() - 0.5) * 0.1, 1.37 + rnd() * 0.05, VZ - 0.3 + (rnd() - 0.5) * 0.12, (rnd() - 0.5) * 1.2, rnd() * 6.28, rnd() * 6.28, 0.9])
+  for (let d = 0; d < 0.5; d += 0.04) topIvy.push([W - 0.39 - rnd() * 0.02, 1.3 - d, VZ - 0.33 + Math.sin(d * 9) * 0.02, 0, -Math.PI / 2 + (rnd() - 0.5) * 0.6, rnd() * 6.28, 0.9 - d * 0.5])
+  addLeaves(vinyls, ivyMat, topIvy, [0.07, 0.07])
 
-  // horloge au-dessus du cadre
-  const clock = new Group(); clock.position.set(RW - 0.03, 2.38, -0.85); clock.rotation.y = -Math.PI / 2; world.add(clock)
-  cyl(clock, 0.16, 0.16, 0.04, mat(0x2a1b13, { rough: 0.5 }), [0, 0, 0], [Math.PI / 2, 0, 0], { seg: 32 })
-  cyl(clock, 0.14, 0.14, 0.045, mat(0xf3ead9, { rough: 0.8 }), [0, 0, 0.002], [Math.PI / 2, 0, 0], { seg: 32 })
-  for (let k = 0; k < 12; k++) { const a = (k / 12) * Math.PI * 2; box(clock, 0.006, k % 3 ? 0.012 : 0.024, 0.004, mat(0x2a1b13), [Math.sin(a) * 0.12, Math.cos(a) * 0.12, 0.026], [0, 0, -a], { cast: false }) }
-  const hourHand = box(clock, 0.008, 0.07, 0.004, mat(0x2a1b13), [0, 0, 0.03], null, { cast: false })
-  const minHand = box(clock, 0.005, 0.1, 0.004, mat(0xb4532a), [0, 0, 0.032], null, { cast: false })
-  hourHand.geometry.translate(0, 0.03, 0); minHand.geometry.translate(0, 0.045, 0)
-
-  // guitare posée contre le mur
-  const guitar = new Group(); guitar.position.set(RW - 0.16, 0, -0.42); guitar.rotation.set(0, -Math.PI / 2, 0.16); world.add(guitar)
-  const guitarWood = mat(0xffffff, { map: woodTex('#c98a4a', '90,45,15'), rough: 0.35 })
-  const lower = ball(guitar, 0.19, guitarWood, [0, 0.26, 0]); lower.scale.set(1, 1.05, 0.38)
-  const upper = ball(guitar, 0.145, guitarWood, [0, 0.52, 0]); upper.scale.set(1, 1.0, 0.38)
-  cyl(guitar, 0.055, 0.055, 0.01, mat(0x1a120d), [0, 0.47, 0.06], [Math.PI / 2, 0, 0], { cast: false })
-  box(guitar, 0.05, 0.5, 0.025, mat(0x3a2418, { rough: 0.5 }), [0, 0.88, 0.02], null, { r: 0.006 })
-  box(guitar, 0.08, 0.14, 0.025, mat(0x2a1b13), [0, 1.18, 0.01], null, { r: 0.01 })
-  box(guitar, 0.08, 0.015, 0.02, mat(0x1a120d), [0, 0.28, 0.072], null, { r: 0.003 })
+  // rangée du haut : les vinyles qu'on peut sortir, la tranche vers la pièce
+  const spineTex = r => canvasTex(32, 512, (g, w, h) => {
+    g.fillStyle = r.spine; g.fillRect(0, 0, w, h)
+    g.save(); g.translate(w / 2 + 6, h / 2); g.rotate(-Math.PI / 2); g.fillStyle = r.ink; g.textAlign = 'center'
+    g.font = '700 17px "Bricolage Grotesque", sans-serif'; g.fillText(`${r.artist.toUpperCase()} · ${r.album}`.slice(0, 40), 0, 0); g.restore()
+  })
+  const coverTex = r => canvasTex(256, 256, (g, w, h) => {
+    g.fillStyle = r.spine; g.fillRect(0, 0, w, h); g.fillStyle = r.ink; g.textAlign = 'center'
+    g.font = '700 30px "Instrument Serif", serif'; g.fillText(r.album.slice(0, 18), w / 2, h * 0.5)
+    g.font = '600 15px "JetBrains Mono", monospace'; g.fillText(r.artist.toUpperCase(), w / 2, h * 0.64)
+  })
+  const sleeveGeo = new BoxGeometry(0.31, 0.31, 0.016)
+  const crate = RECORDS.map((r, i) => {
+    const g = new Group()
+    const c = i < 3 ? 0 : 1, j = i % 3
+    const base = new Vector3(W - 0.215, rowY(2) + 0.158, cubeZ(c) - 0.155 + j * 0.06)
+    g.position.copy(base); vinyls.add(g)
+    const edge = mat(r.spine, { rough: 0.8 }), front = mat(0xffffff, { map: coverTex(r), bump: false, rough: 0.6 })
+    const sleeve = new Mesh(sleeveGeo, [edge, mat(0xffffff, { map: spineTex(r), bump: false, rough: 0.7 }), edge, edge, front, mat(r.spine, { rough: 0.8 })])
+    sleeve.castShadow = sleeve.receiveShadow = true; g.add(sleeve)
+    const disc = new Group(); g.add(disc)
+    cyl(disc, 0.145, 0.145, 0.003, mat(0x111111, { rough: 0.25 }), [0, 0, 0], [Math.PI / 2, 0, 0], { seg: 48, cast: false })
+    const label = cyl(disc, 0.048, 0.048, 0.0034, mat(r.spine, { rough: 0.7 }), [0, 0, 0], [Math.PI / 2, 0, 0], { seg: 32, cast: false })
+    return { g, sleeve, disc, label, front, base, p: 0, peek: 0 }
+  })
+  box(vinyls, 0.2, 0.2, 0.012, brass, [W - 0.2, rowY(2) + 0.1, cubeZ(0) + 0.05], null, { r: 0.004 })
+  box(vinyls, 0.2, 0.2, 0.012, brass, [W - 0.2, rowY(2) + 0.1, cubeZ(1) + 0.05], null, { r: 0.004 })
+  vinyls.updateMatrixWorld(true)
+  // point de présentation : le disque sorti flotte face à la caméra, devant le meuble
+  const vView = vinyls.userData.view
+  const vCam = new Vector3(...vView.pos), present = vCam.clone().add(new Vector3(...vView.look).sub(vCam).normalize().multiplyScalar(0.9))
+  const presentYaw = Math.atan2(vCam.x - present.x, vCam.z - present.z)
+  let hovRec = -1, selRec = -1, onPlatter = 0
+  const arts = []
 
   // plante suspendue au plafond
   cyl(world, 0.003, 0.003, 0.6, mat(0x8a6a4a), [-1.95, H - 0.3, -2.45], null, { cast: false })
@@ -565,27 +732,24 @@ export async function createRoom(canvas, { snapshot, avatar }) {
     h.position.set(x, y, z); h.scale.setScalar(sz); h.userData.base = sz; world.add(h); halos.push(h)
   })
 
-  /* ---------- jour (coucher de soleil) / nuit ---------- */
-  function setDay(day) {
-    // au coucher de soleil, on réchauffe la vidéo de nuit
-    outside.material.color.set(day ? 0xffc79a : 0xffffff)
-    sky.color.set(day ? 0xffa060 : 0x9db4ff); sky.intensity = day ? 1.7 : 1.1
-    sky.position.set(day ? 2.5 : -2.5, day ? 2.2 : 4.5, -8)
-    hemi.intensity = day ? 0.9 : 0.35
-    deskLamp.intensity = day ? 1.6 : 2.8
-    floorLampL.intensity = day ? 0.5 : 1.3
-    pendantL.intensity = day ? 0.4 : 1.1
-    renderer.toneMappingExposure = day ? 0.92 : 0.95
-    scene.environmentIntensity = day ? 0.3 : 0.12
-    halos.forEach(h => { h.material.opacity = day ? 0.45 : 1 })
-    renderer.shadowMap.needsUpdate = true
-  }
+  // halo du feu, qui vacille avec la lumière
+  const fireHalo = new Sprite(new SpriteMaterial({ map: haloTex, blending: AdditiveBlending, depthWrite: false, transparent: true, toneMapped: false }))
+  fireHalo.position.set(W - 0.25, 0.32, FZ); fireHalo.scale.setScalar(0.9); world.add(fireHalo)
+
+  /* ---------- toujours la nuit : une ambiance tamisée ---------- */
+  sky.color.set(0x9db4ff); sky.intensity = 0.75
+  hemi.intensity = 0.2
+  deskLamp.intensity = 2.3
+  floorLampL.intensity = 0.95
+  pendantL.intensity = 0.8
+  renderer.toneMappingExposure = 0.86
+  scene.environmentIntensity = 0.1
 
   /* ---------- caméra ---------- */
   const HOME = { pos: new Vector3(0, 1.5, 3.2), look: new Vector3(0, 1.1, -1.0) }
   const cam = { pos: HOME.pos.clone(), look: HOME.look.clone() }
   const goal = { pos: HOME.pos.clone(), look: HOME.look.clone() }
-  let focusedNow = null
+  let focusedNow = null, camEase = 0.002
   let yaw = 0, pitch = 0, gYaw = 0, gPitch = 0, fovK = 1, gFovK = 1, shift = 0, shiftY = 0
   const mouse = new Vector2()
   addEventListener('pointermove', e => { mouse.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight * 2 - 1)) }, { passive: true })
@@ -670,7 +834,7 @@ export async function createRoom(canvas, { snapshot, avatar }) {
         slowAcc = 0; slowN = 0
       }
     }
-    const k = 1 - Math.pow(0.002, dt)
+    const k = 1 - Math.pow(camEase, dt)
     cam.pos.lerp(goal.pos, k); cam.look.lerp(goal.look, k)
     yaw += (gYaw - yaw) * k; pitch += (gPitch - pitch) * k
     fovK += (gFovK - fovK) * k
@@ -691,7 +855,26 @@ export async function createRoom(canvas, { snapshot, avatar }) {
     dp.needsUpdate = true
     // le disque tourne et le bras se pose quand la musique joue
     armK += ((music ? 1 : 0) - armK) * (1 - Math.pow(0.05, dt))
-    arm.rotation.y = 0.55 - armK * 0.42
+    arm.rotation.y = -0.05 + armK * 0.3
+    // le feu : flammes qui dansent, lumière et halo qui vacillent
+    const flick = 0.82 + Math.sin(t * 9.1) * 0.07 + Math.sin(t * 13.7 + 1.3) * 0.06 + Math.sin(t * 4.3) * 0.05
+    fireL.intensity = 1.25 * flick; fireHalo.material.opacity = 0.75 * flick
+    flames.forEach(f => { const u = f.userData, n = 0.75 + Math.sin(t * 7 + u.seed) * 0.15 + Math.sin(t * 11.3 + u.seed * 2) * 0.1; f.scale.set(0.12 * (0.9 + n * 0.15), u.h * n, 1); f.position.set(W - 0.12, 0.14 + u.h * n / 2, FZ + u.dz + Math.sin(t * 5 + u.seed) * 0.008) })
+    // le chat cligne lentement des yeux
+    const blink = (t % 6.5) > 6.2 ? 0.1 : 1
+    catEyes.forEach(e => { e.scale.y += (blink - e.scale.y) * 0.4 })
+    // la discothèque : le disque survolé dépasse, le disque choisi sort de sa case et vient face à nous
+    crate.forEach((r, i) => {
+      const goalP = selRec === i ? 1 : 0
+      r.p += Math.sign(goalP - r.p) * Math.min(Math.abs(goalP - r.p), dt * 1.1)
+      r.peek += ((hovRec === i && selRec !== i ? 1 : 0) - r.peek) * (1 - Math.pow(0.001, dt))
+      const a = MathUtils.smootherstep(r.p, 0, 0.42), b = MathUtils.smootherstep(r.p, 0.35, 1)
+      tmp.copy(r.base); tmp.x -= 0.4 * a + 0.045 * r.peek
+      r.g.position.lerpVectors(tmp, present, b)
+      r.g.rotation.set(Math.sin(b * Math.PI) * -0.12, presentYaw * b, 0)
+      r.disc.position.x = MathUtils.smootherstep(r.p, 0.72, 1) * 0.16
+      r.disc.rotation.z = -r.disc.position.x * 4
+    })
     platter.rotation.y -= dt * armK * 3.5
     if ((frameN & 31) === 0) { const d = new Date(); minHand.rotation.z = -(d.getMinutes() / 60) * Math.PI * 2; hourHand.rotation.z = -((d.getHours() % 12) / 12 + d.getMinutes() / 720) * Math.PI * 2 }
     phone.position.x = (Math.floor(t * 10) % 40 < 4) ? Math.sin(t * 90) * 0.003 : 0
@@ -714,7 +897,6 @@ export async function createRoom(canvas, { snapshot, avatar }) {
     panelOpen: false,
     panelShiftGoal: 0.18,
     panelShiftYGoal: 0,
-    setDay,
     pick,
     hover(id) { if (hovered !== id) { hovered = id; paint() } },
     focus(id) {
@@ -737,19 +919,41 @@ export async function createRoom(canvas, { snapshot, avatar }) {
     // mode capture : caméra posée d'un coup, résolution fixe
     snap() { still = true; cam.pos.copy(goal.pos); cam.look.copy(goal.look); mascot.position.copy(mGoal) },
     rotate(dx, dy) { gYaw = MathUtils.clamp(gYaw + dx, -0.55, 0.55); gPitch = MathUtils.clamp(gPitch + dy, -0.2, 0.2) },
-    zoomBy(f) { gFovK = MathUtils.clamp(gFovK * f, 0.8, 1.8) },
     anchorScreen(id) { return project(objects[id].userData.anchor) },
     mascotScreen() { return project(tmp.copy(mascot.position).add(new Vector3(0, 0.15 + body.position.y, 0))) },
     onFrame(f) { listeners.push(f) },
     setMusic(on) { music = on },
-    // la pochette de l'album sur l'étiquette du vinyle
-    setRecordArt(url) {
+    // la discothèque
+    pickRecord(x, y) {
+      const r = canvas.getBoundingClientRect()
+      ptr.set(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1)
+      ray.setFromCamera(ptr, camera)
+      const hit = ray.intersectObjects(crate.filter(c => c.g.visible).map(c => c.sleeve), false)[0]
+      return hit ? crate.findIndex(c => c.sleeve === hit.object) : -1
+    },
+    hoverRecord(i) { hovRec = i },
+    selectRecord(i) { selRec = i; hovRec = -1; if (focusedNow === 'vinyls') mGoal.copy(i >= 0 ? present : vinyls.userData.anchor).add(tmp.set(0.05, i >= 0 ? 0.28 : 0.05, i >= 0 ? -0.32 : 0.3)) },
+    recordScreen(i) { return project(tmp.copy(crate[i].g.position).add(new Vector3(0, 0.2, 0))) },
+    // la pochette d'un disque (image de l'album) : sur la pochette, sur l'étiquette, et sur la platine s'il y est
+    setRecordArt(i, url) {
       new TextureLoader().setCrossOrigin('anonymous').load(url, tex => {
-        tex.colorSpace = SRGBColorSpace
-        recordLabel.material = recordLabel.material.clone()
-        recordLabel.material.map = tex; recordLabel.material.color.set(0xffffff); recordLabel.material.needsUpdate = true
+        tex.colorSpace = SRGBColorSpace; tex.anisotropy = 8
+        arts[i] = tex
+        const c = crate[i]
+        c.front.map = tex; c.front.needsUpdate = true
+        c.label.material.map = tex; c.label.material.color.set(0xffffff); c.label.material.needsUpdate = true
+        if (i === onPlatter) api.setOnPlatter(i)
       })
     },
+    // le disque posé sur la platine : sa case reste vide dans la discothèque
+    setOnPlatter(i) {
+      onPlatter = i
+      crate.forEach((c, k) => { c.g.visible = k !== i })
+      const tex = arts[i]
+      ;[recordLabel, sleeveArt].forEach(m => { m.material.map = tex || null; m.material.color.set(tex ? 0xffffff : RECORDS[i].spine); m.material.needsUpdate = true })
+    },
+    // arrivée : la caméra part du fond de la pièce et glisse doucement jusqu'au bureau
+    intro() { cam.pos.set(0, 1.75, 5.4); cam.look.set(0, 1.3, -1.0); camEase = 0.35; setTimeout(() => { camEase = 0.002 }, 2600) },
     // fige l'image (mode prise de vue)
     freeze() { frozen = true },
     hideMascot() { mascot.visible = false },
