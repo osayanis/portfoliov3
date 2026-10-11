@@ -1,8 +1,6 @@
-# yanis. · portfolio
+# yanis. · le bureau
 
-Un portfolio en forme de clavier mécanique : chaque touche de **PORT / FOLIO** mène à une section, le vrai clavier fait bouger les touches, et taper `PORTFOLIO` déclenche une surprise.
-
-Vite + JavaScript vanilla, aucune dépendance au runtime. Les sons sont synthétisés en WebAudio.
+Un portfolio qu'on parcourt au lieu de le faire défiler : **le bureau de Yanis**, une pièce en 3D (Three.js) où chaque objet raconte un chapitre de son parcours. Osa, la mascotte, sert de guide.
 
 ```bash
 npm install
@@ -10,24 +8,28 @@ npm run dev      # http://localhost:5173
 npm run build    # génère dist/
 ```
 
-## Modifier le contenu
+## Le bureau
 
-Tout le texte « données » est dans `src/data.js` : touches du hero, apps OsaLabs, stack, parcours, méthode et liens de contact.
-Mets ton adresse dans `profile.email` pour que le bouton « Écris-moi » ouvre un mail (sinon il pointe vers GitHub).
-
-## Sections
-
-| Touche | Section |
+| Objet | Chapitre |
 |---|---|
-| P | OsaNotch, avec un notch animé (musique / fichiers / IA) et la mascotte qui suit le curseur |
-| O | L'écosystème OsaLabs : OsaParty, OsaDrop, OsaCast, OsaBoard |
-| F | GitHub en direct : contributions, derniers dépôts, langages, activité |
-| L | Le labo : Clavio (mini piano jouable), OpenPod OS, script Proxmox |
-| O | À propos |
-| I | Méthode |
-| T | Stack (les touches cliquent) |
-| R | Parcours |
-| ⏎ | Contact |
+| Le vieil écran | 2021 → 2023 : les débuts (bot Discord, serveur Minecraft) |
+| Le cahier de NSI | 2024 : le lycée |
+| Le petit serveur | 2025 : BTS, Proxmox |
+| Le néon OsaLabs | 2026 : OsaParty, OsaDrop, OsaCast, OsaBoard |
+| Le MacBook | OsaNotch (avec l'aperçu interactif du notch) |
+| Le piano | Clavio |
+| Le baladeur | OpenPod OS |
+| Le calendrier | GitHub en direct |
+| Le clavier | Méthode et boîte à outils |
+| Le cadre photo | À propos |
+| Le téléphone | Contact |
+
+- La pièce 3D : `src/room/scene.js`. Les textes des chapitres : `src/room/chapters.js`. L'interface : `src/main.js` et `src/room/room.css`.
+- Navigation : glisser pour tourner, clic sur un objet, flèches ← → pour passer d'un chapitre à l'autre, `T` visite guidée, `C` carnet, `L` lumière, `Échap` pour fermer.
+- Liens directs : `/#osanotch`, `/#github`, `/#contact`… ouvrent l'objet correspondant.
+- L'interrupteur « lumière » passe la pièce de la nuit au jour (le site est de nuit par défaut).
+- Le **carnet** reprend toute l'histoire en texte : il sert de version sans 3D et de contenu pour les moteurs de recherche.
+- Mets ton adresse dans `profile.email` (`src/data.js`) pour que « Écris-moi » ouvre un mail (sinon il pointe vers GitHub).
 
 ## Études de cas
 

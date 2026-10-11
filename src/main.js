@@ -1,375 +1,284 @@
+// Accueil : le bureau de Yanis. On explore la pièce en 3D, chaque objet ouvre un chapitre.
 import './style.css'
-import { profile, heroKeys, osalabsApps, stack, timeline, method } from './data.js'
-import { initGithub } from './github.js'
-import mountNotch from './demos/notch.js'
-import { $, $$, reduceMotion, sound, toast, confetti, io, onceVisible, updateEyes } from './core.js'
-import { tilt, progressBar, parallax, magnetic, splitWords } from './fx.js'
+import './room/room.css'
+import { $, $$, sound, toast, confetti, updateEyes } from './core.js'
+import { profile, osalabsApps, stack } from './data.js'
+import { chapters, byId } from './room/chapters.js'
+import snapshot from './github-snapshot.json'
 
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
+const order = chapters.map(c => c.id)
+// liens directs : /#osanotch, /#github… ouvrent l'objet correspondant
+const ALIASES = { osanotch: 'macbook', clavio: 'piano', openpod: 'openpod', proxmox: 'server', osaparty: 'neon', osadrop: 'neon', osacast: 'neon', osaboard: 'neon', osalabs: 'neon', github: 'calendar', contact: 'phone', apropos: 'frame', methode: 'keyboard', stack: 'keyboard', debuts: 'crt', lycee: 'notebook' }
 
-/* ================= CLAVIER DU HERO ================= */
-const keyboard = $('#keyboard')
-const enterHit = $('.enter-hit')
-
-heroKeys.forEach((k, i) => {
-  const b = document.createElement('button')
-  b.type = 'button'
-  b.className = 'key'
-  b.dataset.letter = k.letter
-  b.dataset.target = k.target
-  b.style.cssText = `--x:${k.x};--y:${k.y};--c:${k.c};--d:${k.d};--i:${i};--r:${(i % 2 ? 1 : -1) * (4 + (i % 3) * 3)}deg`
-  b.setAttribute('aria-label', `${k.letter} : ${k.label}`)
-  b.innerHTML = `<span class="key-top"><span class="key-letter">${k.letter}</span><span class="key-label">${k.label}</span></span>`
-  keyboard.insertBefore(b, enterHit)
-})
-
-const heroKeyEls = $$('.key', keyboard)
-
-function pressVisual(el, ms = 140) {
-  el.classList.add('down')
-  setTimeout(() => el.classList.remove('down'), ms)
+/* ================= progression ================= */
+let found = new Set()
+try { found = new Set(JSON.parse(localStorage.getItem('room-found') || '[]')) } catch {}
+const dots = $('.hud-dots')
+dots.innerHTML = order.map(id => `<i data-id="${id}" style="--c:${byId[id].color}"></i>`).join('')
+function discover(id) {
+  const fresh = !found.has(id)
+  found.add(id)
+  try { localStorage.setItem('room-found', JSON.stringify([...found])) } catch {}
+  $('.hud-count b').textContent = found.size
+  $$('.hud-dots i').forEach(d => d.classList.toggle('on', found.has(d.dataset.id)))
+  $$('.carnet-list li').forEach(li => li.classList.toggle('found', found.has(li.dataset.id)))
+  if (fresh && found.size === order.length) {
+    setTimeout(() => { sound.chime(); confetti(); toast('Tu as fait le tour du bureau ! Merci d\'être passé 🎉') }, 600)
+  }
 }
-function pressEnter(ms = 160) {
-  keyboard.classList.add('enter-down')
-  setTimeout(() => keyboard.classList.remove('enter-down'), ms)
-}
-function go(target) {
-  const el = $(target)
-  if (el) el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
-}
+$('.hud-count b').textContent = found.size
+$$('.hud-dots i').forEach(d => d.classList.toggle('on', found.has(d.dataset.id)))
+$$('.carnet-list li').forEach(li => li.classList.toggle('found', found.has(li.dataset.id)))
 
-heroKeyEls.forEach((el, i) => {
-  el.addEventListener('pointerdown', () => sound.click(0.9 + (i % 5) * 0.05))
-  el.addEventListener('click', e => {
-    // e.detail === 0 : activé au clavier (Entrée/Espace), on joue quand même le son
-    if (e.detail === 0) { sound.click(); pressVisual(el) }
-    setTimeout(() => go(el.dataset.target), 160)
+/* ================= bulle de la mascotte ================= */
+const bubble = $('.room-bubble')
+let bubbleTimer
+function say(text, actions = [], ms = 0) {
+  clearTimeout(bubbleTimer)
+  $('p', bubble).textContent = text
+  const box = $('.bubble-actions', bubble)
+  box.innerHTML = ''
+  actions.forEach(([label, fn, primary]) => {
+    const b = document.createElement('button')
+    b.type = 'button'
+    b.textContent = label
+    if (primary) b.className = 'primary'
+    b.addEventListener('click', () => { sound.click(); fn() })
+    box.appendChild(b)
   })
-})
-enterHit.addEventListener('pointerdown', () => { sound.click(0.7); keyboard.classList.add('enter-down') })
-enterHit.addEventListener('pointerup', () => keyboard.classList.remove('enter-down'))
-enterHit.addEventListener('pointerleave', () => keyboard.classList.remove('enter-down'))
-enterHit.addEventListener('pointerenter', () => keyboard.classList.add('enter-hover'))
-enterHit.addEventListener('pointerleave', () => keyboard.classList.remove('enter-hover'))
-enterHit.addEventListener('click', e => {
-  if (e.detail === 0) { sound.click(0.7); pressEnter() }
-  setTimeout(() => go('#contact'), 160)
-})
+  bubble.classList.remove('show'); void bubble.offsetWidth; bubble.classList.add('show')
+  if (ms) bubbleTimer = setTimeout(hideBubble, ms)
+}
+const hideBubble = () => bubble.classList.remove('show')
 
-// Petite démo à l'arrivée : le clavier tape P-O-R-T-F-O-L-I-O tout seul
-if (!reduceMotion) {
-  const order = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-  setTimeout(() => {
-    order.forEach((idx, n) => setTimeout(() => pressVisual(heroKeyEls[idx], 120), n * 110))
-    setTimeout(() => pressEnter(180), order.length * 110 + 120)
-  }, 1700)
+/* ================= panneau de chapitre ================= */
+const panel = $('.chapter'), body = $('.chapter-body')
+let room = null, current = null, touring = false
+
+const widgets = {
+  apps: () => `<div class="ch-apps">${osalabsApps.map(a => `
+    <a class="ch-app" href="${a.page}" style="--c:${a.color}">
+      <b>${a.name}</b><span>${a.tag}</span><p>${a.desc}</p><em>Lire l'étude de cas →</em>
+    </a>`).join('')}</div>`,
+  notch: () => '<div class="ch-notch" data-widget="notch"></div>',
+  github: () => '<section class="ch-gh"><div class="gh" id="gh"></div></section>',
+  stack: () => `<p class="ch-sub">Ma boîte à outils</p><div class="keycaps in ch-stack">${stack.map((s, i) => `<button type="button" class="cap" style="--c:${s.c};--i:${i}"><span>${s.name}</span></button>`).join('')}</div>`,
+  contact: () => `
+    <a class="ch-call" href="${profile.email ? `mailto:${profile.email}` : profile.github}" ${profile.email ? '' : 'target="_blank" rel="noopener"'}><span>Écris-moi</span><b>↵</b></a>
+    <ul class="ch-contact">
+      <li><a href="${profile.github}" target="_blank" rel="noopener"><span>GitHub</span><b>@osayanis</b></a></li>
+      <li><a href="${profile.osalabs}" target="_blank" rel="noopener"><span>Labo</span><b>osalabs.fr</b></a></li>
+      <li><button type="button" data-copy="${profile.discord}"><span>Discord</span><b>${profile.discord}</b><em>copier</em></button></li>
+    </ul>`,
 }
 
-// Le vrai clavier fait bouger les touches. Et taper PORTFOLIO déclenche une surprise.
-const SECRET = 'PORTFOLIO'
-let typed = ''
-const oCycle = { i: 0 }
-document.addEventListener('keydown', e => {
-  if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return
-  const tag = (e.target.tagName || '').toLowerCase()
-  if (tag === 'input' || tag === 'textarea') return
-  const ch = e.key.length === 1 ? e.key.toUpperCase() : e.key
+function renderChapter(c) {
+  $('.chapter-era').textContent = c.era
+  $('.chapter-era').style.setProperty('--c', c.color)
+  $('.chapter-object').textContent = c.object
+  body.innerHTML = `
+    <p class="ch-say"><span class="ch-say-m" aria-hidden="true"><i></i><i></i></span><span>${c.say}</span></p>
+    <h2>${c.title}</h2>
+    <div class="ch-text">${c.body}</div>
+    ${c.image ? `<figure class="ch-img"><img src="${c.image.src}" alt="${c.image.alt}" loading="lazy"></figure>` : ''}
+    ${c.widget ? widgets[c.widget]() : ''}
+    ${c.stats ? `<dl class="ch-stats">${c.stats.map(([n, l]) => `<div><dt>${n}</dt><dd>${l}</dd></div>`).join('')}</dl>` : ''}
+    ${c.chips ? `<div class="ch-chips">${c.chips.map(x => `<span>${x}</span>`).join('')}</div>` : ''}
+    ${c.links?.length ? `<div class="ch-links">${c.links.map(l => `<a class="ch-link${l.primary ? ' primary' : ''}" href="${l.url}"${l.url.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>${l.label}${l.url.startsWith('http') ? ' ↗' : ' →'}</a>`).join('')}</div>` : ''}`
+  body.scrollTop = 0
+  const i = order.indexOf(c.id)
+  const prev = byId[order[(i - 1 + order.length) % order.length]], next = byId[order[(i + 1) % order.length]]
+  $('.chapter-nav[data-dir="-1"] span').textContent = prev.object
+  $('.chapter-nav[data-dir="1"] span').textContent = next.object
+  $('.chapter-step').textContent = `${i + 1} / ${order.length}`
 
-  if (ch === 'Enter' && !e.target.closest('button, a')) { pressEnter(); sound.click(0.7) }
-
-  const matches = heroKeyEls.filter(el => el.dataset.letter === ch)
-  if (matches.length && !pianoActive) {
-    const el = matches.length > 1 ? matches[oCycle.i++ % matches.length] : matches[0]
-    pressVisual(el)
-    sound.click(0.95 + Math.random() * 0.1)
-  }
-
-  if (/^[A-Z]$/.test(ch)) {
-    typed = (typed + ch).slice(-SECRET.length)
-    if (typed === SECRET) {
-      typed = ''
-      sound.chime()
-      confetti()
-      toast('🎉 Tu as tapé PORTFOLIO. Tu es officiellement quelqu\'un de curieux.')
-      heroKeyEls.forEach((el, n) => setTimeout(() => pressVisual(el, 160), n * 70))
-    }
-  }
-})
-
-
-/* ================= OSANOTCH ================= */
-// l'aperçu interactif (le même composant que sur l'étude de cas)
-const notchApi = mountNotch($('#notch-host'), { sound, updateEyes }, { controls: false, tour: true, waitForStart: true })
-const mac = $('#mac')
-const base = document.createElement('div')
-base.className = 'mac-base'
-base.setAttribute('aria-hidden', 'true')
-$('.nd-screen', mac).after(base)
-// l'écran du MacBook s'ouvre pendant qu'on défile, puis la visite guidée démarre
-let lidOpen = false
-function lid() {
-  const r = mac.getBoundingClientRect()
-  const p = reduceMotion ? 0 : Math.min(1, Math.max(0, (r.top - innerHeight * 0.3) / (innerHeight * 0.5)))
-  mac.style.setProperty('--lid', p.toFixed(3))
-  if (p === 0 && !lidOpen) { lidOpen = true; setTimeout(() => notchApi.start(), 300) }
+  // widgets vivants
+  if (c.widget === 'notch') import('./demos/notch.js').then(m => m.default($('[data-widget="notch"]', body), { sound, updateEyes }, { controls: false, tour: true }))
+  if (c.widget === 'github') import('./github.js').then(m => m.initGithub())
+  $$('.cap', body).forEach((b, k) => b.addEventListener('pointerdown', () => sound.click(0.85 + (k % 6) * 0.06)))
+  $$('[data-copy]', body).forEach(b => b.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(b.dataset.copy); toast(`Pseudo Discord copié : ${b.dataset.copy}`) } catch { toast(`Mon Discord : ${b.dataset.copy}`) }
+    sound.click()
+  }))
+  $$('.method-list kbd', body).forEach(k => k.addEventListener('pointerdown', () => { sound.click(0.9); k.classList.add('down'); setTimeout(() => k.classList.remove('down'), 140) }))
 }
-addEventListener('scroll', lid, { passive: true })
-lid()
 
-/* ================= OSALABS ================= */
-const visuals = {
-  party: () => `<div class="v-party"><span class="v-pin">PIN 482 913</span>${'<i></i>'.repeat(7)}</div>`,
-  drop: () => `<div class="v-drop"><div class="device laptop"></div><span class="packet"></span><div class="device"></div><span class="v-code">K7QX2M</span></div>`,
-  cast: () => `<div class="v-cast"><div class="screen"><span class="ripple"></span></div><span class="live">● LIVE</span></div>`,
-  board: () => `<div class="v-board"><svg viewBox="0 0 200 150"><path d="M64 46 C100 46, 92 100, 128 100"/></svg><span class="v-node" style="left:8%;top:14%"><b>T</b>Idée</span><span class="v-node" style="left:54%;top:52%"><b>✓</b>À faire</span><span class="v-cur">Bob</span></div>`,
+function openChapter(id, { fromTour = false } = {}) {
+  const c = byId[id]
+  if (!c) return
+  if (!fromTour) touring = false
+  current = id
+  renderChapter(c)
+  panel.hidden = false
+  requestAnimationFrame(() => panel.classList.add('open'))
+  document.body.classList.add('reading')
+  room?.focus(id)
+  if (room) room.panelOpen = true
+  discover(id)
+  if (innerWidth >= 760) say(c.say, [], 9000)
+  else hideBubble()
+  sound.click(1.1)
+  history.replaceState(null, '', `#${id}`)
+  tag.classList.remove('show')
 }
-$('#apps').innerHTML = osalabsApps.map((a, i) => `
-  <a class="app reveal" href="${a.page}" style="--c:${a.color};--d:${i * 0.08}s;--tilt:${i % 2 ? 1 : -1}deg">
-    <div class="app-visual">${visuals[a.visual]()}</div>
-    <div class="app-body">
-      <span class="app-tag">${a.tag}</span>
-      <h3><span class="vt-name" style="view-transition-name: t-${a.page.split('/')[2]}">${a.name}</span><span aria-hidden="true">→</span></h3>
-      <p>${a.desc}</p>
-      <p class="app-detail">${a.detail}</p>
-      <div class="app-stack">${a.stack.map(s => `<span>${s}</span>`).join('')}</div>
-      <span class="app-more">Lire l'étude de cas</span>
-    </div>
-  </a>`).join('')
-
-/* ================= CLAVIO : mini piano ================= */
-const NOTES = [
-  { n: 'Do', f: 261.63, code: 'KeyA' },
-  { n: 'Do#', f: 277.18, code: 'KeyW', black: true },
-  { n: 'Ré', f: 293.66, code: 'KeyS' },
-  { n: 'Ré#', f: 311.13, code: 'KeyE', black: true },
-  { n: 'Mi', f: 329.63, code: 'KeyD' },
-  { n: 'Fa', f: 349.23, code: 'KeyF' },
-  { n: 'Fa#', f: 369.99, code: 'KeyT', black: true },
-  { n: 'Sol', f: 392.0, code: 'KeyG' },
-  { n: 'Sol#', f: 415.3, code: 'KeyY', black: true },
-  { n: 'La', f: 440.0, code: 'KeyH' },
-  { n: 'La#', f: 466.16, code: 'KeyU', black: true },
-  { n: 'Si', f: 493.88, code: 'KeyJ' },
-  { n: 'Do', f: 523.25, code: 'KeyK' },
-]
-// Lettres affichées : AZERTY par défaut, remplacées par la vraie disposition si le navigateur la donne
-const azerty = { KeyA: 'Q', KeyS: 'S', KeyD: 'D', KeyF: 'F', KeyG: 'G', KeyH: 'H', KeyJ: 'J', KeyK: 'K' }
-const MELODY = [0, 0, 0, 2, 4, 2, 0, 4, 2, 2, 0] // indices dans NOTES : Au clair de la lune
-const piano = $('#piano')
-const whites = NOTES.map((n, i) => ({ ...n, i })).filter(n => !n.black)
-const whiteW = 100 / whites.length
-NOTES.forEach((n, i) => {
-  const k = document.createElement('div')
-  k.dataset.i = i
-  if (n.black) {
-    const prevWhites = NOTES.slice(0, i).filter(x => !x.black).length
-    k.className = 'pk-black'
-    k.style.left = `${prevWhites * whiteW}%`
-  } else {
-    k.className = 'pk-white'
-    k.innerHTML = `${n.n}<small data-code="${n.code}">${azerty[n.code] || ''}</small>`
-  }
-  piano.appendChild(k)
-})
-navigator.keyboard?.getLayoutMap?.().then(map => {
-  $$('small[data-code]', piano).forEach(s => {
-    const l = map.get(s.dataset.code)
-    if (l) s.textContent = l.toUpperCase()
-  })
-}).catch(() => {})
-
-const pianoKeys = $$('[data-i]', piano)
-let step = 0
-const msg = $('#piano-msg'), bar = $('#piano-bar')
-function showNext() {
-  pianoKeys.forEach(k => k.classList.remove('next'))
-  if (step < MELODY.length) pianoKeys[MELODY[step]].classList.add('next')
-  bar.style.width = `${(step / MELODY.length) * 100}%`
+function closeChapter() {
+  if (!current) return
+  current = null
+  touring = false
+  panel.classList.remove('open')
+  document.body.classList.remove('reading')
+  setTimeout(() => { if (!current) panel.hidden = true }, 450)
+  if (room) { room.panelOpen = false; room.unfocus() }
+  hideBubble()
+  history.replaceState(null, '', location.pathname)
 }
-function playKey(i) {
-  const el = pianoKeys[i]
-  sound.note(NOTES[i].f)
-  pressVisual(el, 180)
-  if (step >= MELODY.length) return
-  if (i === MELODY[step]) {
-    step++
-    if (step === MELODY.length) {
-      showNext()
-      msg.innerHTML = '<b>Bravo !</b> Morceau terminé. Clavi est fier de toi. 🎉'
-      setTimeout(() => { sound.chime(); confetti() }, 450)
-      setTimeout(() => {
-        step = 0
-        msg.innerHTML = 'On recommence ? Suis la touche qui brille.'
-        showNext()
-      }, 4200)
-      return
-    }
-    showNext()
-  } else if (!NOTES[i].black) {
-    el.classList.add('wrong')
-    setTimeout(() => el.classList.remove('wrong'), 250)
-  }
+function step(dir) {
+  const i = current ? order.indexOf(current) : -1
+  openChapter(order[(i + dir + order.length) % order.length], { fromTour: touring })
 }
-pianoKeys.forEach(k => k.addEventListener('pointerdown', e => { e.preventDefault(); playKey(+k.dataset.i) }))
-showNext()
+$('.chapter-close').addEventListener('click', closeChapter)
+$$('.chapter-nav').forEach(b => b.addEventListener('click', () => step(+b.dataset.dir)))
 
-let pianoActive = false
-new IntersectionObserver(([en]) => { pianoActive = en.isIntersecting }, { threshold: 0.6 }).observe($('.piano-card'))
-document.addEventListener('keydown', e => {
-  if (!pianoActive || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return
-  const i = NOTES.findIndex(n => n.code === e.code)
-  if (i >= 0) { e.preventDefault(); playKey(i) }
-})
-
-/* ================= OPENPOD ================= */
-const pod = $('#pod')
-const podItems = $$('.pod-menu li', pod)
-let podSel = 0
-onceVisible(pod, () => setTimeout(() => { pod.classList.add('booted'); sound.blip(1320) }, 1200), 0.6)
-$$('[data-pod]', pod).forEach(b => b.addEventListener('click', () => {
-  if (!pod.classList.contains('booted')) pod.classList.add('booted')
-  const a = b.dataset.pod
-  if (a === 'up') podSel = (podSel - 1 + podItems.length) % podItems.length
-  if (a === 'down') podSel = (podSel + 1) % podItems.length
-  podItems.forEach((li, i) => li.classList.toggle('on', i === podSel))
-  sound.blip(a === 'ok' ? 660 : 990)
-  if (a === 'ok') toast(`OpenPod : « ${podItems[podSel].textContent} » arrive dans la phase 2 🎧`)
+/* ================= visite guidée & carnet ================= */
+function startTour() {
+  closeCarnet()
+  touring = true
+  const first = order.find(id => !found.has(id)) || order[0]
+  openChapter(first, { fromTour: true })
+}
+const carnet = $('.carnet')
+function openCarnet() { carnet.classList.add('open'); document.body.classList.add('carnet-open'); sound.click() }
+function closeCarnet() { carnet.classList.remove('open'); document.body.classList.remove('carnet-open') }
+$('[data-action="tour"]').addEventListener('click', () => { sound.click(); startTour() })
+$('[data-action="carnet"]').addEventListener('click', () => carnet.classList.contains('open') ? closeCarnet() : openCarnet())
+$('.carnet-close').addEventListener('click', closeCarnet)
+$$('.carnet-list li').forEach(li => li.addEventListener('click', e => {
+  if (e.target.closest('a')) return
+  closeCarnet()
+  openChapter(li.dataset.id)
 }))
 
-/* ================= TERMINAL PROXMOX ================= */
-const termLines = [
-  ['$ ', 'c-dim'], ['sudo ./proxmox-batch.sh\n', ''],
-  ['=== PROXMOX AUTO-INSTALLER ===\n', 'c-acc'],
-  ['1. Créer des conteneurs (LXC)\n2. Créer des VM\n3. Templates  4. ISO  5. Quitter\n', ''],
-  ['Votre choix : ', 'c-dim'], ['1\n', ''],
-  ['Nombre de conteneurs : ', ''], ['3\n', 'c-acc'],
-  ['Nom : ', ''], ['web-01\n', 'c-acc'],
-  ['RAM (Mo) [512 - 7680] : ', ''], ['2048\n', 'c-acc'],
-  ['Adresse IP : ', ''], ['192.168.1.1\n', 'c-acc'],
-  ['Erreur : IP Gateway interdite.\n', 'c-err'],
-  ['Adresse IP : ', ''], ['192.168.1.42\n', 'c-acc'],
-  ['-> Création CT 101 (web-01)...\n', 'c-dim'],
-  ['SUCCESS : Conteneur web-01 créé !\n', 'c-ok'],
-]
-const term = $('#term')
-function typeTerminal() {
-  term.innerHTML = ''
-  const cursor = document.createElement('span')
-  cursor.className = 'cursor'
-  term.appendChild(cursor)
-  let li = 0
-  const next = () => {
-    if (li >= termLines.length) { setTimeout(typeTerminal, 6000); return }
-    const [text, cls] = termLines[li++]
-    const span = document.createElement('span')
-    if (cls) span.className = cls
-    term.insertBefore(span, cursor)
-    const typing = cls === 'c-acc' || text.startsWith('sudo') || /^\d\n$/.test(text)
-    if (!typing || reduceMotion) { span.textContent = text; setTimeout(next, cls === 'c-ok' ? 380 : 140); return }
-    let c = 0
-    const t = setInterval(() => {
-      span.textContent = text.slice(0, ++c)
-      if (c >= text.length) { clearInterval(t); setTimeout(next, 260) }
-    }, 42)
-  }
-  next()
+/* ================= étiquette au survol ================= */
+const tag = $('.room-tag')
+let hovered = null
+function showTag(id) {
+  hovered = id
+  room.hover(id)
+  if (!id || id === current) { tag.classList.remove('show'); return }
+  const c = byId[id]
+  tag.innerHTML = `<b>${c.object}</b><span>${c.era}${found.has(id) ? ' · déjà vu ✓' : ''}</span>`
+  tag.style.setProperty('--c', c.color)
+  tag.classList.add('show')
 }
-onceVisible($('.terminal'), typeTerminal, 0.4)
 
-/* ================= STATS ================= */
-onceVisible($('#stats'), () => {
-  $$('#stats dt').forEach(dt => {
-    const target = +dt.dataset.count, suffix = dt.dataset.suffix || ''
-    const t0 = performance.now(), dur = reduceMotion ? 1 : 1300
-    const tick = now => {
-      const p = Math.min(1, (now - t0) / dur)
-      dt.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))) + (p === 1 ? suffix : '')
-      if (p < 1) requestAnimationFrame(tick)
-    }
-    requestAnimationFrame(tick)
-  })
-}, 0.5)
+/* ================= la scène ================= */
+const canvas = $('#scene')
+const loader = $('.room-loader')
 
-/* ================= MÉTHODE ================= */
-const mColors = ['#f3a6cf', '#93c5fd', '#fde68a', '#a7e8bd']
-$('#method').innerHTML = method.map((m, i) => `
-  <li class="reveal" style="--c:${mColors[i]};--i:${i};--d:${i * 0.08}s">
-    <div class="mk" aria-hidden="true">${m.key}</div>
-    <h3><small>0${i + 1}</small>${m.name}</h3>
-    <p>${m.text}</p>
-  </li>`).join('')
-
-/* ================= STACK ================= */
-$('#keycaps').innerHTML = stack.map((s, i) => `<button type="button" class="cap" style="--c:${s.c};--i:${i};--r:${i % 2 ? 8 : -8}deg"><span>${s.name}</span></button>`).join('')
-$$('.cap').forEach((c, i) => c.addEventListener('pointerdown', () => sound.click(0.85 + (i % 6) * 0.06)))
-
-/* ================= PARCOURS ================= */
-const tColors = ['#f3a6cf', '#fcc48b', '#fde68a', '#93c5fd', '#c4b5fd']
-$('#timeline').innerHTML = timeline.map((t, i) => `
-  <li class="reveal" style="--c:${tColors[i]}">
-    <span class="yr">${t.year}</span>
-    <span class="pin" aria-hidden="true"></span>
-    <div><h3>${t.title}</h3><p>${t.text}</p></div>
-  </li>`).join('')
-const tl = $('#timeline')
-addEventListener('scroll', () => {
-  const r = tl.getBoundingClientRect()
-  const p = Math.min(1, Math.max(0, (innerHeight * 0.75 - r.top) / r.height))
-  tl.style.setProperty('--p', p.toFixed(3))
-}, { passive: true })
-
-/* ================= CONTACT ================= */
-const mailBtn = $('#mail-btn')
-if (profile.email) {
-  mailBtn.href = `mailto:${profile.email}`
-  mailBtn.removeAttribute('target')
-}
-mailBtn.addEventListener('pointerdown', () => sound.click(0.7))
-$('#discord-copy').addEventListener('click', async () => {
+async function boot() {
+  let createRoom
   try {
-    await navigator.clipboard.writeText(profile.discord)
-    toast(`Pseudo Discord copié : ${profile.discord}`)
-  } catch {
-    toast(`Mon Discord : ${profile.discord}`)
+    ;({ createRoom } = await import('./room/scene.js'))
+    room = await createRoom(canvas, { snapshot, avatar: 'https://avatars.githubusercontent.com/u/90351357?v=4&s=256' })
+  } catch (err) {
+    console.error(err)
+    loader.classList.add('gone')
+    document.body.classList.add('no-3d')
+    openCarnet()
+    return
   }
-  sound.click()
-})
+  const day = () => !document.documentElement.classList.contains('dark')
+  room.setDay(day())
+  addEventListener('themechange', e => {
+    room.setDay(!e.detail.dark)
+    say(e.detail.dark ? 'Ah, on éteint. Je préfère l\'ambiance de nuit, perso.' : 'Lumière ! On y voit plus clair.', [], 2600)
+  })
+  room.panelShiftGoal = innerWidth < 760 ? 0 : 0.2
+  addEventListener('resize', () => { room.panelShiftGoal = innerWidth < 760 ? 0 : 0.2 })
 
-/* ================= GO ================= */
-initGithub()
-splitWords('.section-head h2, .about-copy h2')
-$$('.reveal').forEach(el => io.observe(el))
-
-/* ================= EFFETS 3D ================= */
-progressBar()
-parallax('.floaters .cube, .floaters .orb')
-magnetic('.btn, .nav-cta, .big-enter')
-tilt('.app', { max: 10 })
-tilt('.lab-mini, .stats div', { max: 12, lift: 4 })
-tilt('.big-enter', { max: 16, lift: 4 })
-
-// le clavier du hero s'incline vers la souris
-if (!reduceMotion) {
-  const kb = $('#keyboard')
-  let tx = 0, ty = 0, cx = 0, cy = 0
-  addEventListener('pointermove', e => { tx = e.clientX / innerWidth - 0.5; ty = e.clientY / innerHeight - 0.5 }, { passive: true })
-  ;(function loop() {
-    cx += (tx - cx) * 0.07; cy += (ty - cy) * 0.07
-    if (scrollY < innerHeight) {
-      kb.style.setProperty('--krx', `${14 - cy * 16}deg`)
-      kb.style.setProperty('--kry', `${cx * 18}deg`)
-      kb.style.setProperty('--krz', `${-cx * 2}deg`)
+  // positions des bulles à chaque image
+  room.onFrame(() => {
+    const m = room.mascotScreen()
+    const w = bubble.offsetWidth, h = bubble.offsetHeight
+    const maxX = (current && innerWidth >= 760 ? innerWidth - panel.offsetWidth - 24 : innerWidth) - w / 2 - 12
+    const x = Math.max(w / 2 + 12, Math.min(maxX, m.x)), y = Math.max(h + 76, m.y)
+    bubble.style.transform = `translate(${x}px, ${y}px) translate(-50%, -100%)`
+    if (hovered && tag.classList.contains('show')) {
+      const p = room.anchorScreen(hovered)
+      tag.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -110%)`
     }
-    requestAnimationFrame(loop)
-  })()
-}
+  })
 
-// le clavier 3D des projets : Three.js n'est chargé qu'à l'approche de la section
-const k3 = $('#k3')
-new IntersectionObserver(([en], obs) => {
-  if (!en.isIntersecting) return
-  obs.disconnect()
-  import('./scene3d.js')
-    .then(m => m.default(k3, { sound, reduceMotion }))
-    .catch(() => { $('.k3-fallback', k3).textContent = "La 3D n'est pas disponible sur cet appareil : choisis un projet dans la liste ci-dessous." })
-}, { rootMargin: '600px' }).observe(k3)
-updateEyes()
+  // souris & doigt : glisser pour tourner, cliquer pour ouvrir
+  let down = null, moved = false
+  canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY }; moved = false; canvas.setPointerCapture(e.pointerId) })
+  canvas.addEventListener('pointermove', e => {
+    if (down) {
+      const dx = e.clientX - down.x, dy = e.clientY - down.y
+      if (Math.abs(dx) + Math.abs(dy) > 5) moved = true
+      if (moved) {
+        room.rotate(-(e.movementX || 0) * 0.004, (e.movementY || 0) * 0.002)
+        canvas.classList.add('grabbing')
+        showTag(null)
+      }
+      return
+    }
+    const id = room.pick(e.clientX, e.clientY)
+    canvas.style.cursor = id ? 'pointer' : 'grab'
+    if (id !== hovered) { showTag(id); if (id) sound.click(1.35) }
+  })
+  canvas.addEventListener('pointerup', e => {
+    canvas.classList.remove('grabbing')
+    if (down && !moved) {
+      const id = room.pick(e.clientX, e.clientY)
+      if (id) openChapter(id)
+      else if (current) closeChapter()
+    }
+    down = null
+  })
+  canvas.addEventListener('pointerleave', () => { if (!down) showTag(null) })
+  canvas.addEventListener('wheel', e => { e.preventDefault(); room.zoomBy(e.deltaY > 0 ? 0.92 : 1.08) }, { passive: false })
+  $$('[data-cam]').forEach(b => b.addEventListener('click', () => {
+    sound.click()
+    if (b.dataset.cam === 'in') room.zoomBy(1.2)
+    if (b.dataset.cam === 'out') room.zoomBy(0.83)
+    if (b.dataset.cam === 'home') { closeChapter(); room.reset() }
+  }))
+
+  loader.classList.add('gone')
+  document.body.classList.add('ready')
+
+  // arrivée : lien direct, ou accueil par la mascotte
+  const hash = location.hash.slice(1)
+  if (hash === 'carnet') { openCarnet(); return }
+  const target = byId[hash] ? hash : ALIASES[hash]
+  if (target) { setTimeout(() => openChapter(target), 500); return }
+  setTimeout(() => {
+    if (found.size === 0) {
+      say("Salut ! Moi c'est Osa, la mascotte de Yanis. Bienvenue dans son bureau : ici, chaque objet raconte un bout de son histoire.", [
+        ['Fais-moi la visite', startTour, true],
+        ["J'explore seul", () => say('Clique sur ce qui te tente. Je te suis !', [], 3500)],
+      ])
+    } else if (found.size < order.length) {
+      say(`Re ! Il te reste ${order.length - found.size} objet${order.length - found.size > 1 ? 's' : ''} à découvrir.`, [
+        ['Reprendre la visite', startTour, true],
+        ['Explorer', hideBubble],
+      ])
+    } else {
+      say('Re ! Tu connais déjà tout le bureau. Le téléphone est toujours là si tu veux parler à Yanis.', [['Ouvrir le téléphone', () => openChapter('phone'), true]], 8000)
+    }
+  }, reduceMotion ? 0 : 700)
+}
+boot()
+
+/* ================= clavier ================= */
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey || e.target.closest?.('input, textarea, [contenteditable]')) return
+  if (e.key === 'Escape') { if (carnet.classList.contains('open')) closeCarnet(); else closeChapter() }
+  if (e.key === 'ArrowRight') { e.preventDefault(); step(1) }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1) }
+  if (e.key.toLowerCase() === 't' && !e.repeat) startTour()
+  if (e.key.toLowerCase() === 'c' && !e.repeat) carnet.classList.contains('open') ? closeCarnet() : openCarnet()
+  if (e.key.toLowerCase() === 'l' && !e.repeat) $('.theme-toggle').click()
+})

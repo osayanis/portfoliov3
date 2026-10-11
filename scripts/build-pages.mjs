@@ -80,7 +80,7 @@ function page(p, i) {
     <meta property="og:description" content="${esc(desc)}" />
     <meta property="og:url" content="${SITE}/projets/${p.slug}/" />
     ${p.visuals[0] ? `<meta property="og:image" content="${SITE}${p.visuals[0].src}" />` : ''}
-    <script>(function(){var t;try{t=localStorage.getItem('theme')}catch(e){}var d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d)})()</script>
+    <script>(function(){var t;try{t=localStorage.getItem('theme')}catch(e){}var d=t?t==='dark':true;document.documentElement.classList.toggle('dark',d)})()</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -92,9 +92,8 @@ function page(p, i) {
     <header class="nav">
       <a class="logo" href="/" aria-label="Retour à l'accueil">yanis<span>.</span></a>
       <nav class="nav-links" aria-label="Navigation principale">
-        <a href="/#notch">Projets</a>
-        <a href="/#labo">Labo</a>
-        <a href="/#apropos">À propos</a>
+        <a href="/">Le bureau</a>
+        <a href="/#carnet">Carnet</a>
         <a href="/#github">GitHub</a>
         <button class="theme-toggle" type="button" aria-label="Basculer le mode sombre" title="Mode sombre / clair"><span class="tt-sun" aria-hidden="true">☀</span><span class="tt-moon" aria-hidden="true">☾</span></button>
         <button class="sound-toggle" type="button" aria-pressed="true" title="Activer / couper le son">
@@ -112,7 +111,7 @@ function page(p, i) {
           <span class="cube cs-c2" data-depth="0.7"><span class="cube-in"><i class="f0">⌘</i><i class="f1">⏎</i><i class="f2">⌥</i><i class="f3">⇧</i><i class="f4"></i><i class="f5"></i></span></span>
           <span class="orb cs-o1" data-depth="1.8"></span>
         </div>
-        <a class="cs-back" href="/#projets"><span aria-hidden="true">←</span> Tous les projets</a>
+        <a class="cs-back" href="/#${p.slug}"><span aria-hidden="true">←</span> Retour au bureau</a>
         <div class="cs-hero-grid">
           <div class="cs-hero-copy">
             <p class="eyebrow"><span class="dot" style="--c:${p.color}"></span>${esc(p.kicker)}</p>
@@ -213,7 +212,7 @@ function page(p, i) {
     </main>
 
     <footer class="footer">
-      <p>Fait main par Yanis. <a href="/">Retour à l'accueil</a></p>
+      <p>Fait main par Yanis. <a href="/#${p.slug}">Retour au bureau</a></p>
       <p class="muted">${esc(p.name)} · étude de cas</p>
     </footer>
 
