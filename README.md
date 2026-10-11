@@ -24,7 +24,9 @@ npm run build    # génère dist/
 | Le cadre photo | À propos |
 | Le téléphone | Contact |
 
-Et hors parcours : le **tourne-disque** sur le meuble de gauche lance *It's a Man's Man's Man's World* de Seal via le lecteur YouTube officiel (aucun fichier audio n'est hébergé), et le **chat** sur la banquette a quelques répliques.
+Et hors parcours : le **tourne-disque** sur le meuble de gauche zoome sur la platine vue de dessus et joue *It's a Man's Man's Man's World* de Seal : l'extrait officiel de 30 s fourni par Apple Music (API iTunes Search), avec la pochette sur le macaron du vinyle et un lien pour écouter en entier. Aucun fichier audio n'est hébergé. Le **chat** sur la banquette a quelques répliques.
+
+La vue derrière la baie vitrée est une vidéo en boucle de [Mixkit](https://mixkit.co/free-stock-video/new-york-buildings-at-night-4334/) (licence Mixkit Stock Video Free).
 
 - La pièce 3D : `src/room/scene.js`. Les textes des chapitres : `src/room/chapters.js`. L'interface : `src/main.js` et `src/room/room.css`.
 - Navigation : glisser pour tourner, clic sur un objet, flèches ← → pour passer d'un chapitre à l'autre, `T` visite guidée, `C` carnet, `L` lumière, `Échap` pour fermer.

@@ -4,18 +4,12 @@
 import {
   Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, MeshStandardMaterial, MeshBasicMaterial,
   CylinderGeometry, SphereGeometry, ConeGeometry, PlaneGeometry, TorusGeometry, BufferGeometry, Float32BufferAttribute,
-  Points, PointsMaterial, InstancedMesh, Object3D, BoxGeometry, Sprite, SpriteMaterial, CanvasTexture, SRGBColorSpace, RepeatWrapping, TextureLoader,
+  Points, PointsMaterial, VideoTexture, InstancedMesh, Object3D, BoxGeometry, Sprite, SpriteMaterial, CanvasTexture, SRGBColorSpace, RepeatWrapping, TextureLoader,
   HemisphereLight, DirectionalLight, PointLight, SpotLight, AdditiveBlending,
   Raycaster, Vector2, Vector3, Color, PCFSoftShadowMap, ACESFilmicToneMapping, PMREMGenerator, DoubleSide, MathUtils,
 } from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
-import { VignetteShader } from 'three/examples/jsm/shaders/VignetteShader.js'
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
-import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 
 /* ---------- outils ---------- */
 const mat = (color, o = {}) => new MeshStandardMaterial({ color, roughness: o.rough ?? 0.75, metalness: o.metal ?? 0, ...o.extra, ...(o.map ? { map: o.map, bumpMap: o.bump === false ? null : o.map, bumpScale: o.bumpScale ?? 1.2 } : {}), ...(o.emissive ? { emissive: o.emissive, emissiveIntensity: o.ei ?? 1 } : {}) })
@@ -64,37 +58,6 @@ function woodTex(base, dark, planks = 0, repeat) {
     }
   }, repeat)
 }
-function skyTex(day) {
-  return canvasTex(2048, 1024, (g, w, h) => {
-    const sky = g.createLinearGradient(0, 0, 0, h)
-    if (day) { sky.addColorStop(0, '#5b4b8a'); sky.addColorStop(0.45, '#e98c7a'); sky.addColorStop(0.75, '#ffc27a'); sky.addColorStop(1, '#ffe2a8') }
-    else { sky.addColorStop(0, '#070818'); sky.addColorStop(0.55, '#1a1846'); sky.addColorStop(0.85, '#3d2a5e'); sky.addColorStop(1, '#6b3b4e') }
-    g.fillStyle = sky; g.fillRect(0, 0, w, h)
-    if (day) {
-      const sun = g.createRadialGradient(w * 0.62, h * 0.7, 10, w * 0.62, h * 0.7, 260)
-      sun.addColorStop(0, '#fff6d8'); sun.addColorStop(0.15, '#ffd27a'); sun.addColorStop(1, 'rgba(255,180,120,0)')
-      g.fillStyle = sun; g.fillRect(0, 0, w, h)
-      g.fillStyle = 'rgba(255,240,220,.35)'
-      ;[[300, 260, 160], [1300, 200, 220], [1700, 330, 140]].forEach(([x, y, r]) => { g.beginPath(); g.ellipse(x, y, r, r * 0.22, 0, 0, 7); g.fill() })
-    } else {
-      for (let i = 0; i < 380; i++) { g.fillStyle = `rgba(255,255,255,${0.2 + rnd() * 0.8})`; const s = rnd() < 0.08 ? 3 : 1.6; g.fillRect(rnd() * w, rnd() * h * 0.62, s, s) }
-      const m = g.createRadialGradient(w * 0.72, h * 0.22, 4, w * 0.72, h * 0.22, 140)
-      m.addColorStop(0, 'rgba(255,248,225,.55)'); m.addColorStop(1, 'rgba(255,248,225,0)')
-      g.fillStyle = m; g.fillRect(0, 0, w, h)
-      g.fillStyle = '#fff6dc'; g.beginPath(); g.arc(w * 0.72, h * 0.22, 46, 0, 7); g.fill()
-    }
-    // deux rangées d'immeubles pour la profondeur
-    ;[[0.56, day ? '#6b4a6e' : '#1b1736', 0.5], [0.66, day ? '#4a3354' : '#100e24', 1]].forEach(([top, col, k]) => {
-      for (let x = -20; x < w; x += 40 + rnd() * 70) {
-        const bw = 50 + rnd() * 90, bh = h * (1 - top) * (0.4 + rnd() * 0.6) * (k === 1 ? 1.3 : 1)
-        g.fillStyle = col; g.fillRect(x, h - bh, bw, bh)
-        for (let y = h - bh + 12; y < h - 8; y += 18) for (let wx = x + 8; wx < x + bw - 8; wx += 14) {
-          if (rnd() < (day ? 0.08 : 0.32)) { g.fillStyle = rnd() < 0.7 ? '#ffcf7a' : '#ff9b6b'; g.fillRect(wx, y, 6, 9) }
-        }
-      }
-    })
-  })
-}
 function screenTex(draw, w = 512, h = 320) { return canvasTex(w, h, draw) }
 const macScreen = () => screenTex((g, w, h) => {
   const bg = g.createLinearGradient(0, 0, w, h); bg.addColorStop(0, '#312e81'); bg.addColorStop(0.55, '#a855f7'); bg.addColorStop(1, '#f472b6')
@@ -135,16 +98,16 @@ const calTex = days => canvasTex(512, 620, (g, w, h) => {
   days.slice(-42).forEach((d, i) => { g.fillStyle = cols[d[2]]; g.beginPath(); g.roundRect(40 + (i % 7) * 64, 158 + Math.floor(i / 7) * 68, 50, 50, 10); g.fill() })
   g.fillStyle = '#5b5750'; g.font = '600 26px "JetBrains Mono", monospace'; g.fillText('github.com/osayanis', w / 2, h - 30)
 })
-const rugTex = () => canvasTex(1024, 700, (g, w, h) => {
-  g.fillStyle = '#b4532a'; g.fillRect(0, 0, w, h)
-  g.strokeStyle = '#f2c38b'; g.lineWidth = 14; g.strokeRect(40, 40, w - 80, h - 80)
-  g.strokeStyle = '#7a2e1a'; g.lineWidth = 8; g.strokeRect(80, 80, w - 160, h - 160)
-  for (let i = 0; i < 6; i++) for (let j = 0; j < 4; j++) {
-    const x = 170 + i * 137, y = 170 + j * 120
-    g.fillStyle = (i + j) % 2 ? '#f2c38b' : '#e8875a'
-    g.beginPath(); g.moveTo(x, y - 34); g.lineTo(x + 34, y); g.lineTo(x, y + 34); g.lineTo(x - 34, y); g.fill()
-  }
-  for (let i = 0; i < 4000; i++) { g.fillStyle = `rgba(0,0,0,${rnd() * 0.06})`; g.fillRect(rnd() * w, rnd() * h, 2, 2) }
+const rugTex = () => canvasTex(1024, 720, (g, w, h) => {
+  g.fillStyle = '#d8c6a8'; g.fillRect(0, 0, w, h)
+  // rayures beige / crème / sable, de largeurs variées
+  const bands = ['#e8dcc4', '#cbb692', '#e2d3b6', '#bda57f', '#efe5d2']
+  for (let x = 0, k = 0; x < w; k++) { const bw = 18 + ((k * 37) % 5) * 14; g.fillStyle = bands[k % bands.length]; g.fillRect(x, 0, bw, h); x += bw }
+  // trame de tissage
+  for (let y = 0; y < h; y += 4) { g.fillStyle = `rgba(80,60,40,${0.03 + (y % 8 ? 0 : 0.03)})`; g.fillRect(0, y, w, 1) }
+  for (let i = 0; i < 9000; i++) { g.fillStyle = `rgba(60,45,30,${rnd() * 0.07})`; g.fillRect(rnd() * w, rnd() * h, 2, 1) }
+  // franges légères aux extrémités
+  g.fillStyle = 'rgba(255,250,240,.6)'; for (let y = 0; y < h; y += 10) { g.fillRect(0, y, 10, 3); g.fillRect(w - 10, y, 10, 3) }
 })
 
 
@@ -176,11 +139,12 @@ function addBooks(parent, spots, cols, rotY = 0) {
 }
 
 /* ---------- la pièce ---------- */
-export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
+export async function createRoom(canvas, { snapshot, avatar }) {
   await document.fonts?.ready
   const renderer = new WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' })
-  // résolution plafonnée (1,5 au lieu de 2 sur les écrans Retina) : la différence se voit à peine, le gain est énorme
-  let dpr = Math.min(devicePixelRatio || 1, innerWidth < 760 ? 1.25 : 1.5)
+  // résolution plafonnée (1,25 au lieu de 2 sur les écrans Retina) : la différence se voit à peine, le gain est énorme
+  let dpr = Math.min(devicePixelRatio || 1, 1.25)
+  let still = false
   renderer.setPixelRatio(dpr)
   renderer.shadowMap.enabled = true
   // la pièce ne bouge pas : les ombres sont calculées une fois, pas à chaque image
@@ -234,6 +198,8 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
   const wallMat = mat(0xe9d7bf, { rough: 0.95 })
   quad(world, D1 - D0, H, wallMat, [-W, H / 2, (D0 + D1) / 2], [0, Math.PI / 2, 0])
   quad(world, D1 - D0, H, wallMat, [W, H / 2, (D0 + D1) / 2], [0, -Math.PI / 2, 0])
+  // le mur du fond côté visiteur : derrière la caméra d'accueil, il ne se voit que depuis la chaise
+  quad(world, W * 2, H, wallMat, [0, H / 2, D1], [0, Math.PI, 0])
   quad(world, W * 2, D1 - D0, mat(0xd9c2a3, { rough: 1 }), [0, H, (D0 + D1) / 2], [Math.PI / 2, 0, 0], { cast: false })
   // poutres et plinthes
   const beamMat = mat(0xffffff, { map: woodTex('#7a4f2e', '40,20,10'), rough: 0.7 })
@@ -241,8 +207,16 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
   ;[-W + 0.01, W - 0.01].forEach(x => box(world, 0.03, 0.1, D1 - D0, 0xc79f78, [x, 0.05, (D0 + D1) / 2]))
 
   // la baie vitrée : un mur presque entièrement vitré
-  const skyNight = skyTex(false), skyDay = skyTex(true)
-  const outside = quad(world, 24, 11, glow(0xffffff, { map: skyNight }), [0, 3.4, -10], null, { receive: false })
+  // derrière la baie : une vraie vue de Manhattan la nuit (vidéo Mixkit, licence libre), en boucle
+  const posterTex = new TextureLoader().load('/media/bureau/nyc-night.jpg', t => { t.colorSpace = SRGBColorSpace })
+  const outside = quad(world, 20, 11.25, glow(0xffffff, { map: posterTex }), [0, 1.5, -9], null, { receive: false })
+  const video = document.createElement('video')
+  Object.assign(video, { src: '/media/bureau/nyc-night.mp4', muted: true, loop: true, playsInline: true, autoplay: true, preload: 'auto', crossOrigin: 'anonymous' })
+  video.setAttribute('playsinline', '')
+  const videoTex = new VideoTexture(video)
+  videoTex.colorSpace = SRGBColorSpace
+  video.addEventListener('playing', () => { outside.material.map = videoTex; outside.material.needsUpdate = true }, { once: true })
+  video.play().catch(() => addEventListener('pointerdown', () => video.play(), { once: true }))
   const frameMat = mat(0x3a2a20, { rough: 0.5 })
   box(world, W * 2, 0.22, 0.2, frameMat, [0, 0.11, D0])
   box(world, W * 2, 0.3, 0.2, frameMat, [0, H - 0.15, D0])
@@ -286,6 +260,7 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
   quad(world, 3.4, 2.4, mat(0xffffff, { map: rugTex(), rough: 1 }), [0, 0.006, 0.25], [-Math.PI / 2, 0, 0])
 
   /* ===== le bureau en bois, au centre ===== */
+  const deskStart = world.children.length
   const deskWood = mat(0xffffff, { map: woodTex('#a8703f', '70,36,14'), rough: 0.55 })
   box(world, 2.0, 0.06, 0.95, deskWood, [0, 0.76, 0], null, { r: 0.02 })
   ;[-0.85, 0.85].forEach(x => {
@@ -296,7 +271,10 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
   box(world, 0.55, 0.32, 0.85, deskWood, [0.6, 0.55, 0], null, { r: 0.02 })
   ;[0.62, 0.46].forEach(y => box(world, 0.16, 0.02, 0.02, mat(0xd8b46a, { metal: 0.8, rough: 0.3 }), [0.6, y, 0.43]))
 
-  // le fauteuil, derrière le bureau
+  // panneau de façade du bureau (côté visiteur)
+  box(world, 1.62, 0.42, 0.02, deskWood, [0, 0.5, -0.4], null, { r: 0.01 })
+  // le fauteuil, derrière le bureau (il ne pivote pas : Yanis s'assoit face à nous, la baie dans le dos)
+  const chairStart = world.children.length
   const leather = mat(0x6b3a22, { rough: 0.55 })
   box(world, 0.62, 0.12, 0.58, leather, [0, 0.5, -0.82], null, { r: 0.05 })
   box(world, 0.62, 0.78, 0.12, leather, [0, 0.98, -1.1], [-0.12, 0, 0], { r: 0.06 })
@@ -304,6 +282,7 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
   cyl(world, 0.035, 0.035, 0.4, mat(0x2b2b2b, { metal: 0.7, rough: 0.3 }), [0, 0.25, -0.82])
   for (let k = 0; k < 5; k++) { const a = (k / 5) * Math.PI * 2; box(world, 0.32, 0.03, 0.05, mat(0x2b2b2b, { metal: 0.7, rough: 0.3 }), [Math.cos(a) * 0.16, 0.05, -0.82 + Math.sin(a) * 0.16], [0, -a, 0]) }
 
+  const chairEnd = world.children.length
   // lampe de bureau
   const brass = mat(0xc89a52, { metal: 0.8, rough: 0.3 })
   cyl(world, 0.09, 0.1, 0.025, brass, [0.78, 0.8, -0.28])
@@ -319,7 +298,7 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
   const steam = []
   // volutes de vapeur : des sprites flous plutôt que des boules
   const puff = canvasTex(64, 64, (g, w, h) => { const r = g.createRadialGradient(32, 32, 0, 32, 32, 32); r.addColorStop(0, 'rgba(255,255,255,.9)'); r.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = r; g.fillRect(0, 0, w, h) })
-  for (let i = 0; i < 7; i++) { const sp = new Sprite(new SpriteMaterial({ map: puff, transparent: true, opacity: 0.15, depthWrite: false })); sp.scale.setScalar(0.05); world.add(sp); steam.push(sp) }
+  for (let i = 0; i < 7; i++) { const sp = new Sprite(new SpriteMaterial({ map: puff, transparent: true, opacity: 0, depthWrite: false, blending: AdditiveBlending, color: 0x8a7f74 })); sp.scale.setScalar(0.05); world.add(sp); steam.push(sp) }
   cyl(world, 0.05, 0.04, 0.08, mat(0xd97757), [-0.85, 0.83, -0.3])
   for (let k = 0; k < 5; k++) mesh(world, new ConeGeometry(0.025, 0.16, 6), mat(0x4caf6a), [-0.85 + (rnd() - 0.5) * 0.06, 0.92, -0.3 + (rnd() - 0.5) * 0.06], [(rnd() - 0.5) * 0.6, 0, (rnd() - 0.5) * 0.6])
 
@@ -331,6 +310,11 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
   const lid = new Group(); lid.position.set(-0.1, 0.8, -0.21); lid.rotation.x = -0.22; macbook.add(lid)
   box(lid, 0.46, 0.31, 0.012, alu, [0, 0.155, 0], null, { r: 0.008 })
   const macGlow = quad(lid, 0.43, 0.28, glow(0xffffff, { map: macScreen() }), [0, 0.155, 0.008])
+  // le dos de l'écran, tourné vers nous, avec des autocollants
+  const sticker = (w, h, draw, pos, rz = 0) => quad(lid, w, h, mat(0xffffff, { map: canvasTex(256, Math.round(256 * h / w), draw), bump: false, rough: 0.5, extra: { transparent: true } }), pos, [0, Math.PI, rz])
+  sticker(0.09, 0.09, (g, w, h) => { g.fillStyle = '#fdf6e3'; g.beginPath(); g.arc(w / 2, h / 2, w / 2 - 6, 0, 7); g.fill(); g.fillStyle = '#111'; g.beginPath(); g.ellipse(w * 0.4, h * 0.46, 14, 20, 0, 0, 7); g.ellipse(w * 0.6, h * 0.46, 14, 20, 0, 0, 7); g.fill() }, [0.08, 0.2, -0.0075], 0.2)
+  sticker(0.13, 0.045, (g, w, h) => { g.fillStyle = '#ff6fb5'; g.beginPath(); g.roundRect(4, 4, w - 8, h - 8, 26); g.fill(); g.fillStyle = '#fff'; g.font = '800 46px "Bricolage Grotesque", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('OsaLabs', w / 2, h / 2 + 2) }, [-0.09, 0.1, -0.0075], -0.15)
+  sticker(0.05, 0.05, (g, w, h) => { g.fillStyle = '#ffb35c'; g.beginPath(); for (let k = 0; k < 10; k++) { const a = k * Math.PI / 5 - Math.PI / 2, r = k % 2 ? 50 : 120; g.lineTo(w / 2 + Math.cos(a) * r, h / 2 + Math.sin(a) * r) } g.fill() }, [-0.13, 0.24, -0.0075], 0.3)
 
   // clavier mécanique PORTFOLIO
   const keyboard = obj('keyboard', [0.25, 0.95, 0.3], { pos: [0.25, 1.15, 0.95], look: [0.25, 0.8, 0.28] })
@@ -351,6 +335,22 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
   const phone = obj('phone', [0.62, 0.95, 0.24], { pos: [0.6, 1.15, 0.85], look: [0.62, 0.8, 0.22] })
   const phoneBody = box(phone, 0.09, 0.012, 0.18, mat(0x18181b, { rough: 0.3, metal: 0.4 }), [0.62, 0.797, 0.22], [0, -0.4, 0], { r: 0.012 })
   quad(phoneBody, 0.08, 0.17, glow(0xffffff, { map: phoneScreen() }), [0, 0.007, 0], [-Math.PI / 2, 0, 0])
+
+  // on pivote le bureau et tout ce qui est posé dessus : l'écran regarde Yanis, pas le visiteur
+  const deskEnd = world.children.length
+  const deskSet = new Group()
+  ;[...world.children.slice(deskStart, chairStart), ...world.children.slice(chairEnd, deskEnd)].forEach(o => deskSet.attach(o))
+  world.add(deskSet)
+  deskSet.rotation.y = Math.PI
+  deskSet.updateMatrixWorld(true)
+  ;[macbook, keyboard, notebook, phone].forEach(g => deskSet.localToWorld(g.userData.anchor))
+  deskLamp.position.set(-0.78, 1.16, 0.12)
+  deskLamp.target.position.set(-0.15, 0.76, -0.2)
+  // points de vue : depuis le fauteuil pour l'écran et le clavier, depuis le visiteur pour le reste
+  macbook.userData.view = { pos: [0.1, 1.24, -0.62], look: [0.1, 0.96, 0.12] }
+  keyboard.userData.view = { pos: [-0.25, 1.22, -0.78], look: [-0.25, 0.8, -0.28] }
+  notebook.userData.view = { pos: [0.62, 1.25, 0.72], look: [0.62, 0.8, -0.02] }
+  phone.userData.view = { pos: [-0.4, 1.18, 0.5], look: [-0.62, 0.8, -0.22] }
 
   /* ===== mur de gauche : bibliothèque, vieil écran, baladeur, calendrier ===== */
   const shelfWood = mat(0xffffff, { map: woodTex('#8a5a36', '50,26,12'), rough: 0.6 })
@@ -373,10 +373,14 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
   box(crt, 0.36, 0.32, 0.38, mat(0xd8cfb8, { rough: 0.8 }), [BX, 1.29, -2.0], null, { r: 0.03 })
   quad(crt, 0.27, 0.21, glow(0xffffff, { map: crtScreen() }), [BX + 0.181, 1.3, -2.0], [0, Math.PI / 2, 0])
 
-  const openpod = obj('openpod', [BX + 0.25, 0.98, -2.35], { pos: [-1.4, 1.0, -1.9], look: [BX, 0.74, -2.35] })
-  box(openpod, 0.05, 0.2, 0.12, mat(0xf4f4f5, { rough: 0.4 }), [BX + 0.05, 0.72, -2.35], [0, 0, 0.18], { r: 0.015 })
-  quad(openpod, 0.085, 0.07, glow(0xffffff, { map: podScreen() }), [BX + 0.087, 0.77, -2.35], [0, Math.PI / 2, 0.18])
-  cyl(openpod, 0.03, 0.03, 0.006, mat(0xd4d4d8), [BX + 0.075, 0.68, -2.35], [0, 0, Math.PI / 2 + 0.18])
+  const openpod = obj('openpod', [BX + 0.25, 0.98, -2.35], { pos: [-1.45, 0.98, -2.0], look: [BX, 0.74, -2.35] })
+  // tout le baladeur dans un seul groupe : l'écran et la molette restent collés à la façade
+  const pod = new Group(); pod.position.set(BX + 0.04, 0.725, -2.35); pod.rotation.set(0, 0, 0.16); openpod.add(pod)
+  box(pod, 0.035, 0.21, 0.125, mat(0xf2f2f0, { rough: 0.35 }), [0, 0, 0], null, { r: 0.016 })
+  box(pod, 0.004, 0.085, 0.1, mat(0x0b0b0c, { rough: 0.2 }), [0.0185, 0.045, 0], null, { r: 0.004, cast: false })
+  quad(pod, 0.092, 0.075, glow(0xffffff, { map: podScreen() }), [0.021, 0.045, 0], [0, Math.PI / 2, 0])
+  mesh(pod, new TorusGeometry(0.031, 0.011, 10, 32), mat(0xe2e2e0, { rough: 0.45 }), [0.0185, -0.05, 0], [0, Math.PI / 2, 0], { cast: false })
+  cyl(pod, 0.016, 0.016, 0.006, mat(0xd4d4d2, { rough: 0.4 }), [0.019, -0.05, 0], [0, 0, Math.PI / 2], { cast: false })
 
   const calendar = obj('calendar', [-W + 0.15, 2.05, -1.0], { pos: [-1.0, 1.6, -0.6], look: [-W, 1.6, -1.0] })
   box(calendar, 0.02, 0.62, 0.52, mat(0xfffdf8), [-W + 0.012, 1.6, -1.0])
@@ -395,14 +399,14 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
   const sleeveCols = [0xe0b04c, 0x2f4f3a, 0xb4532a, 0x3b5b8a, 0xf2ead9, 0x8f3a3a]
   for (let k = 0; k < 9; k++) box(world, 0.3, 0.3, 0.012, mat(sleeveCols[k % sleeveCols.length], { rough: 0.8 }), [TX + 0.05, 0.86 + 0.0, -1.12 + k * 0.016], [0, 0, 0.08], { r: 0.003 })
 
-  const turntable = obj('turntable', [TX + 0.1, 1.05, -0.62], { pos: [-1.35, 1.2, -0.25], look: [TX, 0.72, -0.62] })
+  const turntable = obj('turntable', [TX + 0.1, 1.05, -0.62], { pos: [TX + 0.06, 1.32, -0.5], look: [TX - 0.01, 0.74, -0.64] })
   box(turntable, 0.4, 0.07, 0.34, mat(0xffffff, { map: woodTex('#a8703f', '70,36,14'), rough: 0.45 }), [TX, 0.705, -0.62], null, { r: 0.012 })
   box(turntable, 0.39, 0.012, 0.33, new MeshStandardMaterial({ color: 0x99a, transparent: true, opacity: 0.12, roughness: 0.05, metalness: 0.4 }), [TX, 0.83, -0.62], null, { r: 0.01, cast: false })
   const platter = new Group(); platter.position.set(TX - 0.03, 0.745, -0.64); turntable.add(platter)
   cyl(platter, 0.14, 0.14, 0.012, mat(0x2b2b2b, { metal: 0.6, rough: 0.35 }), [0, 0, 0], null, { seg: 48 })
   cyl(platter, 0.13, 0.13, 0.004, mat(0x111111, { rough: 0.25 }), [0, 0.008, 0], null, { seg: 48 })
   for (let r = 0.06; r < 0.13; r += 0.012) mesh(platter, new TorusGeometry(r, 0.0006, 4, 48), mat(0x2e2e2e, { rough: 0.2 }), [0, 0.0105, 0], [Math.PI / 2, 0, 0], { cast: false })
-  cyl(platter, 0.045, 0.045, 0.005, mat(0xd4573a, { rough: 0.7 }), [0, 0.011, 0], null, { seg: 32 })
+  const recordLabel = cyl(platter, 0.045, 0.045, 0.005, mat(0xd4573a, { rough: 0.7 }), [0, 0.011, 0], null, { seg: 32 })
   ball(platter, 0.006, mat(0xd8d8d8, { metal: 0.9, rough: 0.2 }), [0, 0.016, 0], { cast: false })
   const arm = new Group(); arm.position.set(TX + 0.12, 0.765, -0.5); turntable.add(arm)
   cyl(arm, 0.018, 0.018, 0.03, mat(0xc0c0c0, { metal: 0.9, rough: 0.25 }), [0, 0, 0])
@@ -549,24 +553,22 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
     eyes.add(e)
   })
   body.add(eyes)
-  const homeMascot = new Vector3(-0.35, 1.0, 0.05)
+  const homeMascot = new Vector3(-0.42, 1.0, 0.32)
   mascot.position.copy(homeMascot)
   scene.add(mascot)
 
-  /* ---------- rendu avec halo (bloom) ---------- */
-  const composer = new EffectComposer(renderer)
-  composer.addPass(new RenderPass(scene, camera))
-  const bloom = new UnrealBloomPass(new Vector2(256, 256), 0.3, 0.4, 0.96)
-  composer.addPass(bloom)
-  const vignette = new ShaderPass(VignetteShader)
-  vignette.uniforms.offset.value = 0.95
-  vignette.uniforms.darkness.value = 1.15
-  composer.addPass(vignette)
-  composer.addPass(new OutputPass())
+  /* ---------- halos : de simples sprites autour des ampoules (bien moins coûteux qu'un post-traitement) ---------- */
+  const haloTex = canvasTex(128, 128, (g, w, h) => { const r = g.createRadialGradient(64, 64, 0, 64, 64, 64); r.addColorStop(0, 'rgba(255,214,150,.55)'); r.addColorStop(0.35, 'rgba(255,170,90,.18)'); r.addColorStop(1, 'rgba(255,150,70,0)'); g.fillStyle = r; g.fillRect(0, 0, w, h) })
+  const halos = []
+  ;[[-0.78, 1.17, 0.14, 0.35], [-1.0, 2.25, -1.45, 0.6], [0, H - 1.06, 0.05, 0.5]].forEach(([x, y, z, sz]) => {
+    const h = new Sprite(new SpriteMaterial({ map: haloTex, blending: AdditiveBlending, depthWrite: false, transparent: true, toneMapped: false }))
+    h.position.set(x, y, z); h.scale.setScalar(sz); h.userData.base = sz; world.add(h); halos.push(h)
+  })
 
   /* ---------- jour (coucher de soleil) / nuit ---------- */
   function setDay(day) {
-    outside.material.map = day ? skyDay : skyNight; outside.material.needsUpdate = true
+    // au coucher de soleil, on réchauffe la vidéo de nuit
+    outside.material.color.set(day ? 0xffc79a : 0xffffff)
     sky.color.set(day ? 0xffa060 : 0x9db4ff); sky.intensity = day ? 1.7 : 1.1
     sky.position.set(day ? 2.5 : -2.5, day ? 2.2 : 4.5, -8)
     hemi.intensity = day ? 0.9 : 0.35
@@ -575,7 +577,7 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
     pendantL.intensity = day ? 0.4 : 1.1
     renderer.toneMappingExposure = day ? 0.92 : 0.95
     scene.environmentIntensity = day ? 0.3 : 0.12
-    bloom.strength = day ? 0.18 : 0.3
+    halos.forEach(h => { h.material.opacity = day ? 0.45 : 1 })
     renderer.shadowMap.needsUpdate = true
   }
 
@@ -597,7 +599,6 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
     HOME.look.set(0, portrait ? 1.0 : 1.1, -1.0)
     if (!focusedNow) { goal.pos.copy(HOME.pos); goal.look.copy(HOME.look) }
     renderer.setSize(W2, H2, false)
-    composer.setSize(W2, H2)
     camera.aspect = W2 / H2
     camera.updateProjectionMatrix()
   }
@@ -611,8 +612,8 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
     camera.fov = MathUtils.clamp(2 * Math.atan(Math.tan(MathUtils.degToRad(hFov) / 2) / camera.aspect) * 180 / Math.PI, 30, 100)
     camera.position.copy(cam.pos)
     lookV.copy(cam.look).sub(cam.pos)
-    lookV.applyAxisAngle(new Vector3(0, 1, 0), yaw + (api.focused ? 0 : -mouse.x * 0.05))
-    lookV.y += (pitch + (api.focused ? 0 : mouse.y * 0.04)) * lookV.length()
+    lookV.applyAxisAngle(new Vector3(0, 1, 0), yaw)
+    lookV.y += pitch * lookV.length()
     camera.lookAt(tmp.copy(cam.pos).add(lookV))
     // décalage de l'image quand le panneau est ouvert : l'objet reste visible à gauche
     if (shift > 0.001 || shiftY > 0.001) camera.setViewOffset(W2, H2, shift * W2, shiftY * H2, W2, H2)
@@ -660,12 +661,11 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
     const dt = Math.min(0.05, raw)
     last = now; t += dt; frameN++
     // qualité adaptative : si l'appareil peine (moins de ~45 images/s), on baisse la résolution puis le halo
-    if (frameN > 30 && raw < 0.5) {
+    if (!still && frameN > 30 && raw < 0.5) {
       slowAcc += raw; slowN++
       if (slowN === 60) {
         if (slowAcc / slowN > 1 / 45) {
-          if (dpr > 1) { dpr = Math.max(1, dpr - 0.25); renderer.setPixelRatio(dpr); resize() }
-          else if (bloom.enabled) bloom.enabled = false
+          if (dpr > 0.75) { dpr = Math.max(0.75, dpr - 0.25); renderer.setPixelRatio(dpr); resize() }
         }
         slowAcc = 0; slowN = 0
       }
@@ -685,7 +685,7 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
     leds.forEach((l, i) => { l.visible = Math.sin(t * (3 + i) + i) > -0.3 })
     if ((frameN & 3) === 0) { for (let i = 0; i < bulbN; i++) bulbs.setColorAt(i, tmpC.copy(bulbBase[i]).multiplyScalar(0.7 + Math.sin(t * 1.6 + i * 0.7) * 0.3)); bulbs.instanceColor.needsUpdate = true }
     neonGlow.material.opacity = 0.9 + Math.sin(t * 7) * 0.05 + (Math.random() < 0.004 ? -0.5 : 0)
-    steam.forEach((s, i) => { const p = ((t * 0.25 + i / steam.length) % 1); s.position.set(-0.62 + Math.sin(p * 9 + i) * 0.015, 0.9 + p * 0.22, 0.28); s.material.opacity = Math.sin(p * Math.PI) * 0.14; s.scale.setScalar(0.04 + p * 0.09) })
+    steam.forEach((s, i) => { const p = ((t * 0.16 + i / steam.length) % 1); const fade = Math.sin(p * Math.PI) ** 2; s.position.set(-0.62 + Math.sin(p * 6 + i) * 0.012, 0.9 + p * 0.18, 0.28); s.material.opacity = fade * 0.5; s.scale.setScalar(0.03 + p * 0.07) })
     const dp = dustGeo.attributes.position
     for (let i = 0; i < dustN; i++) { dp.array[i * 3 + 1] += Math.sin(t * 0.3 + i) * 0.0004; dp.array[i * 3] += Math.cos(t * 0.2 + i * 1.7) * 0.0003 }
     dp.needsUpdate = true
@@ -697,7 +697,7 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
     phone.position.x = (Math.floor(t * 10) % 40 < 4) ? Math.sin(t * 90) * 0.003 : 0
     macGlow.material.color.setScalar(0.9 + Math.sin(t * 1.5) * 0.06)
     lampBulb.scale.setScalar(1 + Math.sin(t * 3) * 0.02)
-    composer.render()
+    renderer.render(scene, camera)
     listeners.forEach(f => f())
     if (!frozen) requestAnimationFrame(frame)
   }
@@ -734,12 +734,22 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
       mGoal.copy(homeMascot)
     },
     reset() { api.unfocus(); gYaw = 0; gPitch = 0; gFovK = 1 },
+    // mode capture : caméra posée d'un coup, résolution fixe
+    snap() { still = true; cam.pos.copy(goal.pos); cam.look.copy(goal.look); mascot.position.copy(mGoal) },
     rotate(dx, dy) { gYaw = MathUtils.clamp(gYaw + dx, -0.55, 0.55); gPitch = MathUtils.clamp(gPitch + dy, -0.2, 0.2) },
     zoomBy(f) { gFovK = MathUtils.clamp(gFovK * f, 0.8, 1.8) },
     anchorScreen(id) { return project(objects[id].userData.anchor) },
     mascotScreen() { return project(tmp.copy(mascot.position).add(new Vector3(0, 0.15 + body.position.y, 0))) },
     onFrame(f) { listeners.push(f) },
     setMusic(on) { music = on },
+    // la pochette de l'album sur l'étiquette du vinyle
+    setRecordArt(url) {
+      new TextureLoader().setCrossOrigin('anonymous').load(url, tex => {
+        tex.colorSpace = SRGBColorSpace
+        recordLabel.material = recordLabel.material.clone()
+        recordLabel.material.map = tex; recordLabel.material.color.set(0xffffff); recordLabel.material.needsUpdate = true
+      })
+    },
     // fige l'image (mode prise de vue)
     freeze() { frozen = true },
     hideMascot() { mascot.visible = false },
