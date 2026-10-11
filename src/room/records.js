@@ -1,35 +1,63 @@
-// La discothèque du bureau : les vinyles qu'on peut sortir de la bibliothèque et poser sur la platine.
-// Le son vient de l'extrait officiel de 30 s fourni par Apple (API iTunes, identifiant `id`) :
-// aucun fichier audio n'est hébergé. Pour changer un disque, il suffit de changer cette liste.
+// La discothèque du bureau : les morceaux préférés de Yanis, qu'on sort de la bibliothèque
+// pour les poser sur la platine. Le son vient de l'extrait officiel de 30 s fourni par Apple
+// (API iTunes, identifiant `id`) : aucun fichier audio n'est hébergé.
+// Pour ajouter un disque : son identifiant iTunes, le titre, l'artiste, l'album, l'année et
+// quelques phrases qui flottent à côté de la platine. La couleur de la tranche vient de la pochette.
+const LOVED = 'Un des morceaux préférés de Yanis'
 export const RECORDS = [
   {
     id: 294358228, title: "It's a Man's Man's Man's World", artist: 'Seal', album: 'Soul', year: '2008',
-    spine: '#1d1b1a', ink: '#f2ead9',
     facts: ['Une chanson de James Brown, 1966', 'Reprise par Seal en 2008', "Sur l'album Soul, produit par David Foster", 'Le morceau préféré de Yanis pour coder tard'],
   },
   {
-    id: 293521573, title: "Ain't No Sunshine", artist: 'Bill Withers', album: 'Just As I Am', year: '1971',
-    spine: '#7a6a45', ink: '#fff6e0',
-    facts: ['Sur son premier album, Just As I Am', 'Produit par Booker T. Jones', 'Il répète « I know » vingt-six fois', 'Grammy de la meilleure chanson R&B en 1972'],
+    id: 1548467215, title: 'Décisions', artist: 'Josman', album: 'MYSTR J.O.$.', year: '2021',
+    facts: ['Sur l\'EP MYSTR J.O.$.', 'Sorti en 2021', 'Troisième titre sur six', LOVED],
   },
   {
-    id: 1538081594, title: "What's Going On", artist: 'Marvin Gaye', album: "What's Going On", year: '1971',
-    spine: '#2f4f6a', ink: '#e8f1f7',
-    facts: ['Sorti chez Motown en 1971', "Berry Gordy, le patron du label, n'en voulait pas", 'Née d\'une idée de Renaldo Benson, des Four Tops', 'Un des albums soul les plus célébrés'],
+    id: 1819419332, title: 'La Paire', artist: 'SACH', album: 'La Paire', year: '2025',
+    facts: ['Un single sorti en 2025', 'Du R&B français', LOVED],
   },
   {
-    id: 1445668114, title: 'Feeling Good', artist: 'Nina Simone', album: 'I Put a Spell on You', year: '1965',
-    spine: '#8a3b22', ink: '#fbe7d2',
-    facts: ['Écrite pour une comédie musicale de 1964', 'Enregistrée par Nina Simone en 1965', "Sur l'album I Put a Spell on You", 'Reprise des dizaines de fois depuis'],
+    id: 386153478, title: 'Yeah!', artist: 'Usher', album: 'Confessions', year: '2004',
+    facts: ['Avec Lil Jon et Ludacris', "Sur l'album Confessions", 'Sorti en 2004', LOVED],
   },
   {
-    id: 617154366, title: 'Get Lucky', artist: 'Daft Punk', album: 'Random Access Memories', year: '2013',
-    spine: '#121212', ink: '#d8b46a',
-    facts: ['Deux Parisiens et leurs casques', 'Avec Pharrell Williams et Nile Rodgers', 'Sur Random Access Memories, 2013', "Grammy de l'enregistrement de l'année 2014"],
+    id: 1689379342, title: 'Monde', artist: 'Luidji', album: 'Saison 00', year: '2023',
+    facts: ['Avec Ryan Koffi', "Sur l'album Saison 00", 'Sorti en 2023', LOVED],
   },
   {
-    id: 697240265, title: "La femme d'argent", artist: 'Air', album: 'Moon Safari', year: '1998',
-    spine: '#e6edf0', ink: '#2b3a55',
-    facts: ['Un duo venu de Versailles', 'Le morceau qui ouvre Moon Safari, 1998', 'Plus de sept minutes, sans paroles', 'Parfait pour une fin de soirée'],
+    id: 607146589, title: "Le droit à l'erreur", artist: 'Amel Bent', album: "Un jour d'été", year: '2004',
+    facts: ["Sur son premier album, Un jour d'été", 'Sorti en 2004', LOVED],
+  },
+  {
+    id: 1488013865, title: 'Clouded', artist: 'Brent Faiyaz', album: 'Fuck the World', year: '2020',
+    facts: ["Sur l'album Fuck the World", 'Sorti en 2020', 'Deuxième titre sur dix', LOVED],
+  },
+  {
+    id: 1390522436, title: 'Silence', artist: 'Damso', album: 'Lithopédion', year: '2018',
+    facts: ['Avec Angèle', "Sur l'album Lithopédion", 'Sorti en 2018', LOVED],
+  },
+  {
+    id: 850697800, title: 'Chicago', artist: 'Michael Jackson', album: 'Xscape', year: '2014',
+    facts: ["Sur l'album Xscape", 'Sorti en 2014, après sa disparition', LOVED],
+  },
+  {
+    id: 1240250645, title: 'Banlieusards', artist: 'Kery James', album: "À l'ombre du show business", year: '2008',
+    facts: ["Sur l'album À l'ombre du show business", 'Sorti en 2008', LOVED],
+  },
+  {
+    id: 1853015787, title: 'Quatrième Larme', artist: 'Chems', album: 'Quatrième Larme', year: '2025',
+    facts: ['Un single sorti en 2025', LOVED],
+  },
+  {
+    id: 1146195714, title: 'Pink + White', artist: 'Frank Ocean', album: 'Blonde', year: '2016',
+    facts: ["Sur l'album Blonde", 'Sorti en 2016', 'Troisième titre de l\'album', LOVED],
+  },
+  {
+    id: 1819752015, title: 'Dragons', artist: 'Hamza', album: 'MANIA', year: '2025',
+    facts: ['Avec Werenoi', "Sur l'album MANIA", 'Sorti en 2025', LOVED],
   },
 ]
+// couleurs de départ des tranches (remplacées par la couleur de la pochette dès qu'elle arrive)
+const PALETTE = [['#1d1b1a', '#f2ead9'], ['#2f4f6a', '#e8f1f7'], ['#8a3b22', '#fbe7d2'], ['#3b5b3a', '#eef5e6'], ['#5a3a6b', '#f3e8fa'], ['#b4532a', '#fff1e6'], ['#121212', '#d8b46a']]
+RECORDS.forEach((r, i) => { [r.spine, r.ink] = PALETTE[i % PALETTE.length] })

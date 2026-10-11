@@ -635,11 +635,22 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   addLeaves(vinyls, ivyMat, topIvy, [0.07, 0.07])
 
   // rangée du haut : les vinyles qu'on peut sortir, la tranche vers la pièce
-  const spineTex = r => canvasTex(32, 512, (g, w, h) => {
-    g.fillStyle = r.spine; g.fillRect(0, 0, w, h)
-    g.save(); g.translate(w / 2 + 6, h / 2); g.rotate(-Math.PI / 2); g.fillStyle = r.ink; g.textAlign = 'center'
-    g.font = '700 17px "Bricolage Grotesque", sans-serif'; g.fillText(`${r.artist.toUpperCase()} · ${r.album}`.slice(0, 40), 0, 0); g.restore()
-  })
+  const drawSpine = (g, w, h, r, bg = r.spine, ink = r.ink) => {
+    g.fillStyle = bg; g.fillRect(0, 0, w, h)
+    g.save(); g.translate(w / 2 + 6, h / 2); g.rotate(-Math.PI / 2); g.fillStyle = ink; g.textAlign = 'center'
+    g.font = '700 17px "Bricolage Grotesque", sans-serif'; g.fillText(`${r.artist.toUpperCase()} · ${r.title}`.slice(0, 40), 0, 0); g.restore()
+  }
+  const spineTex = r => canvasTex(32, 512, (g, w, h) => drawSpine(g, w, h, r))
+  // couleur moyenne d'une pochette (pour peindre la tranche et les bords du disque)
+  const avgColor = img => {
+    try {
+      const c = document.createElement('canvas'); c.width = c.height = 8
+      const g = c.getContext('2d'); g.drawImage(img, 0, 0, 8, 8)
+      const d = g.getImageData(0, 0, 8, 8).data; let r = 0, gg = 0, b = 0
+      for (let k = 0; k < d.length; k += 4) { r += d[k]; gg += d[k + 1]; b += d[k + 2] }
+      const n = d.length / 4; return [r / n, gg / n, b / n].map(v => Math.round(v * 0.8))
+    } catch { return null }
+  }
   const coverTex = r => canvasTex(256, 256, (g, w, h) => {
     g.fillStyle = r.spine; g.fillRect(0, 0, w, h); g.fillStyle = r.ink; g.textAlign = 'center'
     g.font = '700 30px "Instrument Serif", serif'; g.fillText(r.album.slice(0, 18), w / 2, h * 0.5)
@@ -648,19 +659,19 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   const sleeveGeo = new BoxGeometry(0.31, 0.31, 0.016)
   const crate = RECORDS.map((r, i) => {
     const g = new Group()
-    const c = i < 3 ? 0 : 1, j = i % 3
-    const base = new Vector3(W - 0.215, rowY(2) + 0.158, cubeZ(c) - 0.155 + j * 0.06)
+    // sept disques par case, sur la rangée du haut
+    const c = i < 7 ? 0 : 1, j = i % 7
+    const base = new Vector3(W - 0.215, rowY(2) + 0.158, cubeZ(c) - 0.165 + j * 0.052)
     g.position.copy(base); vinyls.add(g)
     const edge = mat(r.spine, { rough: 0.8 }), front = mat(0xffffff, { map: coverTex(r), bump: false, rough: 0.6 })
-    const sleeve = new Mesh(sleeveGeo, [edge, mat(0xffffff, { map: spineTex(r), bump: false, rough: 0.7 }), edge, edge, front, mat(r.spine, { rough: 0.8 })])
+    const spine = mat(0xffffff, { map: spineTex(r), bump: false, rough: 0.7 }), back = mat(r.spine, { rough: 0.8 })
+    const sleeve = new Mesh(sleeveGeo, [edge, spine, edge, edge, front, back])
     sleeve.castShadow = sleeve.receiveShadow = true; g.add(sleeve)
     const disc = new Group(); g.add(disc)
     cyl(disc, 0.145, 0.145, 0.003, mat(0x111111, { rough: 0.25 }), [0, 0, 0], [Math.PI / 2, 0, 0], { seg: 48, cast: false })
     const label = cyl(disc, 0.048, 0.048, 0.0034, mat(r.spine, { rough: 0.7 }), [0, 0, 0], [Math.PI / 2, 0, 0], { seg: 32, cast: false })
-    return { g, sleeve, disc, label, front, base, p: 0, peek: 0 }
+    return { g, sleeve, disc, label, front, spine, edge, back, base, p: 0, peek: 0 }
   })
-  box(vinyls, 0.2, 0.2, 0.012, brass, [W - 0.2, rowY(2) + 0.1, cubeZ(0) + 0.05], null, { r: 0.004 })
-  box(vinyls, 0.2, 0.2, 0.012, brass, [W - 0.2, rowY(2) + 0.1, cubeZ(1) + 0.05], null, { r: 0.004 })
   vinyls.updateMatrixWorld(true)
   // point de présentation : le disque sorti flotte face à la caméra, devant le meuble
   const vView = vinyls.userData.view
@@ -941,6 +952,13 @@ export async function createRoom(canvas, { snapshot, avatar }) {
         arts[i] = tex
         const c = crate[i]
         c.front.map = tex; c.front.needsUpdate = true
+        // la tranche prend la couleur de la pochette
+        const avg = avgColor(tex.image)
+        if (avg) {
+          const css = `rgb(${avg.join(',')})`, light = avg[0] * 0.3 + avg[1] * 0.59 + avg[2] * 0.11 > 120
+          const cv = c.spine.map.image; drawSpine(cv.getContext('2d'), cv.width, cv.height, RECORDS[i], css, light ? '#1d1b1a' : '#f6efe4'); c.spine.map.needsUpdate = true
+          c.edge.color.set(css); c.back.color.set(css)
+        }
         c.label.material.map = tex; c.label.material.color.set(0xffffff); c.label.material.needsUpdate = true
         if (i === onPlatter) api.setOnPlatter(i)
       })
