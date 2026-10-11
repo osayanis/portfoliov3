@@ -159,10 +159,62 @@ $$('.carnet-list li').forEach(li => li.addEventListener('click', e => {
   openChapter(li.dataset.id)
 }))
 
+
+/* ================= le tourne-disque ================= */
+// Le morceau est lu via le lecteur YouTube officiel (chaîne « Seal - Topic », Warner) :
+// on n'héberge aucun fichier audio. Le lecteur reste visible, comme le demande YouTube.
+const SONG = { id: 'nOoIB5Z64Jw', title: "It's a Man's Man's Man's World", artist: 'Seal', album: 'Soul · 2008' }
+let yt = null, ytReady = null, playing = false
+const card = document.createElement('aside')
+card.className = 'vinyl-card'
+card.setAttribute('aria-label', 'Lecteur du tourne-disque')
+card.innerHTML = `
+  <header><span class="vinyl-disc" aria-hidden="true"></span><div><small>Sur la platine</small><b>${SONG.title}</b><span>${SONG.artist} · ${SONG.album}</span></div><button type="button" class="vinyl-close" aria-label="Arrêter et fermer">✕</button></header>
+  <div class="vinyl-player"><div id="yt-player"></div></div>
+  <button type="button" class="vinyl-toggle">Pause</button>`
+document.body.appendChild(card)
+function loadYT() {
+  if (ytReady) return ytReady
+  ytReady = new Promise(res => {
+    window.onYouTubeIframeAPIReady = res
+    const sc = document.createElement('script')
+    sc.src = 'https://www.youtube.com/iframe_api'
+    document.head.appendChild(sc)
+  })
+  return ytReady
+}
+function setPlaying(p) {
+  playing = p
+  room?.setMusic(p)
+  card.classList.toggle('playing', p)
+  $('.vinyl-toggle', card).textContent = p ? 'Pause' : 'Lecture'
+}
+async function toggleMusic() {
+  card.classList.add('show')
+  if (!yt) {
+    sound.blip(140)
+    say("Bon choix. Seal, 2008 : la musique préférée de Yanis pour coder tard.", [], 4500)
+    await loadYT()
+    yt = new YT.Player('yt-player', {
+      width: '100%', height: '100%', videoId: SONG.id,
+      playerVars: { autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1 },
+      events: {
+        onReady: e => { e.target.setVolume(75); e.target.playVideo() },
+        onStateChange: e => setPlaying(e.data === 1),
+      },
+    })
+    return
+  }
+  playing ? yt.pauseVideo() : yt.playVideo()
+}
+$('.vinyl-toggle', card).addEventListener('click', () => { sound.click(); toggleMusic() })
+$('.vinyl-close', card).addEventListener('click', () => { sound.click(); yt?.stopVideo(); setPlaying(false); card.classList.remove('show') })
+
 /* ================= étiquette au survol ================= */
 const tag = $('.room-tag')
 let hovered = null
 const CAT = { object: 'Le chat', era: 'ne fait pas partie du portfolio', color: '#fcc48b' }
+const DECK = { object: 'Le tourne-disque', era: "Seal · It's a Man's Man's Man's World", color: '#ffb35c' }
 const CAT_LINES = ["Lui, c'est le chat. Il ne fait pas partie du portfolio, mais il insiste.", 'Chut… il dort. Il a codé toute la nuit, lui aussi.', "Il s'appelle Commit. Il valide tout ce qu'il touche.", 'Ronron. (Traduction : « le bureau est à moi ».)']
 let catLine = 0
 function petCat() {
@@ -175,7 +227,8 @@ function showTag(id) {
   hovered = id
   room.hover(id)
   if (!id || id === current) { tag.classList.remove('show'); return }
-  const c = id === 'cat' ? CAT : byId[id]
+  const c = id === 'cat' ? CAT : id === 'turntable' ? DECK : byId[id]
+  if (id === 'turntable') loadYT()
   tag.innerHTML = `<b>${c.object}</b><span>${c.era}${found.has(id) ? ' · déjà vu ✓' : ''}</span>`
   tag.style.setProperty('--c', c.color)
   tag.classList.add('show')
@@ -189,7 +242,7 @@ async function boot() {
   let createRoom
   try {
     ;({ createRoom } = await import('./room/scene.js'))
-    room = await createRoom(canvas, { snapshot, avatar: 'https://avatars.githubusercontent.com/u/90351357?v=4&s=256' })
+    room = await createRoom(canvas, { snapshot, avatar: 'https://avatars.githubusercontent.com/u/90351357?v=4&s=256', noAO: new URLSearchParams(location.search).has('shot') })
   } catch (err) {
     console.error(err)
     loader.classList.add('gone')
@@ -248,6 +301,7 @@ async function boot() {
     if (down && !moved) {
       const id = room.pick(e.clientX, e.clientY)
       if (id === 'cat') petCat()
+      else if (id === 'turntable') toggleMusic()
       else if (id) openChapter(id)
       else if (current) closeChapter()
     }
@@ -264,6 +318,16 @@ async function boot() {
 
   loader.classList.add('gone')
   document.body.classList.add('ready')
+  if (import.meta.env.DEV) window.__bureau = { room, toggleMusic, openChapter }
+
+  // mode prise de vue (?shot=objet) : sert à générer les images des études de cas
+  const shot = new URLSearchParams(location.search).get('shot')
+  if (shot) {
+    document.body.classList.add('shot-mode')
+    room.focus(shot)
+    room.hideMascot()
+    return
+  }
 
   // arrivée : lien direct, ou accueil par la mascotte
   const hash = location.hash.slice(1)

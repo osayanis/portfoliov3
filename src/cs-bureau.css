@@ -1,0 +1,168 @@
+/* ===== Études de cas, dans l'univers du bureau =====
+   Fond bois sombre et chaud, panneaux en verre ambré, lumière de lampe.
+   Ce fichier vient après project.css et remplace le style « touches de clavier ». */
+
+.cs-page {
+  --ink: rgba(255, 214, 170, .2);          /* les anciens contours noirs deviennent des filets chauds */
+  --stroke: 1px;
+  --glass: rgba(42, 27, 19, .72);
+  --glass-2: rgba(255, 226, 190, .06);
+  --glass-line: rgba(255, 214, 170, .16);
+  --amber: #ffb35c;
+  --warm-bg: #140d0a;
+  background:
+    radial-gradient(60% 40% at 80% 0%, rgba(255, 179, 92, .12), transparent 70%),
+    radial-gradient(50% 50% at 0% 60%, rgba(180, 83, 42, .1), transparent 70%),
+    var(--warm-bg);
+  color: var(--text);
+}
+html:not(.dark) .cs-page {
+  --ink: rgba(90, 50, 20, .18);
+  --glass: rgba(255, 249, 238, .82);
+  --glass-2: rgba(90, 50, 20, .05);
+  --glass-line: rgba(90, 50, 20, .14);
+  --warm-bg: #f3e3cc;
+  --text: #2a1a10;
+  --ink-2: #5d4636;
+  --muted: #8a7462;
+}
+html.dark .cs-page { --text: #f3ead9; --ink-2: #cbbba6; --muted: #9c8b77; }
+.cs-page::after { opacity: .04 !important; }
+.cs-page em { color: var(--amber) !important; }
+html:not(.dark) .cs-page em { color: #b4532a !important; }
+
+/* ---------- barre du haut ---------- */
+.cs-page .cs-nav { position: fixed; left: 0; right: 0; background: none !important; border: 0 !important; backdrop-filter: none; padding-top: 16px; }
+.cs-page .cs-nav .logo { color: #fff6ea; text-shadow: 0 2px 12px rgba(0, 0, 0, .5); display: flex; align-items: baseline; gap: 8px; }
+.cs-page .cs-nav .logo small { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 18px; letter-spacing: 0; color: rgba(255, 246, 234, .7); }
+.cs-page .cs-nav .logo span { color: var(--amber); }
+.cs-page .nav-links { gap: 8px; }
+.cs-page .nav-pill {
+  display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border-radius: 999px; text-decoration: none;
+  background: rgba(30, 19, 13, .62) !important; border: 1px solid rgba(255, 214, 170, .18) !important; color: #fff6ea !important;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); font-size: 14px; font-weight: 600; box-shadow: none !important;
+}
+.cs-page .nav-pill::after { display: none !important; }
+.cs-page .nav-pill .sound-bars i { background: #fff6ea !important; }
+.cs-page .nav-cta.nav-pill { background: var(--amber) !important; color: #2a160c !important; border-color: transparent !important; text-decoration: none; }
+.cs-page .theme-toggle.nav-pill { width: 38px; padding: 0; justify-content: center; }
+@media (max-width: 760px) { .cs-page .nav-pill:not(.nav-cta):not(.theme-toggle) { display: none; } .cs-page .cs-nav .logo small { display: none; } }
+
+/* ---------- haut de page : l'objet du bureau ---------- */
+.cs-page .cs-hero {
+  position: relative; min-height: min(92svh, 900px); display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 120px var(--gutter) clamp(28px, 4vw, 48px); background: none !important; border: 0 !important; overflow: hidden; isolation: isolate;
+}
+.cs-hero-bg { position: absolute; inset: 0; z-index: -1; max-width: none !important; }
+.cs-hero-bg img { width: 100%; height: 100%; object-fit: cover; object-position: center 40%; transform: scale(1.06); animation: hero-in 2.2s var(--ease-out) both; }
+@keyframes hero-in { from { transform: scale(1.18); filter: brightness(.4) blur(6px); } }
+.cs-hero-bg::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(20, 13, 10, .92) 0%, rgba(20, 13, 10, .7) 38%, rgba(20, 13, 10, .1) 70%), linear-gradient(0deg, var(--warm-bg) 0%, rgba(20, 13, 10, 0) 38%);
+}
+html:not(.dark) .cs-hero-bg::after { background: linear-gradient(90deg, rgba(20, 13, 10, .85) 0%, rgba(20, 13, 10, .6) 38%, rgba(20, 13, 10, .05) 70%), linear-gradient(0deg, var(--warm-bg) 0%, rgba(243, 227, 204, 0) 35%); }
+.cs-hero-inner { max-width: 1180px; width: 100%; margin: 0 auto; color: #fff6ea; }
+.cs-hero-inner > * { max-width: 640px; }
+.cs-page .cs-back {
+  display: inline-flex; align-items: center; gap: 8px; margin-bottom: 26px; padding: 8px 14px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 14px;
+  background: rgba(255, 214, 170, .1) !important; border: 1px solid rgba(255, 214, 170, .22) !important; color: #fff6ea !important; box-shadow: none !important; backdrop-filter: blur(10px);
+}
+.cs-object { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-family: var(--mono); font-size: 12.5px; text-transform: uppercase; letter-spacing: .06em; color: rgba(255, 246, 234, .7); }
+.cs-object b { color: var(--amber); font-weight: 600; }
+.cs-object .dot { border: 0; box-shadow: 0 0 12px var(--c); }
+.cs-page .cs-title { color: #fff6ea; font-size: clamp(54px, 9vw, 120px); text-shadow: 0 6px 40px rgba(0, 0, 0, .4); }
+.cs-page .cs-tagline { color: #fff6ea; }
+.cs-page .cs-hero .lead { color: rgba(255, 246, 234, .78) !important; }
+.cs-page .cs-meta {
+  position: relative; max-width: 1180px; width: 100%; margin: clamp(32px, 5vw, 56px) auto 0; grid-template-columns: repeat(4, auto) 1fr;
+  padding: 18px 22px; border-radius: 20px; border: 1px solid var(--glass-line) !important; background: var(--glass); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+}
+.cs-page .cs-meta > div { padding-top: 0; }
+.cs-page .cs-meta > div + div { border-left-color: var(--glass-line) !important; }
+.cs-page .cs-meta dt { color: var(--muted); }
+.cs-page .cs-meta dd { color: var(--text); }
+.cs-page .cs-meta-stack span { background: var(--glass-2) !important; border-color: var(--glass-line) !important; color: var(--text) !important; }
+.cs-floaters, .cs-cap { display: none !important; }
+@media (max-width: 960px) { .cs-page .cs-meta { grid-template-columns: 1fr 1fr; } }
+
+/* ---------- boutons ---------- */
+.cs-page .btn { border-radius: 999px; border: 1px solid rgba(255, 214, 170, .28) !important; background: rgba(255, 214, 170, .08) !important; color: #fff6ea !important; box-shadow: none !important; backdrop-filter: blur(10px); }
+.cs-page .btn:hover { background: rgba(255, 214, 170, .16) !important; transform: translateY(-2px); }
+.cs-page .btn-dark { background: var(--amber) !important; color: #2a160c !important; border-color: transparent !important; box-shadow: 0 10px 30px rgba(255, 179, 92, .3) !important; }
+.cs-page main .cs-section .btn:not(.btn-dark) { color: var(--text) !important; }
+
+/* ---------- panneaux en verre ---------- */
+.cs-page :is(.cs-stat, .challenge, .diagram-card, .demo, .cs-next-card, .pager-key, .frame-image, .cs-private) {
+  border: 1px solid var(--glass-line) !important; border-radius: 24px; background: var(--glass) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .28) !important; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); color: var(--text);
+}
+html:not(.dark) .cs-page :is(.cs-stat, .challenge, .diagram-card, .demo, .cs-next-card, .pager-key, .frame-image) { box-shadow: 0 18px 50px rgba(90, 50, 20, .12) !important; }
+.cs-page .cs-stats { margin-top: 0; }
+.cs-page .cs-stat b { color: var(--amber); }
+html:not(.dark) .cs-page .cs-stat b { color: #b4532a; }
+.cs-page .cs-stat:nth-child(odd) { background: var(--glass) !important; }
+.cs-page .eyebrow { color: var(--muted); }
+.cs-page .eyebrow .num { background: rgba(255, 179, 92, .15) !important; color: var(--amber) !important; border: 1px solid rgba(255, 179, 92, .35) !important; box-shadow: none !important; border-radius: 999px; }
+.cs-page .cs-head h2 { color: var(--text); }
+.cs-page .cs-prose p, .cs-page .cs-steps p, .cs-page .challenge p, .cs-page .journal p { color: var(--ink-2); }
+.cs-page .cs-problem blockquote { border-left: 3px solid var(--amber) !important; }
+.cs-page .cs-problem blockquote p { color: var(--text); }
+.cs-page :is(.cs-prose, .cs-steps, .challenge) code { background: rgba(255, 179, 92, .12) !important; color: var(--text) !important; border-color: rgba(255, 179, 92, .2) !important; }
+
+/* étapes et journal */
+.cs-page .step-key { border: 1px solid rgba(255, 179, 92, .4) !important; background: rgba(255, 179, 92, .12) !important; color: var(--amber) !important; box-shadow: 0 0 24px rgba(255, 179, 92, .15) !important; border-radius: 50%; }
+.cs-page .journal::before { background: linear-gradient(var(--amber), rgba(255, 179, 92, .1)) !important; width: 2px; }
+.cs-page .j-dot { border: 2px solid var(--amber) !important; background: var(--warm-bg) !important; border-radius: 50%; }
+.cs-page .journal li.in .j-dot { transform: none; box-shadow: 0 0 14px rgba(255, 179, 92, .6); }
+.cs-page .journal time { color: var(--amber); }
+.cs-page .ch-tag { border: 0 !important; border-radius: 999px; padding: 3px 10px; }
+
+/* schéma : nœuds en verre, liens ambrés */
+.cs-page .diagram-card { background: radial-gradient(rgba(255, 214, 170, .06) 1.2px, transparent 1.3px) 0 0 / 22px 22px, var(--glass) !important; }
+.cs-page .d-shadow { fill: rgba(0, 0, 0, .25); }
+.cs-page .d-box { stroke: rgba(20, 13, 10, .5); stroke-width: 1; }
+.cs-page .d-edge { stroke: rgba(255, 214, 170, .55) !important; stroke-width: 2; }
+.cs-page .d-edge.thick { stroke: var(--amber) !important; }
+.cs-page .d-arrow { fill: rgba(255, 214, 170, .7) !important; }
+.cs-page .d-elabel rect { fill: #2a1b13 !important; stroke: rgba(255, 214, 170, .3) !important; }
+.cs-page .d-elabel text { fill: #f3ead9 !important; }
+html:not(.dark) .cs-page .d-edge { stroke: rgba(90, 50, 20, .5) !important; }
+html:not(.dark) .cs-page .d-arrow { fill: rgba(90, 50, 20, .6) !important; }
+html:not(.dark) .cs-page .d-elabel rect { fill: #fff8ec !important; stroke: rgba(90, 50, 20, .25) !important; }
+html:not(.dark) .cs-page .d-elabel text { fill: #2a1a10 !important; }
+
+/* visuels : cadres doux */
+.cs-page :is(.frame-browser, .frame-shot, .frame-phone) { border: 1px solid var(--glass-line) !important; box-shadow: 0 24px 70px rgba(0, 0, 0, .4) !important; }
+.cs-page .frame-phone { border: 8px solid #1a120d !important; }
+.cs-page .fb-bar { background: #2a1b13 !important; border-bottom: 1px solid var(--glass-line) !important; }
+.cs-page .fb-bar i { border: 0 !important; }
+.cs-page .fb-bar span { background: rgba(255, 214, 170, .08) !important; border: 1px solid var(--glass-line) !important; color: var(--ink-2); }
+.cs-page .vis figcaption { color: var(--muted); }
+
+/* démo : on garde les mécanismes, on adoucit le cadre */
+.cs-page .demo { background: radial-gradient(rgba(255, 214, 170, .05) 1.2px, transparent 1.3px) 0 0 / 20px 20px, var(--glass) !important; }
+
+/* « et ensuite » et pager */
+.cs-page .cs-next-card { background: linear-gradient(135deg, rgba(255, 179, 92, .14), rgba(42, 27, 19, .8)) !important; }
+.cs-page .cs-next-card h2, .cs-page .cs-next-card li { color: var(--text) !important; }
+html:not(.dark) .cs-page .cs-next-card { background: linear-gradient(135deg, rgba(255, 179, 92, .25), rgba(255, 249, 238, .9)) !important; }
+.cs-page .cs-next-card li { border-color: var(--glass-line) !important; background: var(--glass-2); }
+.cs-page .cs-next-card li::before { color: var(--amber); }
+.cs-page .pager-key { height: auto; padding: 0; }
+.cs-page .pager-top { position: static; inset: auto; border: 0 !important; background: none !important; padding: 26px 28px; transition: transform .25s var(--ease-out); }
+.cs-page .pager-key::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(80% 120% at 0% 50%, color-mix(in srgb, var(--c) 22%, transparent), transparent 70%); pointer-events: none; }
+.cs-page .pager-key.next::before { background: radial-gradient(80% 120% at 100% 50%, color-mix(in srgb, var(--c) 22%, transparent), transparent 70%); }
+.cs-page .pager-top small { color: var(--muted); }
+.cs-page .pager-top b { color: var(--text); }
+.cs-page .pager-hint kbd, .cs-page .footer kbd { background: var(--glass-2); border-color: var(--glass-line); box-shadow: none; color: var(--text); }
+.cs-page .footer { border-top-color: var(--glass-line); color: var(--ink-2); }
+.cs-page .footer a { color: var(--amber); }
+
+/* corrections */
+.cs-page .d-label { fill: #1c140f !important; }
+.cs-page .d-sub { fill: #4a3a2e !important; }
+.cs-page .cs-meta { grid-template-columns: repeat(4, minmax(0, auto)) minmax(220px, 1.4fr); gap: 0 4px; }
+.cs-page .cs-stats { margin-top: clamp(28px, 4vw, 48px); }
+.cs-page .ch-tag.bad { color: #3a0d0d !important; }
+.cs-page .ch-tag.good { color: #0d3a1c !important; }
+.cs-page .fd-keys kbd { background: #e2e8f0 !important; color: #334155 !important; border-color: #94a3b8 !important; }

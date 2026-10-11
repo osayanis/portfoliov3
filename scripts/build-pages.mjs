@@ -4,6 +4,8 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { projects } from '../src/projects.js'
 
 const SITE = 'https://yanis.pro'
+// l'objet du bureau qui représente chaque projet (image du haut de page)
+const OBJECTS = { osanotch: 'le MacBook', osaparty: 'le tourne-disque', osadrop: 'le téléphone', osacast: 'le néon OsaLabs', osaboard: 'le cahier', clavio: 'le piano', openpod: 'le baladeur', proxmox: 'le petit serveur' }
 const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const strip = s => String(s).replace(/<[^>]+>/g, '')
 
@@ -73,13 +75,13 @@ function page(p, i) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${esc(title)}</title>
     <meta name="description" content="${esc(desc)}" />
-    <meta name="theme-color" content="${p.soft}" />
+    <meta name="theme-color" content="#140d0a" />
     <link rel="canonical" href="${SITE}/projets/${p.slug}/" />
     <meta property="og:type" content="article" />
     <meta property="og:title" content="${esc(p.name)} · ${esc(strip(p.tagline))}" />
     <meta property="og:description" content="${esc(desc)}" />
     <meta property="og:url" content="${SITE}/projets/${p.slug}/" />
-    ${p.visuals[0] ? `<meta property="og:image" content="${SITE}${p.visuals[0].src}" />` : ''}
+    <meta property="og:image" content="${SITE}/media/bureau/${p.slug}.webp" />
     <script>(function(){var t;try{t=localStorage.getItem('theme')}catch(e){}var d=t?t==='dark':true;document.documentElement.classList.toggle('dark',d)})()</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -89,42 +91,31 @@ function page(p, i) {
   <body class="cs-page" style="--p:${p.color};--p-deep:${p.deep};--p-soft:${p.soft}">
     <a class="skip" href="#main">Aller au contenu</a>
 
-    <header class="nav">
-      <a class="logo" href="/" aria-label="Retour à l'accueil">yanis<span>.</span></a>
+    <header class="nav cs-nav">
+      <a class="logo" href="/" aria-label="Retour au bureau">yanis<span>.</span><small>le bureau</small></a>
       <nav class="nav-links" aria-label="Navigation principale">
-        <a href="/">Le bureau</a>
-        <a href="/#carnet">Carnet</a>
-        <a href="/#github">GitHub</a>
-        <button class="theme-toggle" type="button" aria-label="Basculer le mode sombre" title="Mode sombre / clair"><span class="tt-sun" aria-hidden="true">☀</span><span class="tt-moon" aria-hidden="true">☾</span></button>
-        <button class="sound-toggle" type="button" aria-pressed="true" title="Activer / couper le son">
-          <span class="sound-on">Son</span><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span>
-        </button>
-        <a class="nav-cta" href="/#contact">On se parle ?</a>
+        <a href="/#${p.slug}" class="nav-pill">← Le bureau</a>
+        <a href="/#carnet" class="nav-pill">Carnet</a>
+        <button class="sound-toggle nav-pill" type="button" aria-pressed="true" title="Activer / couper le son"><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span><span class="sound-on">Son</span></button>
+        <button class="theme-toggle nav-pill" type="button" aria-label="Allumer ou éteindre la lumière" title="Lumière"><span class="tt-sun" aria-hidden="true">☀</span><span class="tt-moon" aria-hidden="true">☾</span></button>
+        <a class="nav-cta nav-pill" href="/#contact">On se parle ?</a>
       </nav>
     </header>
 
     <main id="main" class="cs">
       <!-- HERO -->
       <section class="cs-hero">
-        <div class="cs-floaters" aria-hidden="true">
-          <span class="cube cs-c1" data-depth="1.4"><span class="cube-in"><i class="f0">${esc(p.letter)}</i><i class="f1">${esc(p.letter)}</i><i class="f2">✦</i><i class="f3">✦</i><i class="f4"></i><i class="f5"></i></span></span>
-          <span class="cube cs-c2" data-depth="0.7"><span class="cube-in"><i class="f0">⌘</i><i class="f1">⏎</i><i class="f2">⌥</i><i class="f3">⇧</i><i class="f4"></i><i class="f5"></i></span></span>
-          <span class="orb cs-o1" data-depth="1.8"></span>
-        </div>
-        <a class="cs-back" href="/#${p.slug}"><span aria-hidden="true">←</span> Retour au bureau</a>
-        <div class="cs-hero-grid">
-          <div class="cs-hero-copy">
-            <p class="eyebrow"><span class="dot" style="--c:${p.color}"></span>${esc(p.kicker)}</p>
-            <h1 class="cs-title"><span style="view-transition-name: t-${p.slug}">${esc(p.name)}</span></h1>
-            <p class="cs-tagline">${p.tagline}</p>
-            <p class="lead">${p.summary}</p>
-            ${p.links.length ? `<div class="btn-row">${p.links.map(l => `<a class="btn${l.primary ? ' btn-dark' : ''}" href="${l.url}" target="_blank" rel="noopener">${esc(l.label)} <span aria-hidden="true">↗</span></a>`).join('')}</div>` : '<p class="cs-private">Dépôt privé pour l\'instant. La feuille de route est détaillée plus bas.</p>'}
-          </div>
-          <div class="cs-cap" aria-hidden="true">
-            <button type="button" class="cs-key" tabindex="-1"><span class="cs-key-top"><b>${esc(p.letter)}</b><small>${esc(p.name)}</small></span></button>
-          </div>
+        <div class="cs-hero-bg" aria-hidden="true"><img src="/media/bureau/${p.slug}.webp" alt="" fetchpriority="high"></div>
+        <div class="cs-hero-inner">
+          <a class="cs-back" href="/#${p.slug}"><span aria-hidden="true">←</span> Retour au bureau</a>
+          <p class="cs-object"><span class="dot" style="--c:${p.color}"></span>Dans le bureau : <b>${esc(OBJECTS[p.slug])}</b></p>
+          <h1 class="cs-title"><span style="view-transition-name: t-${p.slug}">${esc(p.name)}</span></h1>
+          <p class="cs-tagline">${p.tagline}</p>
+          <p class="lead">${p.summary}</p>
+          ${p.links.length ? `<div class="btn-row">${p.links.map(l => `<a class="btn${l.primary ? ' btn-dark' : ''}" href="${l.url}" target="_blank" rel="noopener">${esc(l.label)} <span aria-hidden="true">↗</span></a>`).join('')}</div>` : '<p class="cs-private">Dépôt privé pour l\'instant. La feuille de route est détaillée plus bas.</p>'}
         </div>
         <dl class="cs-meta">
+          <div><dt>Ce que c'est</dt><dd>${esc(p.kicker)}</dd></div>
           <div><dt>Rôle</dt><dd>${esc(p.meta.role)}</dd></div>
           <div><dt>Période</dt><dd>${esc(p.meta.period)}</dd></div>
           <div><dt>Statut</dt><dd>${esc(p.meta.status)}</dd></div>
@@ -212,7 +203,7 @@ function page(p, i) {
     </main>
 
     <footer class="footer">
-      <p>Fait main par Yanis. <a href="/#${p.slug}">Retour au bureau</a></p>
+      <p>Fait main par Yanis, dans son bureau. <a href="/#${p.slug}">Y retourner</a></p>
       <p class="muted">${esc(p.name)} · étude de cas</p>
     </footer>
 

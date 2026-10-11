@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Clavio · Étude de cas · Yanis</title>
     <meta name="description" content="Clavio apprend le piano façon Duolingo, avec un Casio CT-S100 ou n'importe quel clavier MIDI branché en USB. Un parcours de 28 leçons, des séries de jours," />
-    <meta name="theme-color" content="#eefaf1" />
+    <meta name="theme-color" content="#140d0a" />
     <link rel="canonical" href="https://yanis.pro/projets/clavio/" />
     <meta property="og:type" content="article" />
     <meta property="og:title" content="Clavio · Apprendre le piano, une note à la fois." />
     <meta property="og:description" content="Clavio apprend le piano façon Duolingo, avec un Casio CT-S100 ou n'importe quel clavier MIDI branché en USB. Un parcours de 28 leçons, des séries de jours," />
     <meta property="og:url" content="https://yanis.pro/projets/clavio/" />
-    <meta property="og:image" content="https://yanis.pro/media/clavio/morceau-pas-a-pas.webp" />
+    <meta property="og:image" content="https://yanis.pro/media/bureau/clavio.webp" />
     <script>(function(){var t;try{t=localStorage.getItem('theme')}catch(e){}var d=t?t==='dark':true;document.documentElement.classList.toggle('dark',d)})()</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -21,42 +21,31 @@
   <body class="cs-page" style="--p:#a7e8bd;--p-deep:#22a35a;--p-soft:#eefaf1">
     <a class="skip" href="#main">Aller au contenu</a>
 
-    <header class="nav">
-      <a class="logo" href="/" aria-label="Retour à l'accueil">yanis<span>.</span></a>
+    <header class="nav cs-nav">
+      <a class="logo" href="/" aria-label="Retour au bureau">yanis<span>.</span><small>le bureau</small></a>
       <nav class="nav-links" aria-label="Navigation principale">
-        <a href="/">Le bureau</a>
-        <a href="/#carnet">Carnet</a>
-        <a href="/#github">GitHub</a>
-        <button class="theme-toggle" type="button" aria-label="Basculer le mode sombre" title="Mode sombre / clair"><span class="tt-sun" aria-hidden="true">☀</span><span class="tt-moon" aria-hidden="true">☾</span></button>
-        <button class="sound-toggle" type="button" aria-pressed="true" title="Activer / couper le son">
-          <span class="sound-on">Son</span><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span>
-        </button>
-        <a class="nav-cta" href="/#contact">On se parle ?</a>
+        <a href="/#clavio" class="nav-pill">← Le bureau</a>
+        <a href="/#carnet" class="nav-pill">Carnet</a>
+        <button class="sound-toggle nav-pill" type="button" aria-pressed="true" title="Activer / couper le son"><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span><span class="sound-on">Son</span></button>
+        <button class="theme-toggle nav-pill" type="button" aria-label="Allumer ou éteindre la lumière" title="Lumière"><span class="tt-sun" aria-hidden="true">☀</span><span class="tt-moon" aria-hidden="true">☾</span></button>
+        <a class="nav-cta nav-pill" href="/#contact">On se parle ?</a>
       </nav>
     </header>
 
     <main id="main" class="cs">
       <!-- HERO -->
       <section class="cs-hero">
-        <div class="cs-floaters" aria-hidden="true">
-          <span class="cube cs-c1" data-depth="1.4"><span class="cube-in"><i class="f0">K</i><i class="f1">K</i><i class="f2">✦</i><i class="f3">✦</i><i class="f4"></i><i class="f5"></i></span></span>
-          <span class="cube cs-c2" data-depth="0.7"><span class="cube-in"><i class="f0">⌘</i><i class="f1">⏎</i><i class="f2">⌥</i><i class="f3">⇧</i><i class="f4"></i><i class="f5"></i></span></span>
-          <span class="orb cs-o1" data-depth="1.8"></span>
-        </div>
-        <a class="cs-back" href="/#clavio"><span aria-hidden="true">←</span> Retour au bureau</a>
-        <div class="cs-hero-grid">
-          <div class="cs-hero-copy">
-            <p class="eyebrow"><span class="dot" style="--c:#a7e8bd"></span>App web · Web MIDI · zéro dépendance</p>
-            <h1 class="cs-title"><span style="view-transition-name: t-clavio">Clavio</span></h1>
-            <p class="cs-tagline">Apprendre le piano, <em>une note à la fois.</em></p>
-            <p class="lead">Clavio apprend le piano façon Duolingo, avec un Casio CT-S100 ou n'importe quel clavier MIDI branché en USB. Un parcours de 28 leçons, des séries de jours, et surtout : on importe n'importe quel fichier MIDI et l'app nous l'apprend note par note.</p>
-            <div class="btn-row"><a class="btn btn-dark" href="https://github.com/osayanis/clavio" target="_blank" rel="noopener">Voir le code <span aria-hidden="true">↗</span></a></div>
-          </div>
-          <div class="cs-cap" aria-hidden="true">
-            <button type="button" class="cs-key" tabindex="-1"><span class="cs-key-top"><b>K</b><small>Clavio</small></span></button>
-          </div>
+        <div class="cs-hero-bg" aria-hidden="true"><img src="/media/bureau/clavio.webp" alt="" fetchpriority="high"></div>
+        <div class="cs-hero-inner">
+          <a class="cs-back" href="/#clavio"><span aria-hidden="true">←</span> Retour au bureau</a>
+          <p class="cs-object"><span class="dot" style="--c:#a7e8bd"></span>Dans le bureau : <b>le piano</b></p>
+          <h1 class="cs-title"><span style="view-transition-name: t-clavio">Clavio</span></h1>
+          <p class="cs-tagline">Apprendre le piano, <em>une note à la fois.</em></p>
+          <p class="lead">Clavio apprend le piano façon Duolingo, avec un Casio CT-S100 ou n'importe quel clavier MIDI branché en USB. Un parcours de 28 leçons, des séries de jours, et surtout : on importe n'importe quel fichier MIDI et l'app nous l'apprend note par note.</p>
+          <div class="btn-row"><a class="btn btn-dark" href="https://github.com/osayanis/clavio" target="_blank" rel="noopener">Voir le code <span aria-hidden="true">↗</span></a></div>
         </div>
         <dl class="cs-meta">
+          <div><dt>Ce que c'est</dt><dd>App web · Web MIDI · zéro dépendance</dd></div>
           <div><dt>Rôle</dt><dd>Conception et développement</dd></div>
           <div><dt>Période</dt><dd>Octobre 2026</dd></div>
           <div><dt>Statut</dt><dd>Open source</dd></div>
@@ -188,7 +177,7 @@
     </main>
 
     <footer class="footer">
-      <p>Fait main par Yanis. <a href="/#clavio">Retour au bureau</a></p>
+      <p>Fait main par Yanis, dans son bureau. <a href="/#clavio">Y retourner</a></p>
       <p class="muted">Clavio · étude de cas</p>
     </footer>
 
