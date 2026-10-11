@@ -4,12 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OsaDrop · Étude de cas · Yanis</title>
-    <meta name="description" content="OsaDrop envoie un fichier d'un appareil à l'autre avec un simple code à 6 caractères ou un QR code. Le fichier va directement d'un navigateur à l'autre : i" />
+    <meta name="description" content="OsaDrop envoie des fichiers d'un appareil à l'autre avec un simple code à 6 caractères, un lien ou un QR code. Les fichiers vont directement d'un navigateu" />
     <meta name="theme-color" content="#ecf4ff" />
     <link rel="canonical" href="https://yanis.pro/projets/osadrop/" />
     <meta property="og:type" content="article" />
     <meta property="og:title" content="OsaDrop · Un code, un fichier, zéro serveur." />
-    <meta property="og:description" content="OsaDrop envoie un fichier d'un appareil à l'autre avec un simple code à 6 caractères ou un QR code. Le fichier va directement d'un navigateur à l'autre : i" />
+    <meta property="og:description" content="OsaDrop envoie des fichiers d'un appareil à l'autre avec un simple code à 6 caractères, un lien ou un QR code. Les fichiers vont directement d'un navigateu" />
     <meta property="og:url" content="https://yanis.pro/projets/osadrop/" />
     <meta property="og:image" content="https://yanis.pro/media/osadrop/code.webp" />
     <script>(function(){var t;try{t=localStorage.getItem('theme')}catch(e){}var d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d)})()</script>
@@ -50,7 +50,7 @@
             <p class="eyebrow"><span class="dot" style="--c:#93c5fd"></span>Transfert de fichiers · WebRTC</p>
             <h1 class="cs-title"><span style="view-transition-name: t-osadrop">OsaDrop</span></h1>
             <p class="cs-tagline">Un code, un fichier, <em>zéro serveur.</em></p>
-            <p class="lead">OsaDrop envoie un fichier d'un appareil à l'autre avec un simple code à 6 caractères ou un QR code. Le fichier va directement d'un navigateur à l'autre : il ne passe jamais par un serveur et n'est stocké nulle part.</p>
+            <p class="lead">OsaDrop envoie des fichiers d'un appareil à l'autre avec un simple code à 6 caractères, un lien ou un QR code. Les fichiers vont directement d'un navigateur à l'autre : ils ne passent jamais par un serveur et ne sont stockés nulle part.</p>
             <div class="btn-row"><a class="btn btn-dark" href="https://osadrop.osalabs.fr" target="_blank" rel="noopener">Ouvrir OsaDrop <span aria-hidden="true">↗</span></a><a class="btn" href="https://github.com/osayanis/osadrop" target="_blank" rel="noopener">Voir le code <span aria-hidden="true">↗</span></a></div>
           </div>
           <div class="cs-cap" aria-hidden="true">
@@ -59,7 +59,7 @@
         </div>
         <dl class="cs-meta">
           <div><dt>Rôle</dt><dd>Conception et développement</dd></div>
-          <div><dt>Période</dt><dd>5 → 9 octobre 2026</dd></div>
+          <div><dt>Période</dt><dd>5 → 11 octobre 2026</dd></div>
           <div><dt>Statut</dt><dd>En ligne</dd></div>
           <div class="cs-meta-stack"><dt>Stack</dt><dd><span>WebRTC</span><span>Next.js</span><span>React</span><span>TypeScript</span><span>Socket.io</span><span>Nginx</span><span>PM2</span></dd></div>
         </dl>
@@ -82,7 +82,7 @@
       <!-- VISUELS -->
       <section class="cs-section cs-visuals">
         <div class="cs-head reveal"><p class="eyebrow"><span class="num">02</span>En images</p><h2>À quoi ça <em>ressemble.</em></h2></div>
-        <div class="vis-grid vis-grid-mixed"><figure class="vis vis-browser wide reveal"><div class="frame-browser"><div class="fb-bar"><i></i><i></i><i></i><span>osadrop.osalabs.fr</span></div><img src="/media/osadrop/code.webp" alt="OsaDrop affiche un code et un QR code" loading="lazy" decoding="async"></div><figcaption>L'expéditeur reçoit un code et un QR code à partager.</figcaption></figure><figure class="vis vis-browser reveal"><div class="frame-browser"><div class="fb-bar"><i></i><i></i><i></i><span>osadrop.osalabs.fr</span></div><img src="/media/osadrop/landing.webp" alt="Accueil d'OsaDrop" loading="lazy" decoding="async"></div><figcaption>Envoyer ou recevoir, sur un seul écran.</figcaption></figure><figure class="vis vis-phone reveal"><div class="frame-phone"><span class="fp-notch"></span><img src="/media/osadrop/mobile.webp" alt="OsaDrop sur mobile" loading="lazy" decoding="async"></div><figcaption>Côté téléphone, on scanne le QR code.</figcaption></figure></div>
+        <div class="vis-grid vis-grid-mixed"><figure class="vis vis-browser wide reveal"><div class="frame-browser"><div class="fb-bar"><i></i><i></i><i></i><span>osadrop.osalabs.fr</span></div><img src="/media/osadrop/code.webp" alt="OsaDrop affiche un code à 6 caractères, un QR code et la liste des fichiers à envoyer" loading="lazy" decoding="async"></div><figcaption>Le fichier est choisi : le code, le lien et le QR code sont prêts. On peut encore en ajouter d'autres.</figcaption></figure><figure class="vis vis-browser reveal"><div class="frame-browser"><div class="fb-bar"><i></i><i></i><i></i><span>osadrop.osalabs.fr</span></div><img src="/media/osadrop/landing.webp" alt="Accueil d'OsaDrop avec la mascotte" loading="lazy" decoding="async"></div><figcaption>La nouvelle interface : la mascotte, et deux choix, envoyer ou recevoir.</figcaption></figure><figure class="vis vis-phone reveal"><div class="frame-phone"><span class="fp-notch"></span><img src="/media/osadrop/mobile.webp" alt="OsaDrop sur mobile" loading="lazy" decoding="async"></div><figcaption>Sur téléphone, le QR code ouvre la page déjà connectée.</figcaption></figure></div>
       </section>
 
       <!-- FONCTIONNEMENT -->
@@ -116,7 +116,7 @@
     </g>
   </svg></div>
         <ol class="cs-steps">
-          <li class="reveal" style="--d:0s"><span class="step-key" aria-hidden="true">1</span><div><h3>Un salon à deux</h3><p>L'expéditeur génère un code. Le serveur Socket.io crée un salon qui n'accepte que deux appareils.</p></div></li><li class="reveal" style="--d:0.06s"><span class="step-key" aria-hidden="true">2</span><div><h3>La signalisation</h3><p>Les deux navigateurs échangent leur offre, leur réponse SDP et leurs candidats ICE via le serveur. Un serveur STUN les aide à se trouver.</p></div></li><li class="reveal" style="--d:0.12s"><span class="step-key" aria-hidden="true">3</span><div><h3>Le canal direct</h3><p>Un DataChannel WebRTC s'ouvre entre eux, chiffré par défaut. Le serveur n'est plus utilisé.</p></div></li><li class="reveal" style="--d:0.18s"><span class="step-key" aria-hidden="true">4</span><div><h3>Envoi par morceaux</h3><p>Le fichier est découpé en morceaux de 64 Ko. Si plus de 1 Mo attend dans le tampon, l'envoi fait une pause jusqu'à ce qu'il se vide.</p></div></li><li class="reveal" style="--d:0.24s"><span class="step-key" aria-hidden="true">5</span><div><h3>Reconstitution</h3><p>Le destinataire assemble les morceaux, suit la progression, puis le fichier se télécharge tout seul.</p></div></li>
+          <li class="reveal" style="--d:0s"><span class="step-key" aria-hidden="true">1</span><div><h3>Un salon à deux</h3><p>L'expéditeur choisit un ou plusieurs fichiers et reçoit un code, un lien et un QR code. Le serveur Socket.io crée un salon qui n'accepte que deux appareils.</p></div></li><li class="reveal" style="--d:0.06s"><span class="step-key" aria-hidden="true">2</span><div><h3>La signalisation</h3><p>Les deux navigateurs échangent leur offre, leur réponse SDP et leurs candidats ICE via le serveur. Un serveur STUN les aide à se trouver.</p></div></li><li class="reveal" style="--d:0.12s"><span class="step-key" aria-hidden="true">3</span><div><h3>Le canal direct</h3><p>Un DataChannel WebRTC s'ouvre entre eux, chiffré par défaut. Le serveur n'est plus utilisé.</p></div></li><li class="reveal" style="--d:0.18s"><span class="step-key" aria-hidden="true">4</span><div><h3>Envoi par morceaux</h3><p>Le fichier est découpé en morceaux de 64 Ko. Si plus de 1 Mo attend dans le tampon, l'envoi fait une pause jusqu'à ce qu'il se vide.</p></div></li><li class="reveal" style="--d:0.24s"><span class="step-key" aria-hidden="true">5</span><div><h3>Reconstitution</h3><p>Le destinataire assemble les morceaux, suit la progression, puis le fichier se télécharge tout seul.</p></div></li>
         </ol>
       </section>
 
@@ -150,7 +150,7 @@
       <section class="cs-section cs-journal">
         <div class="cs-head reveal"><p class="eyebrow"><span class="num">⏱</span>Journal de bord</p><h2>Comment c'est <em>arrivé.</em></h2></div>
         <ol class="journal">
-          <li class="reveal"><time>5 oct · 08h16</time><span class="j-dot" aria-hidden="true"></span><div><h3>Première implémentation WebRTC</h3><p>Salon, signalisation et DataChannel.</p></div></li><li class="reveal"><time>5 oct · 08h26</time><span class="j-dot" aria-hidden="true"></span><div><h3>Quatre correctifs en 20 minutes</h3><p>Closures périmées, courses entre états, débordement de la file.</p></div></li><li class="reveal"><time>5 oct · 16h13</time><span class="j-dot" aria-hidden="true"></span><div><h3>Transfert robuste</h3><p>Délai de garde sur le flux et scanner de QR code.</p></div></li><li class="reveal"><time>8 oct · 09h06</time><span class="j-dot" aria-hidden="true"></span><div><h3>Pont OsaNotch</h3><p>Une page qui expose le même moteur à l'app macOS.</p></div></li><li class="reveal"><time>9 oct · 11h55</time><span class="j-dot" aria-hidden="true"></span><div><h3>Documentation</h3><p>README complet avec fonctionnement, déploiement et limites.</p></div></li>
+          <li class="reveal"><time>5 oct · 08h16</time><span class="j-dot" aria-hidden="true"></span><div><h3>Première implémentation WebRTC</h3><p>Salon, signalisation et DataChannel.</p></div></li><li class="reveal"><time>5 oct · 08h26</time><span class="j-dot" aria-hidden="true"></span><div><h3>Quatre correctifs en 20 minutes</h3><p>Closures périmées, courses entre états, débordement de la file.</p></div></li><li class="reveal"><time>5 oct · 16h13</time><span class="j-dot" aria-hidden="true"></span><div><h3>Transfert robuste</h3><p>Délai de garde sur le flux et scanner de QR code.</p></div></li><li class="reveal"><time>8 oct · 09h06</time><span class="j-dot" aria-hidden="true"></span><div><h3>Pont OsaNotch</h3><p>Une page qui expose le même moteur à l'app macOS.</p></div></li><li class="reveal"><time>9 oct · 11h55</time><span class="j-dot" aria-hidden="true"></span><div><h3>Documentation</h3><p>README complet avec fonctionnement, déploiement et limites.</p></div></li><li class="reveal"><time>9 oct · 15h16</time><span class="j-dot" aria-hidden="true"></span><div><h3>Nouvelle interface</h3><p>Mascotte vivante, plusieurs fichiers à la fois, lien de partage et QR code qui ouvre la page déjà connectée.</p></div></li><li class="reveal"><time>11 oct · 15h22</time><span class="j-dot" aria-hidden="true"></span><div><h3>Les mêmes codes partout</h3><p>OsaNotch utilise aussi les codes à 6 caractères : un envoi depuis le site arrive dans le notch.</p></div></li>
         </ol>
       </section>
 
@@ -162,7 +162,7 @@
             <h2>La suite <em>du projet.</em></h2>
             
           </div>
-          <ul><li>Ajouter un serveur TURN pour les réseaux qui bloquent les connexions directes.</li><li>Écrire le fichier en flux sur le disque pour ne plus dépendre de la mémoire du destinataire.</li><li>Envoyer plusieurs fichiers d'un coup et reprendre un transfert interrompu.</li></ul>
+          <ul><li>Ajouter un serveur TURN pour les réseaux qui bloquent les connexions directes.</li><li>Écrire le fichier en flux sur le disque pour ne plus dépendre de la mémoire du destinataire.</li><li>Reprendre un transfert interrompu sans tout renvoyer.</li></ul>
         </div>
       </section>
 

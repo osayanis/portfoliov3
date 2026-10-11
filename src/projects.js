@@ -15,7 +15,7 @@ export const projects = [
     summary: "OsaNotch transforme l'encoche du MacBook en petite île dynamique. Au survol, elle s'ouvre avec une animation à ressort et regroupe la musique et ses paroles, une étagère de fichiers, les réglages système et toutes les apps OsaLabs. Au centre, une mascotte qui suit ton curseur des yeux.",
     meta: {
       role: 'Conception, design et développement',
-      period: '7 → 9 octobre 2026',
+      period: '7 → 11 octobre 2026',
       status: 'Disponible en .dmg, mises à jour automatiques',
     },
     stack: ['Swift', 'SwiftUI', 'AppKit', 'WebKit', 'IOKit', 'EventKit', 'Accessibility API'],
@@ -24,7 +24,7 @@ export const projects = [
       { label: 'Voir le code', url: 'https://github.com/osayanis/osanotch-native' },
     ],
     stats: [
-      { n: '44', label: 'commits en 3 jours' },
+      { n: '45', label: 'commits en 5 jours' },
       { n: '4 379', label: 'lignes de Swift' },
       { n: '23', label: 'fichiers source' },
       { n: '2', label: 'versions : Electron, puis natif' },
@@ -106,6 +106,7 @@ export const projects = [
       { d: '8 oct · 21h58', t: 'Mises à jour automatiques', x: 'L\'app lit un manifeste sur mon serveur et se met à jour en un clic.' },
       { d: '9 oct · 08h53', t: 'Étagère & installateur', x: 'Presse-papier de fichiers, mode cinéma OsaCast, icône et DMG.' },
       { d: '9 oct · 14h09', t: 'Pont OsaParty', x: 'Le notch envoie la position de lecture au salon web pour synchroniser les paroles.' },
+      { d: '11 oct · 15h22', t: 'OsaDrop aligné sur le site', x: 'Codes à 6 caractères dans le notch : un fichier envoyé depuis le site arrive enfin dans le notch.' },
     ],
     next: [
       "Notariser l'app auprès d'Apple pour supprimer le « clic droit → Ouvrir » au premier lancement.",
@@ -150,7 +151,7 @@ export const projects = [
     },
     visuals: [
       { type: 'browser', src: '/media/osaparty/room.webp', url: 'osaparty.osalabs.fr/room', alt: "Un salon OsaParty prêt, en attente d'un Mac", caption: "Un salon tout juste créé : la mascotte attend qu'un Mac diffuse.", wide: true },
-      { type: 'browser', src: '/media/osaparty/landing.webp', url: 'osaparty.osalabs.fr', alt: "Page d'accueil d'OsaParty", caption: 'Créer ou rejoindre un salon, en deux clics.' },
+      { type: 'browser', src: '/media/osaparty/landing.webp', url: 'osaparty.osalabs.fr', alt: "Page d'accueil d'OsaParty", caption: 'Le nouvel accueil : un pseudo, puis créer un salon ou rejoindre avec un code.' },
       { type: 'phone', src: '/media/osaparty/mobile.webp', alt: 'OsaParty sur mobile', caption: "Pensé pour rejoindre depuis un téléphone." },
     ],
     how: {
@@ -220,6 +221,7 @@ export const projects = [
       { d: '2 oct · 10h47', t: "Contrôles de l'hôte", x: 'Verrouiller le salon, exclure, exporter la playlist.' },
       { d: '5 oct · 08h54', t: 'ListenParty devient OsaParty', x: "Le projet rejoint l'écosystème OsaLabs." },
       { d: '9 oct · 14h09', t: 'Salon refait', x: 'Nouvelle interface, et OsaNotch comme pont natif.' },
+      { d: '9 oct · 15h16', t: 'Nouvel accueil', x: 'Page de création refaite avec la mascotte, comme OsaDrop et OsaCast.' },
     ],
     next: [
       'Un mode « DJ tournant » où chaque invité ajoute un titre à son tour.',
@@ -238,10 +240,10 @@ export const projects = [
     soft: '#ecf4ff',
     kicker: 'Transfert de fichiers · WebRTC',
     tagline: 'Un code, un fichier, <em>zéro serveur.</em>',
-    summary: "OsaDrop envoie un fichier d'un appareil à l'autre avec un simple code à 6 caractères ou un QR code. Le fichier va directement d'un navigateur à l'autre : il ne passe jamais par un serveur et n'est stocké nulle part.",
+    summary: "OsaDrop envoie des fichiers d'un appareil à l'autre avec un simple code à 6 caractères, un lien ou un QR code. Les fichiers vont directement d'un navigateur à l'autre : ils ne passent jamais par un serveur et ne sont stockés nulle part.",
     meta: {
       role: 'Conception et développement',
-      period: '5 → 9 octobre 2026',
+      period: '5 → 11 octobre 2026',
       status: 'En ligne',
     },
     stack: ['WebRTC', 'Next.js', 'React', 'TypeScript', 'Socket.io', 'Nginx', 'PM2'],
@@ -263,14 +265,14 @@ export const projects = [
       ],
     },
     visuals: [
-      { type: 'browser', src: '/media/osadrop/code.webp', url: 'osadrop.osalabs.fr', alt: 'OsaDrop affiche un code et un QR code', caption: "L'expéditeur reçoit un code et un QR code à partager.", wide: true },
-      { type: 'browser', src: '/media/osadrop/landing.webp', url: 'osadrop.osalabs.fr', alt: "Accueil d'OsaDrop", caption: 'Envoyer ou recevoir, sur un seul écran.' },
-      { type: 'phone', src: '/media/osadrop/mobile.webp', alt: 'OsaDrop sur mobile', caption: 'Côté téléphone, on scanne le QR code.' },
+      { type: 'browser', src: '/media/osadrop/code.webp', url: 'osadrop.osalabs.fr', alt: 'OsaDrop affiche un code à 6 caractères, un QR code et la liste des fichiers à envoyer', caption: "Le fichier est choisi : le code, le lien et le QR code sont prêts. On peut encore en ajouter d'autres.", wide: true },
+      { type: 'browser', src: '/media/osadrop/landing.webp', url: 'osadrop.osalabs.fr', alt: "Accueil d'OsaDrop avec la mascotte", caption: 'La nouvelle interface : la mascotte, et deux choix, envoyer ou recevoir.' },
+      { type: 'phone', src: '/media/osadrop/mobile.webp', alt: 'OsaDrop sur mobile', caption: 'Sur téléphone, le QR code ouvre la page déjà connectée.' },
     ],
     how: {
       intro: 'Deux phases : une courte présentation par le serveur, puis une conversation directe entre les deux appareils.',
       steps: [
-        { t: 'Un salon à deux', d: "L'expéditeur génère un code. Le serveur Socket.io crée un salon qui n'accepte que deux appareils." },
+        { t: 'Un salon à deux', d: "L'expéditeur choisit un ou plusieurs fichiers et reçoit un code, un lien et un QR code. Le serveur Socket.io crée un salon qui n'accepte que deux appareils." },
         { t: 'La signalisation', d: "Les deux navigateurs échangent leur offre, leur réponse SDP et leurs candidats ICE via le serveur. Un serveur STUN les aide à se trouver." },
         { t: 'Le canal direct', d: "Un DataChannel WebRTC s'ouvre entre eux, chiffré par défaut. Le serveur n'est plus utilisé." },
         { t: 'Envoi par morceaux', d: "Le fichier est découpé en morceaux de 64 Ko. Si plus de 1 Mo attend dans le tampon, l'envoi fait une pause jusqu'à ce qu'il se vide." },
@@ -321,11 +323,13 @@ export const projects = [
       { d: '5 oct · 16h13', t: 'Transfert robuste', x: 'Délai de garde sur le flux et scanner de QR code.' },
       { d: '8 oct · 09h06', t: 'Pont OsaNotch', x: "Une page qui expose le même moteur à l'app macOS." },
       { d: '9 oct · 11h55', t: 'Documentation', x: 'README complet avec fonctionnement, déploiement et limites.' },
+      { d: '9 oct · 15h16', t: 'Nouvelle interface', x: 'Mascotte vivante, plusieurs fichiers à la fois, lien de partage et QR code qui ouvre la page déjà connectée.' },
+      { d: '11 oct · 15h22', t: 'Les mêmes codes partout', x: 'OsaNotch utilise aussi les codes à 6 caractères : un envoi depuis le site arrive dans le notch.' },
     ],
     next: [
       'Ajouter un serveur TURN pour les réseaux qui bloquent les connexions directes.',
       "Écrire le fichier en flux sur le disque pour ne plus dépendre de la mémoire du destinataire.",
-      "Envoyer plusieurs fichiers d'un coup et reprendre un transfert interrompu.",
+      'Reprendre un transfert interrompu sans tout renvoyer.',
     ],
   },
 
@@ -345,12 +349,12 @@ export const projects = [
       period: '5 → 8 octobre 2026',
       status: 'En ligne',
     },
-    stack: ['WebRTC', 'getDisplayMedia', 'Next.js', 'React', 'Socket.io'],
+    stack: ['WebRTC', 'getDisplayMedia', 'TURN', 'Next.js', 'React', 'Socket.io'],
     links: [{ label: 'Ouvrir OsaCast', url: 'https://osacast.osalabs.fr', primary: true }],
     stats: [
       { n: '770', label: 'lignes de code' },
       { n: '1', label: 'clic pour diffuser' },
-      { n: '2', label: 'formats gérés : portrait et paysage' },
+      { n: '30', label: 'images par seconde' },
       { n: '0', label: 'logiciel à installer' },
     ],
     problem: {
@@ -361,7 +365,8 @@ export const projects = [
       ],
     },
     visuals: [
-      { type: 'browser', src: '/media/osacast/landing.webp', url: 'osacast.osalabs.fr', alt: "Accueil d'OsaCast", caption: 'Créer un cast ou en rejoindre un, par code ou QR code.', wide: true },
+      { type: 'browser', src: '/media/osacast/landing.webp', url: 'osacast.osalabs.fr', alt: "Accueil d'OsaCast avec la mascotte", caption: 'Diffuser son écran ou regarder celui de quelqu\'un, avec un code à 6 caractères.', wide: true },
+      { type: 'phone', src: '/media/osacast/mobile.webp', alt: 'OsaCast sur mobile', caption: 'Sur téléphone, on regarde un écran partagé en plein écran.' },
     ],
     how: {
       intro: "La même poignée de main WebRTC qu'OsaDrop, mais pour de la vidéo au lieu de données.",
@@ -369,7 +374,8 @@ export const projects = [
         { t: "Capture de l'écran", d: "Le diffuseur choisit un écran, une fenêtre ou un onglet avec <code>getDisplayMedia</code>, son compris." },
         { t: 'Un code de session', d: 'Le serveur crée une session, et le spectateur la rejoint par code ou QR code.' },
         { t: 'La poignée de main', d: 'Offre, réponse et candidats ICE transitent par Socket.io.' },
-        { t: 'Le flux direct', d: "La vidéo part en pair-à-pair. Le lecteur s'adapte au format du flux, portrait ou paysage, et passe en plein écran." },
+        { t: 'Le flux direct', d: "La vidéo part en pair-à-pair, à 30 images par seconde. Si le réseau bloque la connexion directe, un serveur relais TURN prend le relais." },
+        { t: 'Regarder confortablement', d: "Le lecteur suit le format du flux (portrait ou paysage), passe en plein écran ou en image dans l'image pour continuer à travailler à côté." },
       ],
       diagram: {
         w: 820, h: 300,
@@ -408,6 +414,7 @@ export const projects = [
       { d: '5 oct · 16h14', t: 'Version complète', x: 'Socket.io, WebRTC robuste et interface en verre dépoli.' },
       { d: '5 oct · 16h37', t: 'Portrait et paysage', x: 'Le lecteur suit le ratio du flux.' },
       { d: '8 oct · 14h18', t: 'Pont OsaNotch', x: "Le notch peut diffuser et regarder avec le même moteur." },
+      { d: '9 oct · 15h16', t: 'Nouvelle interface', x: "Mascotte vivante, image dans l'image et relais TURN pour les réseaux difficiles." },
     ],
     next: ['Un pointeur partagé pour montrer un endroit précis de l\'écran.', 'Plusieurs spectateurs pour une même diffusion.'],
   },
