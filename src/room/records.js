@@ -9,6 +9,10 @@ export const RECORDS = [
     facts: ['Une chanson de James Brown, 1966', 'Reprise par Seal en 2008', "Sur l'album Soul, produit par David Foster", 'Le morceau préféré de Yanis pour coder tard'],
   },
   {
+    id: 6814765069, title: 'Prison dorée', artist: 'Soul', album: 'Prison dorée', year: '2026',
+    facts: ['Tout juste sorti, le 2 octobre 2026', 'Un single sorti chez BODEGA', 'Deux minutes et demie, pas une de trop'],
+  },
+  {
     id: 1548467215, title: 'Décisions', artist: 'Josman', album: 'MYSTR J.O.$.', year: '2021',
     facts: ['Josman, rappeur aux racines congolaises et angolaises', "Sur l'EP MYSTR J.O.$., sorti en 2021", "L'un des deux EP de cette année-là, avec HHHH", 'Son premier album, en 2018, s\'appelait déjà J.O.$.'],
   },
