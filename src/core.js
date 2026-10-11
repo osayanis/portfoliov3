@@ -108,7 +108,6 @@ soundBtn.addEventListener('click', () => {
 
 /* ================= THÈME CLAIR / SOMBRE ================= */
 const themeBtn = $('.theme-toggle')
-const darkMq = matchMedia('(prefers-color-scheme: dark)')
 function applyTheme(dark) {
   document.documentElement.classList.toggle('dark', dark)
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#1a1916' : getComputedStyle(document.body).getPropertyValue('--p-soft').trim() || '#f6f3ec')
@@ -124,11 +123,7 @@ themeBtn?.addEventListener('click', () => {
   applyTheme(dark)
   sound.click(dark ? 0.8 : 1.2)
 })
-darkMq.addEventListener('change', e => {
-  let saved = null
-  try { saved = localStorage.getItem('theme') } catch {}
-  if (!saved) applyTheme(e.matches)
-})
+// le site est « de nuit » par défaut : on ne suit pas le réglage du système
 
 /* ================= TOAST + CONFETTIS ================= */
 let toastTimer
