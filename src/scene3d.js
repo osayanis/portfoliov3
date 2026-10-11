@@ -79,6 +79,10 @@ export default async function mountKeyboard3D(root, { sound, reduceMotion }) {
   plateOutline.scale.setScalar(1.025)
   plate.add(plateOutline)
   board.add(plate)
+  // le boîtier suit le thème clair / sombre
+  const plateColor = () => plate.material.color.set(document.documentElement.classList.contains('dark') ? 0x2a2824 : 0xfffdf8)
+  plateColor()
+  addEventListener('themechange', plateColor)
 
   // les touches
   const baseGeo = new RoundedBoxGeometry(1.18, 0.62, 1.18, 4, 0.16)
