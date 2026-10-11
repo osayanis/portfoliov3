@@ -237,28 +237,66 @@ html:not(.dark) .carnet { background: rgba(246, 239, 228, .45); }
   .room::before, .loader-ghost { animation: none; }
 }
 
-/* ---------- le tourne-disque ---------- */
-.vinyl-card {
-  position: fixed; z-index: 15; left: clamp(10px, 2vw, 22px); bottom: 16px; width: 264px; padding: 12px; border-radius: 20px;
+/* ---------- la platine ---------- */
+.deck-card {
+  position: fixed; z-index: 16; right: clamp(14px, 3vw, 40px); top: 50%; width: 300px; padding: 18px; border-radius: 24px;
   background: var(--glass); border: 1px solid var(--glass-line); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-  color: var(--text); box-shadow: 0 24px 60px rgba(0, 0, 0, .4); transform: translateY(calc(100% + 30px)); transition: transform .5s var(--ease-out);
+  color: var(--text); box-shadow: 0 30px 80px rgba(0, 0, 0, .45); transform: translate(calc(100% + 60px), -50%); transition: transform .7s var(--ease-out);
 }
-.vinyl-card.show { transform: none; }
-.vinyl-card header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.vinyl-card header div { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
-.vinyl-card small { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: #ffb35c; }
-.vinyl-card b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.vinyl-card header span:not(.vinyl-disc) { font-size: 12px; color: var(--ink-2); }
-.vinyl-disc { flex: none; width: 38px; height: 38px; border-radius: 50%; background: radial-gradient(circle, #d4573a 0 20%, #111 21% 100%); box-shadow: inset 0 0 0 3px #222, inset 0 0 0 6px #111, inset 0 0 0 7px #2a2a2a; }
-.vinyl-card.playing .vinyl-disc { animation: spin-flat 1.8s linear infinite; }
-.vinyl-close { flex: none; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--glass-line); background: var(--glass-2); color: var(--text); font-size: 12px; }
-.vinyl-player { width: 240px; height: 200px; border-radius: 12px; overflow: hidden; background: #000; }
-.vinyl-player iframe { display: block; width: 100%; height: 100%; border: 0; }
-.vinyl-toggle { width: 100%; margin-top: 10px; padding: 9px; border-radius: 12px; border: 0; background: #ffb35c; color: #2a160c; font-weight: 700; font-size: 14px; }
+.deck.open .deck-card { transform: translate(0, -50%); transition-delay: .35s; }
+.deck-cover { display: block; width: 100%; aspect-ratio: 1; border-radius: 14px; object-fit: cover; background: #2a1b13; box-shadow: 0 14px 40px rgba(0, 0, 0, .4); }
+.deck-meta { display: flex; flex-direction: column; gap: 2px; margin: 14px 0 10px; }
+.deck-meta small { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: #ffb35c; }
+.deck-meta b { font-size: 17px; line-height: 1.25; }
+.deck-meta span { font-size: 13px; color: var(--ink-2); }
+.deck-bars { display: flex; gap: 3px; align-items: flex-end; height: 18px; margin-bottom: 10px; }
+.deck-bars i { width: 4px; height: 100%; border-radius: 2px; background: #ffb35c; transform-origin: bottom; transform: scaleY(.2); }
+.deck.playing .deck-bars i { animation: eq .9s ease-in-out infinite; }
+.deck-bars i:nth-child(2) { animation-delay: -.3s; } .deck-bars i:nth-child(3) { animation-delay: -.6s; } .deck-bars i:nth-child(4) { animation-delay: -.15s; } .deck-bars i:nth-child(5) { animation-delay: -.45s; }
+.deck-progress { height: 4px; border-radius: 4px; background: var(--glass-line); overflow: hidden; }
+.deck-progress i { display: block; height: 100%; width: 0; background: #ffb35c; transition: width .25s linear; }
+.deck-actions { display: flex; gap: 8px; margin-top: 14px; }
+.deck-play { flex: 1; padding: 10px; border-radius: 12px; border: 0; background: #ffb35c; color: #2a160c; font-weight: 700; font-size: 14px; }
+.deck-apple { flex: 1.2; display: grid; place-items: center; padding: 10px; border-radius: 12px; border: 1px solid var(--glass-line); background: var(--glass-2); color: var(--text); text-decoration: none; font-weight: 600; font-size: 13.5px; }
+.deck-credit { margin: 10px 0 0; font-size: 11px; color: var(--muted); text-align: center; }
+.deck-close { position: absolute; top: 26px; right: 26px; width: 32px; height: 32px; border-radius: 50%; border: 0; background: rgba(0, 0, 0, .45); color: #fff; font-size: 13px; }
+/* infos qui flottent à côté du disque */
+.deck-facts { position: fixed; z-index: 14; left: clamp(20px, 6vw, 90px); top: 50%; translate: 0 -50%; list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; pointer-events: none; }
+.deck-facts li {
+  font-family: var(--serif); font-style: italic; font-size: clamp(20px, 2.2vw, 28px); color: #fff3df; text-shadow: 0 2px 18px rgba(0, 0, 0, .55);
+  opacity: 0; transform: translateY(14px); filter: blur(4px);
+}
+.deck.open .deck-facts li { animation: fact-float 1.2s var(--ease-out) forwards, fact-drift 6s ease-in-out infinite alternate; animation-delay: calc(1s + var(--i) * 1.1s), calc(2.2s + var(--i) * 1.1s); }
+@keyframes fact-float { to { opacity: .92; transform: none; filter: none; } }
+@keyframes fact-drift { from { translate: 0 0; } to { translate: 8px -4px; } }
+html:not(.dark) .deck-facts li { color: #fffaf2; }
+/* mini lecteur quand on reprend l'exploration */
+.deck-mini {
+  position: fixed; z-index: 13; left: clamp(14px, 3vw, 28px); bottom: 58px; display: none; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px;
+  background: var(--glass); border: 1px solid var(--glass-line); color: var(--text); font-size: 13px; font-weight: 600; backdrop-filter: blur(14px);
+}
+.deck.playing:not(.open) .deck-mini { display: inline-flex; }
+.deck-mini-disc { width: 24px; height: 24px; border-radius: 50%; background: radial-gradient(circle, #ffb35c 0 22%, #111 23% 100%); animation: spin-flat 1.8s linear infinite; }
+.listening .room-bubble { display: none; }
 @media (max-width: 760px) {
-  .vinyl-card { left: 8px; right: auto; bottom: 8px; }
-  .reading .vinyl-card { opacity: 0; pointer-events: none; }
+  .deck-card { top: auto; bottom: 10px; right: 10px; left: 10px; width: auto; display: grid; grid-template-columns: 96px 1fr; gap: 0 12px; transform: translateY(calc(100% + 40px)); }
+  .deck.open .deck-card { transform: none; }
+  .deck-cover { grid-row: span 3; }
+  .deck-meta { margin: 0 0 6px; } .deck-actions, .deck-credit, .deck-progress { grid-column: 1 / -1; }
+  .deck-facts { top: 90px; translate: none; left: 16px; right: 16px; gap: 8px; }
+  .deck-facts li { font-size: 18px; }
 }
+
+/* progression : discrète, en bas à gauche */
+.hud .hud-progress {
+  position: fixed; left: clamp(14px, 3vw, 28px); bottom: max(16px, env(safe-area-inset-bottom)); width: auto; order: 0;
+  padding: 6px 12px; gap: 8px; font-size: 12px; opacity: .78; transition: opacity .3s;
+}
+.hud .hud-progress:hover { opacity: 1; }
+.hud .hud-dots i { width: 7px; height: 7px; border-radius: 2px; }
+.reading .hud .hud-progress { opacity: 0; pointer-events: none; }
+/* vignettage léger, en CSS (gratuit pour la carte graphique) */
+.room::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(10, 6, 4, .55) 100%); }
 
 /* mode prise de vue : aucune interface */
 .shot-mode :is(.hud, .room-bubble, .room-hint, .room-controls, .chapter, .vinyl-card, .room-tag, .room-loader) { display: none !important; }

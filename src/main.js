@@ -107,6 +107,7 @@ function renderChapter(c) {
 function openChapter(id, { fromTour = false } = {}) {
   const c = byId[id]
   if (!c) return
+  if (deckOpen) closeDeck()
   if (!fromTour) touring = false
   current = id
   renderChapter(c)
@@ -161,54 +162,96 @@ $$('.carnet-list li').forEach(li => li.addEventListener('click', e => {
 
 
 /* ================= le tourne-disque ================= */
-// Le morceau est lu via le lecteur YouTube officiel (chaîne « Seal - Topic », Warner) :
-// on n'héberge aucun fichier audio. Le lecteur reste visible, comme le demande YouTube.
-const SONG = { id: 'nOoIB5Z64Jw', title: "It's a Man's Man's Man's World", artist: 'Seal', album: 'Soul · 2008' }
-let yt = null, ytReady = null, playing = false
-const card = document.createElement('aside')
-card.className = 'vinyl-card'
-card.setAttribute('aria-label', 'Lecteur du tourne-disque')
-card.innerHTML = `
-  <header><span class="vinyl-disc" aria-hidden="true"></span><div><small>Sur la platine</small><b>${SONG.title}</b><span>${SONG.artist} · ${SONG.album}</span></div><button type="button" class="vinyl-close" aria-label="Arrêter et fermer">✕</button></header>
-  <div class="vinyl-player"><div id="yt-player"></div></div>
-  <button type="button" class="vinyl-toggle">Pause</button>`
-document.body.appendChild(card)
-function loadYT() {
-  if (ytReady) return ytReady
-  ytReady = new Promise(res => {
-    window.onYouTubeIframeAPIReady = res
-    const sc = document.createElement('script')
-    sc.src = 'https://www.youtube.com/iframe_api'
-    document.head.appendChild(sc)
-  })
-  return ytReady
+// L'extrait officiel de 30 s fourni par Apple (API iTunes) : aucun fichier audio hébergé,
+// et un lien vers Apple Music pour écouter le morceau en entier. Pas de paroles affichées
+// (elles sont protégées) : à la place, des infos sur le morceau flottent à côté du disque.
+const SONG = { query: "seal it's a man's man's man's world soul", title: "It's a Man's Man's Man's World", artist: 'Seal', album: 'Soul', year: '2008' }
+const FACTS = [
+  'Une chanson de James Brown, 1966',
+  'Reprise par Seal en 2008',
+  "Sur l'album Soul, produit par David Foster",
+  'Le morceau préféré de Yanis pour coder tard',
+  'Posé sur la platine, côté gauche du bureau',
+]
+let track = null, audio = null, playing = false, deckOpen = false
+const deck = document.createElement('aside')
+deck.className = 'deck'
+deck.setAttribute('aria-label', 'Platine')
+deck.innerHTML = `
+  <div class="deck-card">
+    <img class="deck-cover" alt="" />
+    <div class="deck-meta"><small>Sur la platine</small><b>${SONG.title}</b><span>${SONG.artist} · ${SONG.album} · ${SONG.year}</span></div>
+    <div class="deck-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="deck-progress"><i></i></div>
+    <div class="deck-actions">
+      <button type="button" class="deck-play">Pause</button>
+      <a class="deck-apple" target="_blank" rel="noopener">Écouter en entier ↗</a>
+    </div>
+    <p class="deck-credit">Extrait de 30 s fourni par Apple Music</p>
+    <button type="button" class="deck-close" aria-label="Revenir au bureau">✕</button>
+  </div>
+  <ul class="deck-facts" aria-hidden="true">${FACTS.map((f, i) => `<li style="--i:${i}">${f}</li>`).join('')}</ul>
+  <button type="button" class="deck-mini" aria-label="Revenir à la platine"><span class="deck-mini-disc"></span><span>${SONG.artist}</span></button>`
+document.body.appendChild(deck)
+
+async function loadTrack() {
+  if (track) return track
+  try {
+    const r = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(SONG.query)}&entity=song&country=fr&limit=5`)
+    const j = await r.json()
+    track = j.results.find(t => t.artistName === 'Seal' && /^It's a Man's Man's Man's World$/i.test(t.trackName) && t.previewUrl) || null
+  } catch { track = null }
+  if (track) {
+    const art = track.artworkUrl100.replace('100x100bb', '600x600bb')
+    $('.deck-cover', deck).src = art
+    $('.deck-apple', deck).href = track.trackViewUrl
+    room?.setRecordArt(art)
+  }
+  return track
 }
 function setPlaying(p) {
   playing = p
   room?.setMusic(p)
-  card.classList.toggle('playing', p)
-  $('.vinyl-toggle', card).textContent = p ? 'Pause' : 'Lecture'
+  deck.classList.toggle('playing', p)
+  $('.deck-play', deck).textContent = p ? 'Pause' : 'Lecture'
 }
-async function toggleMusic() {
-  card.classList.add('show')
-  if (!yt) {
-    sound.blip(140)
-    say("Bon choix. Seal, 2008 : la musique préférée de Yanis pour coder tard.", [], 4500)
-    await loadYT()
-    yt = new YT.Player('yt-player', {
-      width: '100%', height: '100%', videoId: SONG.id,
-      playerVars: { autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1 },
-      events: {
-        onReady: e => { e.target.setVolume(75); e.target.playVideo() },
-        onStateChange: e => setPlaying(e.data === 1),
-      },
-    })
-    return
+async function playMusic() {
+  const t = await loadTrack()
+  if (!t) { say("La platine ne trouve pas le disque… réessaie plus tard.", [], 3500); return }
+  if (!audio) {
+    audio = new Audio(t.previewUrl)
+    audio.volume = 0.85
+    audio.addEventListener('play', () => setPlaying(true))
+    audio.addEventListener('pause', () => setPlaying(false))
+    audio.addEventListener('timeupdate', () => { $('.deck-progress i', deck).style.width = (audio.currentTime / (audio.duration || 30)) * 100 + '%' })
+    audio.addEventListener('ended', () => { setPlaying(false); say("C'était l'extrait. La suite est sur Apple Music !", [], 4000) })
   }
-  playing ? yt.pauseVideo() : yt.playVideo()
+  audio.currentTime >= (audio.duration || 30) - 0.2 && (audio.currentTime = 0)
+  audio.play().catch(() => {})
 }
-$('.vinyl-toggle', card).addEventListener('click', () => { sound.click(); toggleMusic() })
-$('.vinyl-close', card).addEventListener('click', () => { sound.click(); yt?.stopVideo(); setPlaying(false); card.classList.remove('show') })
+// la caméra plonge sur la platine, la musique démarre, les infos flottent à côté
+function openDeck() {
+  if (current) closeChapter()
+  deckOpen = true
+  deck.classList.add('open')
+  document.body.classList.add('reading', 'listening')
+  room.focus('turntable')
+  room.panelOpen = true
+  hideBubble(); tag.classList.remove('show')
+  sound.blip(140)
+  playMusic()
+}
+function closeDeck() {
+  if (!deckOpen) return
+  deckOpen = false
+  deck.classList.remove('open')
+  document.body.classList.remove('reading', 'listening')
+  room.panelOpen = false
+  room.unfocus()
+}
+$('.deck-play', deck).addEventListener('click', () => { sound.click(); playing ? audio?.pause() : playMusic() })
+$('.deck-close', deck).addEventListener('click', () => { sound.click(); closeDeck() })
+$('.deck-mini', deck).addEventListener('click', () => { sound.click(); openDeck() })
 
 /* ================= étiquette au survol ================= */
 const tag = $('.room-tag')
@@ -228,7 +271,7 @@ function showTag(id) {
   room.hover(id)
   if (!id || id === current) { tag.classList.remove('show'); return }
   const c = id === 'cat' ? CAT : id === 'turntable' ? DECK : byId[id]
-  if (id === 'turntable') loadYT()
+  if (id === 'turntable') loadTrack()
   tag.innerHTML = `<b>${c.object}</b><span>${c.era}${found.has(id) ? ' · déjà vu ✓' : ''}</span>`
   tag.style.setProperty('--c', c.color)
   tag.classList.add('show')
@@ -242,7 +285,7 @@ async function boot() {
   let createRoom
   try {
     ;({ createRoom } = await import('./room/scene.js'))
-    room = await createRoom(canvas, { snapshot, avatar: 'https://avatars.githubusercontent.com/u/90351357?v=4&s=256', noAO: new URLSearchParams(location.search).has('shot') })
+    room = await createRoom(canvas, { snapshot, avatar: 'https://avatars.githubusercontent.com/u/90351357?v=4&s=256' })
   } catch (err) {
     console.error(err)
     loader.classList.add('gone')
@@ -294,15 +337,16 @@ async function boot() {
     }
     const id = room.pick(e.clientX, e.clientY)
     canvas.style.cursor = id ? 'pointer' : 'grab'
-    if (id !== hovered) { showTag(id); if (id) sound.click(1.35) }
+    if (id !== hovered) showTag(id)
   })
   canvas.addEventListener('pointerup', e => {
     canvas.classList.remove('grabbing')
     if (down && !moved) {
       const id = room.pick(e.clientX, e.clientY)
       if (id === 'cat') petCat()
-      else if (id === 'turntable') toggleMusic()
+      else if (id === 'turntable') openDeck()
       else if (id) openChapter(id)
+      else if (deckOpen) closeDeck()
       else if (current) closeChapter()
     }
     down = null
@@ -318,13 +362,13 @@ async function boot() {
 
   loader.classList.add('gone')
   document.body.classList.add('ready')
-  if (import.meta.env.DEV) window.__bureau = { room, toggleMusic, openChapter }
+  if (import.meta.env.DEV) window.__bureau = { room, openDeck, openChapter }
 
   // mode prise de vue (?shot=objet) : sert à générer les images des études de cas
   const shot = new URLSearchParams(location.search).get('shot')
   if (shot) {
     document.body.classList.add('shot-mode')
-    room.focus(shot)
+    room.focus(shot); room.snap()
     room.hideMascot()
     return
   }
@@ -355,7 +399,7 @@ boot()
 /* ================= clavier ================= */
 document.addEventListener('keydown', e => {
   if (e.metaKey || e.ctrlKey || e.altKey || e.target.closest?.('input, textarea, [contenteditable]')) return
-  if (e.key === 'Escape') { if (carnet.classList.contains('open')) closeCarnet(); else closeChapter() }
+  if (e.key === 'Escape') { if (carnet.classList.contains('open')) closeCarnet(); else if (deckOpen) closeDeck(); else closeChapter() }
   if (e.key === 'ArrowRight') { e.preventDefault(); step(1) }
   if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1) }
   if (e.key.toLowerCase() === 't' && !e.repeat) startTour()
