@@ -60,13 +60,60 @@ function woodTex(base, dark, planks = 0, repeat) {
   }, repeat)
 }
 function screenTex(draw, w = 512, h = 320) { return canvasTex(w, h, draw) }
-const macScreen = () => screenTex((g, w, h) => {
-  const bg = g.createLinearGradient(0, 0, w, h); bg.addColorStop(0, '#312e81'); bg.addColorStop(0.55, '#a855f7'); bg.addColorStop(1, '#f472b6')
-  g.fillStyle = bg; g.fillRect(0, 0, w, h)
-  g.fillStyle = '#000'; g.beginPath(); g.roundRect(w / 2 - 80, 0, 160, 30, [0, 0, 16, 16]); g.fill()
-  g.fillStyle = '#fdf6e3'; g.beginPath(); g.arc(w / 2 - 10, 14, 6, 0, 7); g.arc(w / 2 + 10, 14, 6, 0, 7); g.fill()
-  g.fillStyle = '#fff3'; g.beginPath(); g.roundRect(w / 2 - 100, h - 38, 200, 26, 12); g.fill()
-})
+// un petit Snake qui joue tout seul, en boucle, sur l'écran du MacBook
+function snakeScreen() {
+  const c = document.createElement('canvas'); c.width = 512; c.height = 320
+  const g = c.getContext('2d'), tex = new CanvasTexture(c)
+  tex.colorSpace = SRGBColorSpace; tex.anisotropy = 8
+  const COLS = 24, ROWS = 12, S = 20, OX = (512 - COLS * S) / 2, OY = 44
+  let snake, dir, food, dead = 0, score = 0, best = 0, acc = 0
+  const same = (a, b) => a[0] === b[0] && a[1] === b[1]
+  const blocked = (x, y, body) => x < 0 || y < 0 || x >= COLS || y >= ROWS || body.some(p => p[0] === x && p[1] === y)
+  const placeFood = () => { do food = [Math.random() * COLS | 0, Math.random() * ROWS | 0]; while (snake.some(p => same(p, food))) }
+  const reset = () => { snake = [[6, 6], [5, 6], [4, 6]]; dir = [1, 0]; score = 0; placeFood() }
+  // place libre accessible depuis une case (pour ne pas s'enfermer)
+  const room = (x, y, body) => {
+    const seen = new Set([x + ',' + y]), stack = [[x, y]]
+    while (stack.length && seen.size < 200) {
+      const [a, b] = stack.pop()
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const k = (a + dx) + ',' + (b + dy); if (!seen.has(k) && !blocked(a + dx, b + dy, body)) { seen.add(k); stack.push([a + dx, b + dy]) } }
+    }
+    return seen.size
+  }
+  function step() {
+    if (dead) { if (--dead === 0) reset(); return }
+    const [hx, hy] = snake[0], body = snake.slice(0, -1)
+    const opts = [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(d => !(d[0] === -dir[0] && d[1] === -dir[1]) && !blocked(hx + d[0], hy + d[1], body))
+    if (!opts.length) { dead = 10; return }
+    const cost = d => { const x = hx + d[0], y = hy + d[1]; return Math.abs(x - food[0]) + Math.abs(y - food[1]) + (room(x, y, body) < snake.length + 2 ? 1000 : 0) + Math.random() * 0.3 }
+    dir = opts.sort((a, b) => cost(a) - cost(b))[0]
+    const head = [hx + dir[0], hy + dir[1]]
+    snake.unshift(head)
+    if (same(head, food)) { score++; best = Math.max(best, score); placeFood() } else snake.pop()
+  }
+  function draw() {
+    const bg = g.createLinearGradient(0, 0, 512, 320); bg.addColorStop(0, '#1a1638'); bg.addColorStop(1, '#2d1840')
+    g.fillStyle = bg; g.fillRect(0, 0, 512, 320)
+    g.fillStyle = 'rgba(255,255,255,.035)'
+    for (let x = 0; x < COLS; x++) for (let y = 0; y < ROWS; y++) if ((x + y) % 2) g.fillRect(OX + x * S, OY + y * S, S, S)
+    g.strokeStyle = 'rgba(255,255,255,.12)'; g.lineWidth = 2; g.strokeRect(OX - 1, OY - 1, COLS * S + 2, ROWS * S + 2)
+    g.fillStyle = '#f472b6'; g.beginPath(); g.arc(OX + food[0] * S + S / 2, OY + food[1] * S + S / 2, S * 0.36, 0, 7); g.fill()
+    snake.forEach((p, k) => {
+      const t = k / snake.length
+      g.fillStyle = dead ? (dead % 2 ? '#fca5a5' : '#7f1d1d') : `hsl(${145 - t * 40}, 70%, ${62 - t * 18}%)`
+      g.beginPath(); g.roundRect(OX + p[0] * S + 2, OY + p[1] * S + 2, S - 4, S - 4, 5); g.fill()
+    })
+    g.font = '600 15px "JetBrains Mono", monospace'; g.fillStyle = '#c4b5fd'; g.textAlign = 'left'
+    g.fillText(`SNAKE  ${String(score).padStart(2, '0')}`, OX, OY + ROWS * S + 24)
+    g.textAlign = 'right'; g.fillText(`RECORD ${String(best).padStart(2, '0')}`, OX + COLS * S, OY + ROWS * S + 24)
+    // l'encoche d'OsaNotch, toujours là
+    g.fillStyle = '#000'; g.beginPath(); g.roundRect(256 - 80, 0, 160, 30, [0, 0, 16, 16]); g.fill()
+    g.fillStyle = '#fdf6e3'; g.beginPath(); g.arc(246, 14, 6, 0, 7); g.arc(266, 14, 6, 0, 7); g.fill()
+    tex.needsUpdate = true
+  }
+  reset(); draw()
+  return { tex, tick(dt) { acc += dt; if (acc < 0.11) return; acc = 0; step(); draw() } }
+}
 const crtScreen = () => screenTex((g, w, h) => {
   g.fillStyle = '#04210f'; g.fillRect(0, 0, w, h)
   g.fillStyle = '#4ade80'; g.font = '600 30px "JetBrains Mono", monospace'
@@ -373,7 +420,8 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   ;[-1, 1].forEach(sd => quad(macbook, 0.03, 0.14, mat(0x8f939b, { rough: 0.7 }), [-0.1 + sd * 0.215, 0.8029, -0.128], [-Math.PI / 2, 0, 0]))
   const lid = new Group(); lid.position.set(-0.1, 0.8, -0.21); lid.rotation.x = -0.22; macbook.add(lid)
   box(lid, 0.46, 0.31, 0.012, alu, [0, 0.155, 0], null, { r: 0.008 })
-  const macGlow = quad(lid, 0.43, 0.28, glow(0xffffff, { map: macScreen() }), [0, 0.155, 0.008])
+  const snake = snakeScreen()
+  const macGlow = quad(lid, 0.43, 0.28, glow(0xffffff, { map: snake.tex }), [0, 0.155, 0.008])
   // le dos de l'écran, tourné vers nous, avec des autocollants
   const sticker = (w, h, draw, pos, rz = 0) => quad(lid, w, h, mat(0xffffff, { map: canvasTex(256, Math.round(256 * h / w), draw), bump: false, rough: 0.5, extra: { transparent: true } }), pos, [0, Math.PI, rz])
   sticker(0.09, 0.09, (g, w, h) => { g.fillStyle = '#fdf6e3'; g.beginPath(); g.arc(w / 2, h / 2, w / 2 - 6, 0, 7); g.fill(); g.fillStyle = '#111'; g.beginPath(); g.ellipse(w * 0.4, h * 0.46, 14, 20, 0, 0, 7); g.ellipse(w * 0.6, h * 0.46, 14, 20, 0, 0, 7); g.fill() }, [0.08, 0.2, -0.0075], 0.2)
@@ -411,7 +459,7 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   deskLamp.position.set(-0.78, 1.16, 0.12)
   deskLamp.target.position.set(-0.15, 0.76, -0.2)
   // points de vue : depuis le fauteuil pour l'écran et le clavier, depuis le visiteur pour le reste
-  macbook.userData.view = { pos: [0.1, 1.24, -0.62], look: [0.1, 0.96, 0.12] }
+  macbook.userData.view = { pos: [0.1, 1.5, -0.6], look: [0.1, 0.86, 0.06] }
   keyboard.userData.view = { pos: [-0.25, 1.22, -0.78], look: [-0.25, 0.8, -0.28] }
   notebook.userData.view = { pos: [0.62, 1.25, 0.72], look: [0.62, 0.8, -0.02] }
   phone.userData.view = { pos: [-0.4, 1.18, 0.5], look: [-0.62, 0.8, -0.22] }
@@ -613,15 +661,7 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   for (let k = 0; k < 4; k++) box(vinyls, 0.4, 0.03, 0.9, caseWood, [W - 0.2, 0.035 + k * 0.405, VZ], null, { r: 0.006 })
   box(vinyls, 0.01, 1.24, 0.88, caseWood, [W - 0.006, 0.63, VZ], null, { cast: false })
   const rowY = k => 0.05 + k * 0.405, cubeZ = c => VZ + (c ? 0.2175 : -0.2175)
-  // rangée du milieu : des livres et une enceinte ; en bas : l'ampli et une pile de disques
-  const caseBooks = []
-  for (let z = cubeZ(0) - 0.19; z < cubeZ(0) + 0.17;) { const t = 0.035 + rnd() * 0.035, h = 0.24 + rnd() * 0.1; caseBooks.push([W - 0.2, rowY(1), z, t, h]); z += t + 0.005 }
-  addBooks(vinyls, caseBooks, bookCols)
-  box(vinyls, 0.22, 0.28, 0.18, mat(0x3a2418, { rough: 0.5 }), [W - 0.22, rowY(1) + 0.14, cubeZ(1) - 0.06], null, { r: 0.012 })
-  cyl(vinyls, 0.055, 0.055, 0.01, mat(0x1a1a1a, { rough: 0.8 }), [W - 0.335, rowY(1) + 0.12, cubeZ(1) - 0.06], [0, 0, Math.PI / 2], { cast: false })
-  cyl(vinyls, 0.022, 0.022, 0.01, mat(0x1a1a1a, { rough: 0.8 }), [W - 0.335, rowY(1) + 0.23, cubeZ(1) - 0.06], [0, 0, Math.PI / 2], { cast: false })
-  cyl(vinyls, 0.04, 0.032, 0.07, terracotta, [W - 0.22, rowY(1) + 0.035, cubeZ(1) + 0.11])
-  for (let k = 0; k < 5; k++) { const a = rnd() * 6.28; const l = mesh(vinyls, new PlaneGeometry(0.05, 0.12), shelfLeaf, [W - 0.22 + Math.cos(a) * 0.03, rowY(1) + 0.11, cubeZ(1) + 0.11 + Math.sin(a) * 0.03], null); l.rotation.set(-0.8, -a + Math.PI / 2, 0, 'YXZ') }
+  // en bas : l'ampli et une pile de disques
   box(vinyls, 0.34, 0.13, 0.36, mat(0x2a2a2e, { rough: 0.4, metal: 0.3 }), [W - 0.2, rowY(0) + 0.065, cubeZ(0)], null, { r: 0.01 })
   quad(vinyls, 0.09, 0.05, glow(0xffb35c), [W - 0.372, rowY(0) + 0.075, cubeZ(0) - 0.08], [0, -Math.PI / 2, 0])
   ;[0.02, 0.09, 0.15].forEach(dz => cyl(vinyls, 0.016, 0.016, 0.02, mat(0xc8c8c8, { metal: 0.8, rough: 0.3 }), [W - 0.375, rowY(0) + 0.065, cubeZ(0) + dz], [0, 0, Math.PI / 2], { cast: false }))
@@ -634,7 +674,7 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   for (let d = 0; d < 0.5; d += 0.04) topIvy.push([W - 0.39 - rnd() * 0.02, 1.3 - d, VZ - 0.33 + Math.sin(d * 9) * 0.02, 0, -Math.PI / 2 + (rnd() - 0.5) * 0.6, rnd() * 6.28, 0.9 - d * 0.5])
   addLeaves(vinyls, ivyMat, topIvy, [0.07, 0.07])
 
-  // rangée du haut : les vinyles qu'on peut sortir, la tranche vers la pièce
+  // les deux rangées du haut : les vinyles qu'on peut sortir, la tranche vers la pièce
   const drawSpine = (g, w, h, r, bg = r.spine, ink = r.ink) => {
     g.fillStyle = bg; g.fillRect(0, 0, w, h)
     g.save(); g.translate(w / 2 + 6, h / 2); g.rotate(-Math.PI / 2); g.fillStyle = ink; g.textAlign = 'center'
@@ -659,9 +699,9 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   const sleeveGeo = new BoxGeometry(0.31, 0.31, 0.016)
   const crate = RECORDS.map((r, i) => {
     const g = new Group()
-    // sept disques par case, sur la rangée du haut
-    const c = i < 7 ? 0 : 1, j = i % 7
-    const base = new Vector3(W - 0.215, rowY(2) + 0.158, cubeZ(c) - 0.165 + j * 0.052)
+    // six disques par case, sur les deux rangées du haut
+    const cell = Math.floor(i / 6), j = i % 6, row = cell < 2 ? 2 : 1, c = cell % 2
+    const base = new Vector3(W - 0.215, rowY(row) + 0.158, cubeZ(c) - 0.165 + j * 0.062)
     g.position.copy(base); vinyls.add(g)
     const edge = mat(r.spine, { rough: 0.8 }), front = mat(0xffffff, { map: coverTex(r), bump: false, rough: 0.6 })
     const spine = mat(0xffffff, { map: spineTex(r), bump: false, rough: 0.7 }), back = mat(r.spine, { rough: 0.8 })
@@ -889,7 +929,8 @@ export async function createRoom(canvas, { snapshot, avatar }) {
     platter.rotation.y -= dt * armK * 3.5
     if ((frameN & 31) === 0) { const d = new Date(); minHand.rotation.z = -(d.getMinutes() / 60) * Math.PI * 2; hourHand.rotation.z = -((d.getHours() % 12) / 12 + d.getMinutes() / 720) * Math.PI * 2 }
     phone.position.x = (Math.floor(t * 10) % 40 < 4) ? Math.sin(t * 90) * 0.003 : 0
-    macGlow.material.color.setScalar(0.9 + Math.sin(t * 1.5) * 0.06)
+    macGlow.material.color.setScalar(0.92)
+    snake.tick(dt)
     lampBulb.scale.setScalar(1 + Math.sin(t * 3) * 0.02)
     renderer.render(scene, camera)
     listeners.forEach(f => f())

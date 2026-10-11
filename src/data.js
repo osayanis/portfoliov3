@@ -5,6 +5,7 @@ export const profile = {
   site: 'https://yanis.pro',
   osalabs: 'https://osalabs.fr',
   discord: 'yanis.osa',
+  linkedin: 'https://www.linkedin.com/in/yansb/',
   // Mets ton adresse ici pour activer le bouton "Écris-moi" (sinon il renvoie vers GitHub).
   email: '',
 }

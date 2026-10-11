@@ -68,6 +68,7 @@ const widgets = {
   contact: () => `
     <a class="ch-call" href="${profile.email ? `mailto:${profile.email}` : profile.github}" ${profile.email ? '' : 'target="_blank" rel="noopener"'}><span>Écris-moi</span><b>↵</b></a>
     <ul class="ch-contact">
+      <li><a href="${profile.linkedin}" target="_blank" rel="noopener"><span>LinkedIn</span><b>in/yansb</b></a></li>
       <li><a href="${profile.github}" target="_blank" rel="noopener"><span>GitHub</span><b>@osayanis</b></a></li>
       <li><a href="${profile.osalabs}" target="_blank" rel="noopener"><span>Labo</span><b>osalabs.fr</b></a></li>
       <li><button type="button" data-copy="${profile.discord}"><span>Discord</span><b>${profile.discord}</b><em>copier</em></button></li>
@@ -121,7 +122,6 @@ function openChapter(id, { fromTour = false } = {}) {
   discover(id)
   if (innerWidth >= 760) say(c.say, [], 9000)
   else hideBubble()
-  sound.click(1.1)
   history.replaceState(null, '', `#${id}`)
   tag.classList.remove('show')
 }
@@ -271,7 +271,6 @@ function openDeck() {
   room.focus('turntable')
   room.panelOpen = true
   hideBubble(); tag.classList.remove('show')
-  sound.blip(140)
   playMusic()
 }
 function closeDeck() {
@@ -320,7 +319,6 @@ function pickRecord(i) {
   $('.deck-cover', crateCard).style.background = r.spine
   crateCard.classList.add('open')
   hideBubble(); tag.classList.remove('show')
-  sound.blip(200)
 }
 function putBack() {
   if (picked < 0) return
@@ -357,7 +355,6 @@ let catLine = 0
 function petCat() {
   room.focus('cat')
   say(CAT_LINES[catLine++ % CAT_LINES.length], [], 4200)
-  ;[220, 180, 240].forEach((f, i) => setTimeout(() => sound.blip(f), i * 120))
   setTimeout(() => { if (!current) room.unfocus() }, 4400)
 }
 function showTag(id) {
@@ -462,7 +459,7 @@ async function boot() {
       if (i !== hoveredRec) {
         hoveredRec = i
         room.hoverRecord(i)
-        if (i >= 0) { const r = RECORDS[i]; tag.innerHTML = `<b>${r.title}</b><span>${r.artist} · ${r.year}</span>`; tag.style.setProperty('--c', r.spine === '#121212' ? '#d8b46a' : '#ffb35c'); tag.classList.add('show'); sound.click(1.4) }
+        if (i >= 0) { const r = RECORDS[i]; tag.innerHTML = `<b>${r.title}</b><span>${r.artist} · ${r.year}</span>`; tag.style.setProperty('--c', r.spine === '#121212' ? '#d8b46a' : '#ffb35c'); tag.classList.add('show') }
         else tag.classList.remove('show')
       }
       return
