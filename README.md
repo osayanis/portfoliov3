@@ -26,7 +26,7 @@ npm run build    # génère dist/
 
 On entre par un mot d'accueil, puis la caméra glisse jusqu'au bureau.
 
-Et hors parcours : la **discothèque** sous le portrait contient six vinyles. On en choisit un, il sort de sa case, le disque glisse hors de la pochette, et on peut le poser sur le **tourne-disque**. La platine, vue de dessus, joue l'extrait officiel de 30 s fourni par Apple Music (API iTunes), avec la pochette sur le macaron et un lien pour écouter en entier. Aucun fichier audio n'est hébergé ; la liste des disques est dans `src/room/records.js`. Le **chat** sur la banquette a quelques répliques.
+Et hors parcours : la **discothèque** sous le portrait contient les morceaux préférés de Yanis. On en choisit un, il sort de sa case, le disque glisse hors de la pochette, et on peut le poser sur le **tourne-disque**. La platine, vue de dessus, joue l'extrait officiel de 30 s fourni par Apple Music (API iTunes), avec la pochette sur le macaron et un lien pour écouter en entier. Aucun fichier audio n'est hébergé ; la liste des disques est dans `src/room/records.js`. Le **chat** sur la banquette a quelques répliques.
 
 La vue derrière la baie vitrée est une vidéo en boucle de [Mixkit](https://mixkit.co/free-stock-video/new-york-buildings-at-night-4334/) (licence Mixkit Stock Video Free).
 

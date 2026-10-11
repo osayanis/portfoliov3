@@ -29,7 +29,7 @@ html:not(.dark) .room-page {
 }
 html:not(.dark) .room::before { opacity: 0; }
 @keyframes twinkle { to { opacity: .35; } }
-#scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; opacity: 0; transition: opacity 1s ease, filter .6s; }
+#scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: default; touch-action: none; opacity: 0; transition: opacity 1s ease, filter .6s; }
 .ready #scene { opacity: 1; }
 #scene.grabbing { cursor: grabbing; }
 .carnet-open #scene { filter: blur(6px) brightness(.7); }

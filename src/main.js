@@ -442,12 +442,13 @@ async function boot() {
 
   // souris & doigt : glisser pour tourner, cliquer pour ouvrir
   let down = null, moved = false
-  canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY }; moved = false; canvas.setPointerCapture(e.pointerId) })
+  // seul le doigt fait tourner la vue (mobile) ; à la souris, la caméra reste fixe
+  canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, touch: e.pointerType === 'touch' }; moved = false; canvas.setPointerCapture(e.pointerId) })
   canvas.addEventListener('pointermove', e => {
     if (down) {
       const dx = e.clientX - down.x, dy = e.clientY - down.y
       if (Math.abs(dx) + Math.abs(dy) > 5) moved = true
-      if (moved) {
+      if (moved && down.touch) {
         room.rotate(-(e.movementX || 0) * 0.004, (e.movementY || 0) * 0.002)
         canvas.classList.add('grabbing')
         showTag(null)
@@ -457,7 +458,7 @@ async function boot() {
     // dans la discothèque, on survole les disques un par un
     if (shelfOpen && picked < 0) {
       const i = room.pickRecord(e.clientX, e.clientY)
-      canvas.style.cursor = i >= 0 ? 'pointer' : 'grab'
+      canvas.style.cursor = i >= 0 ? 'pointer' : 'default'
       if (i !== hoveredRec) {
         hoveredRec = i
         room.hoverRecord(i)
@@ -467,7 +468,7 @@ async function boot() {
       return
     }
     const id = room.pick(e.clientX, e.clientY)
-    canvas.style.cursor = id ? 'pointer' : 'grab'
+    canvas.style.cursor = id ? 'pointer' : 'default'
     if (id !== hovered) showTag(id)
   })
   canvas.addEventListener('pointerup', e => {
