@@ -628,6 +628,66 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   box(neon, 0.04, 0.42, 1.25, mat(0x1a1424, { rough: 0.5 }), [W - 0.02, 2.0, -1.75], null, { r: 0.04 })
   const neonGlow = quad(neon, 1.35, 0.4, glow(0xffffff, { map: neonTex(), transparent: true }), [W - 0.05, 2.0, -1.75], [0, -Math.PI / 2, 0])
 
+  // sous le néon : quatre crochets à clés, chacun avec le porte-clé d'une app OsaLabs (simple déco)
+  box(world, 0.025, 0.07, 0.74, mantelWood, [W - 0.0125, 1.68, -1.75], null, { r: 0.006 })
+  const charmTex = (color, draw) => canvasTex(128, 128, (g, w, h) => {
+    g.clearRect(0, 0, w, h); g.lineJoin = 'round'; g.lineCap = 'round'
+    g.save(); g.shadowColor = 'rgba(0,0,0,.35)'; g.shadowBlur = 0; g.strokeStyle = '#2a1b13'; g.lineWidth = 12; draw(g, w, h, true); g.restore()
+    g.fillStyle = color; g.strokeStyle = color; draw(g, w, h, false)
+    g.fillStyle = 'rgba(255,255,255,.35)'; g.beginPath(); g.ellipse(w * 0.36, h * 0.3, 14, 7, -0.6, 0, 7); g.fill()
+  })
+  const charms = [
+    // OsaParty : une note de musique
+    ['#f472b6', (g, w, h, edge) => {
+      const p = () => { g.beginPath(); g.ellipse(36, 98, 20, 15, -0.4, 0, 7); g.moveTo(98, 84); g.ellipse(84, 84, 20, 15, -0.4, 0, 7) }
+      const bars = () => { g.beginPath(); g.moveTo(52, 96); g.lineTo(52, 26); g.lineTo(100, 14); g.lineTo(100, 82) }
+      if (edge) { p(); g.stroke(); g.lineWidth = 22; bars(); g.stroke(); return }
+      p(); g.fill(); g.lineWidth = 10; bars(); g.stroke(); g.lineWidth = 14; g.beginPath(); g.moveTo(52, 32); g.lineTo(100, 20); g.stroke()
+    }],
+    // OsaDrop : un fichier, coin plié
+    ['#60a5fa', (g, w, h, edge) => {
+      g.beginPath(); g.moveTo(30, 12); g.lineTo(76, 12); g.lineTo(100, 36); g.lineTo(100, 116); g.lineTo(30, 116); g.closePath()
+      if (edge) { g.stroke(); return }
+      g.fill(); g.fillStyle = 'rgba(255,255,255,.55)'; g.beginPath(); g.moveTo(76, 12); g.lineTo(76, 36); g.lineTo(100, 36); g.fill()
+      g.fillStyle = 'rgba(20,30,60,.35)'; [58, 74, 90].forEach(y => g.fillRect(42, y, 46, 6))
+    }],
+    // OsaCast : un écran sur son pied
+    ['#818cf8', (g, w, h, edge) => {
+      const shape = () => { g.beginPath(); g.roundRect(12, 18, 104, 70, 10); g.moveTo(54, 88); g.rect(54, 88, 20, 16); g.roundRect(36, 102, 56, 12, 5) }
+      if (edge) { shape(); g.stroke(); return }
+      shape(); g.fill(); g.fillStyle = 'rgba(15,15,40,.55)'; g.beginPath(); g.roundRect(22, 28, 84, 50, 6); g.fill()
+      g.fillStyle = '#fff'; g.beginPath(); g.moveTo(56, 42); g.lineTo(76, 53); g.lineTo(56, 64); g.fill()
+    }],
+    // OsaBoard : un tableau blanc sur chevalet
+    ['#2dd4bf', (g, w, h, edge) => {
+      const shape = () => { g.beginPath(); g.roundRect(10, 14, 108, 76, 8); g.moveTo(34, 88); g.lineTo(22, 118); g.moveTo(94, 88); g.lineTo(106, 118) }
+      g.lineWidth = edge ? 22 : 9
+      if (edge) { shape(); g.stroke(); g.fill(); return }
+      shape(); g.stroke(); g.beginPath(); g.roundRect(10, 14, 108, 76, 8); g.fill()
+      g.fillStyle = '#f0fdfa'; g.beginPath(); g.roundRect(20, 24, 88, 56, 5); g.fill()
+      g.strokeStyle = '#0f766e'; g.lineWidth = 5; g.beginPath(); g.moveTo(30, 62); g.lineTo(48, 44); g.lineTo(62, 56); g.lineTo(84, 34); g.stroke()
+      g.fillStyle = '#f472b6'; g.fillRect(84, 60, 14, 10)
+    }],
+  ]
+  const steel = mat(0xc8c8cc, { metal: 0.85, rough: 0.3 })
+  const keyrings = charms.map(([color, draw], i) => {
+    const z = -2.04 + i * 0.19
+    // le crochet, relevé au bout
+    cyl(world, 0.005, 0.005, 0.05, brass, [W - 0.05, 1.665, z], [0, 0, Math.PI / 2], { cast: false })
+    cyl(world, 0.005, 0.005, 0.018, brass, [W - 0.074, 1.672, z], null, { cast: false })
+    const g = new Group(); g.position.set(W - 0.065, 1.66, z); world.add(g)
+    mesh(g, new TorusGeometry(0.016, 0.0028, 6, 20), steel, [0, -0.012, 0], [0, Math.PI / 2, 0], { cast: false })
+    // une clé
+    const key = new Group(); key.position.set(0.002, -0.03, -0.009); key.rotation.x = -0.25; g.add(key)
+    cyl(key, 0.011, 0.011, 0.003, steel, [0, 0, 0], [0, 0, Math.PI / 2], { cast: false, seg: 14 })
+    box(key, 0.003, 0.042, 0.007, steel, [0, -0.03, 0], null, { cast: false, r: 0.001 })
+    ;[0.01, 0.02].forEach(dy => box(key, 0.003, 0.004, 0.006, steel, [0, -0.04 + dy, 0.005], null, { cast: false, r: 0.001 }))
+    // la chaînette et le porte-clé en acrylique
+    ;[0, 1].forEach(k => mesh(g, new TorusGeometry(0.005, 0.0012, 4, 10), steel, [0, -0.032 - k * 0.009, 0.006], [0, k ? 0 : Math.PI / 2, 0], { cast: false }))
+    quad(g, 0.085, 0.085, new MeshStandardMaterial({ map: charmTex(color, draw), alphaTest: 0.4, side: DoubleSide, roughness: 0.25, metalness: 0.05 }), [-0.004, -0.092, 0.006], [0, -Math.PI / 2, 0])
+    return g
+  })
+
   // horloge au-dessus du néon
   const clock = new Group(); clock.position.set(RW - 0.03, 2.52, -1.75); clock.rotation.y = -Math.PI / 2; world.add(clock)
   cyl(clock, 0.15, 0.15, 0.04, mat(0x2a1b13, { rough: 0.5 }), [0, 0, 0], [Math.PI / 2, 0, 0], { seg: 32 })
@@ -661,7 +721,15 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   for (let k = 0; k < 4; k++) box(vinyls, 0.4, 0.03, 0.9, caseWood, [W - 0.2, 0.035 + k * 0.405, VZ], null, { r: 0.006 })
   box(vinyls, 0.01, 1.24, 0.88, caseWood, [W - 0.006, 0.63, VZ], null, { cast: false })
   const rowY = k => 0.05 + k * 0.405, cubeZ = c => VZ + (c ? 0.2175 : -0.2175)
-  // en bas : l'ampli et une pile de disques
+  // rangée du milieu : des livres et une enceinte ; en bas : l'ampli et une pile de disques
+  const caseBooks = []
+  for (let z = cubeZ(0) - 0.19; z < cubeZ(0) + 0.17;) { const t = 0.035 + rnd() * 0.035, h = 0.24 + rnd() * 0.1; caseBooks.push([W - 0.2, rowY(1), z, t, h]); z += t + 0.005 }
+  addBooks(vinyls, caseBooks, bookCols)
+  box(vinyls, 0.22, 0.28, 0.18, mat(0x3a2418, { rough: 0.5 }), [W - 0.22, rowY(1) + 0.14, cubeZ(1) - 0.06], null, { r: 0.012 })
+  cyl(vinyls, 0.055, 0.055, 0.01, mat(0x1a1a1a, { rough: 0.8 }), [W - 0.335, rowY(1) + 0.12, cubeZ(1) - 0.06], [0, 0, Math.PI / 2], { cast: false })
+  cyl(vinyls, 0.022, 0.022, 0.01, mat(0x1a1a1a, { rough: 0.8 }), [W - 0.335, rowY(1) + 0.23, cubeZ(1) - 0.06], [0, 0, Math.PI / 2], { cast: false })
+  cyl(vinyls, 0.04, 0.032, 0.07, terracotta, [W - 0.22, rowY(1) + 0.035, cubeZ(1) + 0.11])
+  for (let k = 0; k < 5; k++) { const a = rnd() * 6.28; const l = mesh(vinyls, new PlaneGeometry(0.05, 0.12), shelfLeaf, [W - 0.22 + Math.cos(a) * 0.03, rowY(1) + 0.11, cubeZ(1) + 0.11 + Math.sin(a) * 0.03], null); l.rotation.set(-0.8, -a + Math.PI / 2, 0, 'YXZ') }
   box(vinyls, 0.34, 0.13, 0.36, mat(0x2a2a2e, { rough: 0.4, metal: 0.3 }), [W - 0.2, rowY(0) + 0.065, cubeZ(0)], null, { r: 0.01 })
   quad(vinyls, 0.09, 0.05, glow(0xffb35c), [W - 0.372, rowY(0) + 0.075, cubeZ(0) - 0.08], [0, -Math.PI / 2, 0])
   ;[0.02, 0.09, 0.15].forEach(dz => cyl(vinyls, 0.016, 0.016, 0.02, mat(0xc8c8c8, { metal: 0.8, rough: 0.3 }), [W - 0.375, rowY(0) + 0.065, cubeZ(0) + dz], [0, 0, Math.PI / 2], { cast: false }))
@@ -674,7 +742,7 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   for (let d = 0; d < 0.5; d += 0.04) topIvy.push([W - 0.39 - rnd() * 0.02, 1.3 - d, VZ - 0.33 + Math.sin(d * 9) * 0.02, 0, -Math.PI / 2 + (rnd() - 0.5) * 0.6, rnd() * 6.28, 0.9 - d * 0.5])
   addLeaves(vinyls, ivyMat, topIvy, [0.07, 0.07])
 
-  // les deux rangées du haut : les vinyles qu'on peut sortir, la tranche vers la pièce
+  // la rangée du haut : les vinyles qu'on peut sortir, la tranche vers la pièce
   const drawSpine = (g, w, h, r, bg = r.spine, ink = r.ink) => {
     g.fillStyle = bg; g.fillRect(0, 0, w, h)
     g.save(); g.translate(w / 2 + 6, h / 2); g.rotate(-Math.PI / 2); g.fillStyle = ink; g.textAlign = 'center'
@@ -699,9 +767,9 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   const sleeveGeo = new BoxGeometry(0.31, 0.31, 0.016)
   const crate = RECORDS.map((r, i) => {
     const g = new Group()
-    // six disques par case, sur les deux rangées du haut
-    const cell = Math.floor(i / 6), j = i % 6, row = cell < 2 ? 2 : 1, c = cell % 2
-    const base = new Vector3(W - 0.215, rowY(row) + 0.158, cubeZ(c) - 0.165 + j * 0.062)
+    // tous sur la rangée du haut, répartis dans les deux cases
+    const per = Math.ceil(RECORDS.length / 2), c = i < per ? 0 : 1, j = c ? i - per : i
+    const base = new Vector3(W - 0.215, rowY(2) + 0.158, cubeZ(c) - 0.18 + j * (0.36 / Math.max(1, per - 1)))
     g.position.copy(base); vinyls.add(g)
     const edge = mat(r.spine, { rough: 0.8 }), front = mat(0xffffff, { map: coverTex(r), bump: false, rough: 0.6 })
     const spine = mat(0xffffff, { map: spineTex(r), bump: false, rough: 0.7 }), back = mat(r.spine, { rough: 0.8 })
@@ -911,6 +979,8 @@ export async function createRoom(canvas, { snapshot, avatar }) {
     const flick = 0.82 + Math.sin(t * 9.1) * 0.07 + Math.sin(t * 13.7 + 1.3) * 0.06 + Math.sin(t * 4.3) * 0.05
     fireL.intensity = 1.25 * flick; fireHalo.material.opacity = 0.75 * flick
     flames.forEach(f => { const u = f.userData, n = 0.75 + Math.sin(t * 7 + u.seed) * 0.15 + Math.sin(t * 11.3 + u.seed * 2) * 0.1; f.scale.set(0.12 * (0.9 + n * 0.15), u.h * n, 1); f.position.set(W - 0.12, 0.14 + u.h * n / 2, FZ + u.dz + Math.sin(t * 5 + u.seed) * 0.008) })
+    // les porte-clés se balancent à peine
+    keyrings.forEach((k, i) => { k.rotation.x = Math.sin(t * 1.1 + i * 1.7) * 0.035 })
     // le chat cligne lentement des yeux
     const blink = (t % 6.5) > 6.2 ? 0.1 : 1
     catEyes.forEach(e => { e.scale.y += (blink - e.scale.y) * 0.4 })
