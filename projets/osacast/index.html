@@ -61,13 +61,13 @@
           <div><dt>Rôle</dt><dd>Conception et développement</dd></div>
           <div><dt>Période</dt><dd>5 → 8 octobre 2026</dd></div>
           <div><dt>Statut</dt><dd>En ligne</dd></div>
-          <div class="cs-meta-stack"><dt>Stack</dt><dd><span>WebRTC</span><span>getDisplayMedia</span><span>Next.js</span><span>React</span><span>Socket.io</span></dd></div>
+          <div class="cs-meta-stack"><dt>Stack</dt><dd><span>WebRTC</span><span>getDisplayMedia</span><span>TURN</span><span>Next.js</span><span>React</span><span>Socket.io</span></dd></div>
         </dl>
       </section>
 
       <!-- CHIFFRES -->
       <section class="cs-stats" aria-label="En chiffres">
-        <div class="cs-stat reveal" style="--d:0s"><b>770</b><span>lignes de code</span></div><div class="cs-stat reveal" style="--d:0.07s"><b>1</b><span>clic pour diffuser</span></div><div class="cs-stat reveal" style="--d:0.14s"><b>2</b><span>formats gérés : portrait et paysage</span></div><div class="cs-stat reveal" style="--d:0.21000000000000002s"><b>0</b><span>logiciel à installer</span></div>
+        <div class="cs-stat reveal" style="--d:0s"><b>770</b><span>lignes de code</span></div><div class="cs-stat reveal" style="--d:0.07s"><b>1</b><span>clic pour diffuser</span></div><div class="cs-stat reveal" style="--d:0.14s"><b>30</b><span>images par seconde</span></div><div class="cs-stat reveal" style="--d:0.21000000000000002s"><b>0</b><span>logiciel à installer</span></div>
       </section>
 
       <!-- POINT DE DÉPART -->
@@ -82,7 +82,7 @@
       <!-- VISUELS -->
       <section class="cs-section cs-visuals">
         <div class="cs-head reveal"><p class="eyebrow"><span class="num">02</span>En images</p><h2>À quoi ça <em>ressemble.</em></h2></div>
-        <div class="vis-grid vis-grid-mixed"><figure class="vis vis-browser wide reveal"><div class="frame-browser"><div class="fb-bar"><i></i><i></i><i></i><span>osacast.osalabs.fr</span></div><img src="/media/osacast/landing.webp" alt="Accueil d'OsaCast" loading="lazy" decoding="async"></div><figcaption>Créer un cast ou en rejoindre un, par code ou QR code.</figcaption></figure></div>
+        <div class="vis-grid vis-grid-mixed"><figure class="vis vis-browser wide reveal"><div class="frame-browser"><div class="fb-bar"><i></i><i></i><i></i><span>osacast.osalabs.fr</span></div><img src="/media/osacast/landing.webp" alt="Accueil d'OsaCast avec la mascotte" loading="lazy" decoding="async"></div><figcaption>Diffuser son écran ou regarder celui de quelqu'un, avec un code à 6 caractères.</figcaption></figure><figure class="vis vis-phone reveal"><div class="frame-phone"><span class="fp-notch"></span><img src="/media/osacast/mobile.webp" alt="OsaCast sur mobile" loading="lazy" decoding="async"></div><figcaption>Sur téléphone, on regarde un écran partagé en plein écran.</figcaption></figure></div>
       </section>
 
       <!-- FONCTIONNEMENT -->
@@ -116,7 +116,7 @@
     </g>
   </svg></div>
         <ol class="cs-steps">
-          <li class="reveal" style="--d:0s"><span class="step-key" aria-hidden="true">1</span><div><h3>Capture de l'écran</h3><p>Le diffuseur choisit un écran, une fenêtre ou un onglet avec <code>getDisplayMedia</code>, son compris.</p></div></li><li class="reveal" style="--d:0.06s"><span class="step-key" aria-hidden="true">2</span><div><h3>Un code de session</h3><p>Le serveur crée une session, et le spectateur la rejoint par code ou QR code.</p></div></li><li class="reveal" style="--d:0.12s"><span class="step-key" aria-hidden="true">3</span><div><h3>La poignée de main</h3><p>Offre, réponse et candidats ICE transitent par Socket.io.</p></div></li><li class="reveal" style="--d:0.18s"><span class="step-key" aria-hidden="true">4</span><div><h3>Le flux direct</h3><p>La vidéo part en pair-à-pair. Le lecteur s'adapte au format du flux, portrait ou paysage, et passe en plein écran.</p></div></li>
+          <li class="reveal" style="--d:0s"><span class="step-key" aria-hidden="true">1</span><div><h3>Capture de l'écran</h3><p>Le diffuseur choisit un écran, une fenêtre ou un onglet avec <code>getDisplayMedia</code>, son compris.</p></div></li><li class="reveal" style="--d:0.06s"><span class="step-key" aria-hidden="true">2</span><div><h3>Un code de session</h3><p>Le serveur crée une session, et le spectateur la rejoint par code ou QR code.</p></div></li><li class="reveal" style="--d:0.12s"><span class="step-key" aria-hidden="true">3</span><div><h3>La poignée de main</h3><p>Offre, réponse et candidats ICE transitent par Socket.io.</p></div></li><li class="reveal" style="--d:0.18s"><span class="step-key" aria-hidden="true">4</span><div><h3>Le flux direct</h3><p>La vidéo part en pair-à-pair, à 30 images par seconde. Si le réseau bloque la connexion directe, un serveur relais TURN prend le relais.</p></div></li><li class="reveal" style="--d:0.24s"><span class="step-key" aria-hidden="true">5</span><div><h3>Regarder confortablement</h3><p>Le lecteur suit le format du flux (portrait ou paysage), passe en plein écran ou en image dans l'image pour continuer à travailler à côté.</p></div></li>
         </ol>
       </section>
 
@@ -146,7 +146,7 @@
       <section class="cs-section cs-journal">
         <div class="cs-head reveal"><p class="eyebrow"><span class="num">⏱</span>Journal de bord</p><h2>Comment c'est <em>arrivé.</em></h2></div>
         <ol class="journal">
-          <li class="reveal"><time>5 oct · 16h14</time><span class="j-dot" aria-hidden="true"></span><div><h3>Version complète</h3><p>Socket.io, WebRTC robuste et interface en verre dépoli.</p></div></li><li class="reveal"><time>5 oct · 16h37</time><span class="j-dot" aria-hidden="true"></span><div><h3>Portrait et paysage</h3><p>Le lecteur suit le ratio du flux.</p></div></li><li class="reveal"><time>8 oct · 14h18</time><span class="j-dot" aria-hidden="true"></span><div><h3>Pont OsaNotch</h3><p>Le notch peut diffuser et regarder avec le même moteur.</p></div></li>
+          <li class="reveal"><time>5 oct · 16h14</time><span class="j-dot" aria-hidden="true"></span><div><h3>Version complète</h3><p>Socket.io, WebRTC robuste et interface en verre dépoli.</p></div></li><li class="reveal"><time>5 oct · 16h37</time><span class="j-dot" aria-hidden="true"></span><div><h3>Portrait et paysage</h3><p>Le lecteur suit le ratio du flux.</p></div></li><li class="reveal"><time>8 oct · 14h18</time><span class="j-dot" aria-hidden="true"></span><div><h3>Pont OsaNotch</h3><p>Le notch peut diffuser et regarder avec le même moteur.</p></div></li><li class="reveal"><time>9 oct · 15h16</time><span class="j-dot" aria-hidden="true"></span><div><h3>Nouvelle interface</h3><p>Mascotte vivante, image dans l'image et relais TURN pour les réseaux difficiles.</p></div></li>
         </ol>
       </section>
 
