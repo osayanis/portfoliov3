@@ -908,3 +908,10 @@ html.dark .feature-list li::before { background: #c4b5fd; }
 html.dark .gh-ev-icon { background: #ddd6fe; }
 html.dark :is(.theme-toggle, .sound-toggle) { border-color: #4a463e; box-shadow: 0 2px 0 #000; }
 html.dark .island-tabs button, html.dark .nd-tour { border-color: #4a463e; }
+
+/* logo : « Yanis » écrit comme une signature */
+.signature {
+  font-family: 'Mrs Saint Delafield', 'Brush Script MT', cursive; font-weight: 400; font-style: normal;
+  font-size: 2.05em; line-height: .7; letter-spacing: 0; display: inline-block; transform: rotate(-4deg) translateY(.08em);
+  color: inherit !important; padding: 0 .12em 0 0;
+}
