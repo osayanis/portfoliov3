@@ -1,6 +1,7 @@
 import './style.css'
 import { profile, heroKeys, osalabsApps, stack, timeline, method } from './data.js'
 import { initGithub } from './github.js'
+import mountNotch from './demos/notch.js'
 import { $, $$, reduceMotion, sound, toast, confetti, io, onceVisible, updateEyes } from './core.js'
 import { tilt, progressBar, parallax, magnetic, splitWords } from './fx.js'
 
@@ -96,45 +97,23 @@ document.addEventListener('keydown', e => {
 
 
 /* ================= OSANOTCH ================= */
-const island = $('#island')
-const tabs = $$('.island-tabs button')
-function setIsland(state) {
-  island.dataset.state = state
-  island.classList.add('open')
-  tabs.forEach(t => t.setAttribute('aria-selected', String(t.dataset.state === state)))
-  if (state === 'ai') sound.chime()
-  requestAnimationFrame(updateEyes)
-}
-tabs.forEach(t => t.addEventListener('click', () => { sound.click(); setIsland(t.dataset.state) }))
-island.addEventListener('click', () => { island.classList.toggle('open'); sound.click(1.1) })
-// l'écran du MacBook s'ouvre pendant qu'on défile, puis l'île se déploie
+// l'aperçu interactif (le même composant que sur l'étude de cas)
+const notchApi = mountNotch($('#notch-host'), { sound, updateEyes }, { controls: false, tour: true, waitForStart: true })
 const mac = $('#mac')
+const base = document.createElement('div')
+base.className = 'mac-base'
+base.setAttribute('aria-hidden', 'true')
+$('.nd-screen', mac).after(base)
+// l'écran du MacBook s'ouvre pendant qu'on défile, puis la visite guidée démarre
 let lidOpen = false
 function lid() {
   const r = mac.getBoundingClientRect()
   const p = reduceMotion ? 0 : Math.min(1, Math.max(0, (r.top - innerHeight * 0.3) / (innerHeight * 0.5)))
   mac.style.setProperty('--lid', p.toFixed(3))
-  if (p === 0 && !lidOpen) { lidOpen = true; setTimeout(() => island.classList.add('open'), 350) }
+  if (p === 0 && !lidOpen) { lidOpen = true; setTimeout(() => notchApi.start(), 300) }
 }
 addEventListener('scroll', lid, { passive: true })
 lid()
-
-// Paroles qui défilent ligne par ligne
-const lyricLines = $$('#lyrics p')
-const lyricsBox = $('#lyrics')
-const inner = document.createElement('div')
-inner.className = 'lyrics-inner'
-lyricLines.forEach(p => inner.appendChild(p))
-lyricsBox.appendChild(inner)
-let lyricIdx = 0
-setInterval(() => {
-  if (island.dataset.state !== 'music' || !island.classList.contains('open')) return
-  lyricLines.forEach((p, i) => p.classList.toggle('on', i === lyricIdx))
-  const lh = lyricLines[0].offsetHeight
-  inner.style.transform = `translateY(${-Math.max(0, lyricIdx - 1) * lh}px)`
-  lyricIdx = (lyricIdx + 1) % lyricLines.length
-}, 2000)
-lyricLines[0].classList.add('on')
 
 /* ================= OSALABS ================= */
 const visuals = {

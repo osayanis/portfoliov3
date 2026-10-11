@@ -80,6 +80,7 @@ function page(p, i) {
     <meta property="og:description" content="${esc(desc)}" />
     <meta property="og:url" content="${SITE}/projets/${p.slug}/" />
     ${p.visuals[0] ? `<meta property="og:image" content="${SITE}${p.visuals[0].src}" />` : ''}
+    <script>(function(){var t;try{t=localStorage.getItem('theme')}catch(e){}var d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d)})()</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -95,6 +96,7 @@ function page(p, i) {
         <a href="/#labo">Labo</a>
         <a href="/#apropos">À propos</a>
         <a href="/#github">GitHub</a>
+        <button class="theme-toggle" type="button" aria-label="Basculer le mode sombre" title="Mode sombre / clair"><span class="tt-sun" aria-hidden="true">☀</span><span class="tt-moon" aria-hidden="true">☾</span></button>
         <button class="sound-toggle" type="button" aria-pressed="true" title="Activer / couper le son">
           <span class="sound-on">Son</span><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span>
         </button>
