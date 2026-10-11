@@ -106,6 +106,30 @@ soundBtn.addEventListener('click', () => {
 })
 }
 
+/* ================= THÈME CLAIR / SOMBRE ================= */
+const themeBtn = $('.theme-toggle')
+const darkMq = matchMedia('(prefers-color-scheme: dark)')
+function applyTheme(dark) {
+  document.documentElement.classList.toggle('dark', dark)
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#1a1916' : getComputedStyle(document.body).getPropertyValue('--p-soft').trim() || '#f6f3ec')
+  dispatchEvent(new CustomEvent('themechange', { detail: { dark } }))
+}
+applyTheme(document.documentElement.classList.contains('dark'))
+themeBtn?.addEventListener('click', () => {
+  const dark = !document.documentElement.classList.contains('dark')
+  try { localStorage.setItem('theme', dark ? 'dark' : 'light') } catch {}
+  // petite transition douce entre les deux thèmes
+  document.documentElement.classList.add('theme-anim')
+  setTimeout(() => document.documentElement.classList.remove('theme-anim'), 500)
+  applyTheme(dark)
+  sound.click(dark ? 0.8 : 1.2)
+})
+darkMq.addEventListener('change', e => {
+  let saved = null
+  try { saved = localStorage.getItem('theme') } catch {}
+  if (!saved) applyTheme(e.matches)
+})
+
 /* ================= TOAST + CONFETTIS ================= */
 let toastTimer
 function toast(msg) {

@@ -71,7 +71,7 @@ export const projects = [
     demo: {
       kind: 'notch',
       title: "Survole l'encoche",
-      intro: "Une reproduction simplifiée de l'île. Survole-la, change d'onglet, glisse un fichier dessus ou touche au volume.",
+      intro: "Une reproduction de l'île. Une visite guidée tourne toute seule ; prends la main quand tu veux : survole l'encoche, change d'onglet, glisse un fichier dessus ou touche au volume.",
     },
     challenges: [
       {
