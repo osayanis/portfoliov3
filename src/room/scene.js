@@ -4,12 +4,11 @@
 import {
   Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, MeshStandardMaterial, MeshBasicMaterial,
   CylinderGeometry, SphereGeometry, ConeGeometry, PlaneGeometry, TorusGeometry, BufferGeometry, Float32BufferAttribute,
-  Points, PointsMaterial, Sprite, SpriteMaterial, CanvasTexture, SRGBColorSpace, RepeatWrapping, TextureLoader,
+  Points, PointsMaterial, InstancedMesh, Object3D, BoxGeometry, Sprite, SpriteMaterial, CanvasTexture, SRGBColorSpace, RepeatWrapping, TextureLoader,
   HemisphereLight, DirectionalLight, PointLight, SpotLight, AdditiveBlending,
   Raycaster, Vector2, Vector3, Color, PCFSoftShadowMap, ACESFilmicToneMapping, PMREMGenerator, DoubleSide, MathUtils,
 } from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
-import { GTAOPass } from 'three/examples/jsm/postprocessing/GTAOPass.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { VignetteShader } from 'three/examples/jsm/shaders/VignetteShader.js'
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
@@ -163,13 +162,30 @@ const leafTex = (color, vein) => canvasTex(256, 512, (g, w, h) => {
   g.strokeStyle = 'rgba(255,255,220,.35)'; g.lineWidth = 3; g.beginPath(); g.moveTo(w / 2, h - 4); g.lineTo(w / 2, 10); g.stroke()
 })
 
+// des livres en un seul dessin : chaque livre est une instance (position, taille, couleur)
+function addBooks(parent, spots, cols, rotY = 0) {
+  const inst = new InstancedMesh(new BoxGeometry(1, 1, 1), new MeshStandardMaterial({ roughness: 0.85 }), spots.length)
+  const o = new Object3D(), c = new Color()
+  spots.forEach(([x, y, z, t, h], i) => {
+    o.position.set(x, y + h / 2, z + t / 2); o.rotation.set(rnd() < 0.12 ? 0.12 : 0, rotY, 0); o.scale.set(0.24, h, t); o.updateMatrix()
+    inst.setMatrixAt(i, o.matrix); inst.setColorAt(i, c.set(cols[(rnd() * cols.length) | 0]))
+  })
+  inst.castShadow = inst.receiveShadow = true
+  parent.add(inst)
+  return inst
+}
+
 /* ---------- la pièce ---------- */
 export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
   await document.fonts?.ready
   const renderer = new WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' })
-  const dpr = Math.min(devicePixelRatio || 1, innerWidth < 760 ? 1.5 : 2)
+  // résolution plafonnée (1,5 au lieu de 2 sur les écrans Retina) : la différence se voit à peine, le gain est énorme
+  let dpr = Math.min(devicePixelRatio || 1, innerWidth < 760 ? 1.25 : 1.5)
   renderer.setPixelRatio(dpr)
   renderer.shadowMap.enabled = true
+  // la pièce ne bouge pas : les ombres sont calculées une fois, pas à chaque image
+  renderer.shadowMap.autoUpdate = false
+  renderer.shadowMap.needsUpdate = true
   renderer.shadowMap.type = PCFSoftShadowMap
   renderer.toneMapping = ACESFilmicToneMapping
   renderer.toneMappingExposure = 1.0
@@ -194,8 +210,7 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
   deskLamp.shadow.bias = -0.0004
   const floorLampL = new PointLight(0xffa954, 2.2, 6, 1.6)
   const pendantL = new PointLight(0xffc073, 2.4, 4, 1.6)
-  const fairyL = new PointLight(0xffc98a, 1.2, 6, 1.4)
-  scene.add(hemi, sky, sky.target, deskLamp, deskLamp.target, floorLampL, pendantL, fairyL)
+  scene.add(hemi, sky, sky.target, deskLamp, deskLamp.target, floorLampL, pendantL)
   // reflets doux sur le métal, le verre et le bois verni
   const pmrem = new PMREMGenerator(renderer)
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
@@ -256,12 +271,16 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
   mesh(cat, new TorusGeometry(0.16, 0.04, 8, 20, Math.PI), catMat, [-1.13, 0.6, D0 + 0.62], [Math.PI / 2, 0, -0.3])
 
   // la guirlande lumineuse en haut de la baie
-  const bulbs = []
-  for (let i = 0; i <= 28; i++) {
-    const t = i / 28, x = -W + 0.2 + t * (W * 2 - 0.4), y = H - 0.38 - Math.sin(t * Math.PI * 3) ** 2 * 0.22
-    bulbs.push(ball(world, 0.025, glow(i % 3 ? 0xffc46b : 0xff8a5c), [x, y, D0 + 0.18], { cast: false, seg: 8 }))
+  const bulbN = 29
+  const bulbs = new InstancedMesh(new SphereGeometry(0.022, 8, 6), new MeshBasicMaterial({ toneMapped: false }), bulbN)
+  const bulbBase = [], tmpO = new Object3D(), tmpC = new Color()
+  for (let i = 0; i < bulbN; i++) {
+    const t = i / (bulbN - 1), x = -W + 0.2 + t * (W * 2 - 0.4), y = H - 0.38 - Math.sin(t * Math.PI * 3) ** 2 * 0.22
+    tmpO.position.set(x, y, D0 + 0.18); tmpO.updateMatrix(); bulbs.setMatrixAt(i, tmpO.matrix)
+    bulbBase.push(new Color(i % 3 ? 0xd9a35c : 0xd97a52))
+    bulbs.setColorAt(i, bulbBase[i])
   }
-  fairyL.position.set(0, H - 0.5, D0 + 0.6)
+  world.add(bulbs)
 
   // grand tapis
   quad(world, 3.4, 2.4, mat(0xffffff, { map: rugTex(), rough: 1 }), [0, 0.006, 0.25], [-Math.PI / 2, 0, 0])
@@ -340,9 +359,11 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
   box(world, 0.4, 2.2, 0.04, shelfWood, [BX, 1.1, -1.52])
   ;[0.08, 0.6, 1.1, 1.6, 2.18].forEach(y => box(world, 0.4, 0.035, 1.22, shelfWood, [BX, y, -2.12]))
   const bookCols = [0xb4532a, 0x2f4f3a, 0xe0b04c, 0x6b3a22, 0x3b5b8a, 0xd97757, 0x8fb39b, 0x7a2e1a, 0xf2c38b]
+  const bookSpots = []
   ;[[0.1, -2.68, -1.6], [0.62, -1.95, -1.58], [1.12, -2.68, -2.3], [1.62, -2.68, -1.6]].forEach(([y, z0, z1]) => {
-    for (let z = z0; z < z1;) { const t = 0.04 + rnd() * 0.04, h = 0.32 + rnd() * 0.14; box(world, 0.26, h, t, mat(bookCols[(rnd() * bookCols.length) | 0], { rough: 0.9 }), [BX + 0.02, y + h / 2, z + t / 2], [rnd() < 0.15 ? 0.15 : 0, 0, 0], { r: 0.006 }); z += t + 0.006 }
+    for (let z = z0; z < z1;) { const t = 0.04 + rnd() * 0.04, h = 0.32 + rnd() * 0.14; bookSpots.push([BX + 0.02, y, z, t, h]); z += t + 0.006 }
   })
+  addBooks(world, bookSpots, bookCols)
   // plante sur la bibliothèque
   cyl(world, 0.09, 0.07, 0.14, mat(0xd97757), [BX, 2.27, -1.9])
   const smallLeaf = new MeshStandardMaterial({ map: leafTex('#3b7d50', '#62b07a'), alphaTest: 0.5, side: DoubleSide, roughness: 0.6 })
@@ -431,6 +452,61 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
   // la matière est clonée plus bas (surbrillance au survol) : on vise celle du mesh
   if (avatar) new TextureLoader().setCrossOrigin('anonymous').load(avatar, t => { t.colorSpace = SRGBColorSpace; photo.material.map = t; photo.material.color.set(0xffffff); photo.material.needsUpdate = true })
 
+  /* ===== mur de droite : étagère, affiche, horloge, guitare, plante suspendue ===== */
+  const RW = W - 0.01
+  // étagère murale au-dessus du piano
+  box(world, 0.22, 0.03, 1.15, shelfWood, [RW - 0.11, 1.38, -1.75], null, { r: 0.006 })
+  ;[-2.25, -1.25].forEach(z => box(world, 0.16, 0.12, 0.02, brass, [RW - 0.08, 1.31, z]))
+  const shelfBooks = []
+  for (let z = -2.28; z < -1.92;) { const t = 0.03 + rnd() * 0.03, h = 0.18 + rnd() * 0.08; shelfBooks.push([RW - 0.1, 1.395, z, t, h]); z += t + 0.004 }
+  addBooks(world, shelfBooks, bookCols)
+  box(world, 0.12, 0.17, 0.12, mat(0x2a2a2e, { rough: 0.6 }), [RW - 0.1, 1.48, -1.72], null, { r: 0.015 })
+  cyl(world, 0.035, 0.035, 0.005, mat(0x555555, { metal: 0.6, rough: 0.4 }), [RW - 0.162, 1.5, -1.72], [0, 0, Math.PI / 2])
+  cyl(world, 0.045, 0.035, 0.07, mat(0xd97757), [RW - 0.1, 1.43, -1.45])
+  const shelfLeaf = new MeshStandardMaterial({ map: leafTex('#3b7d50', '#62b07a'), alphaTest: 0.5, side: DoubleSide, roughness: 0.6 })
+  for (let k = 0; k < 6; k++) { const a = rnd() * 6.28; const l = mesh(world, new PlaneGeometry(0.06, 0.14), shelfLeaf, [RW - 0.1 + Math.cos(a) * 0.04, 1.52, -1.45 + Math.sin(a) * 0.04], null); l.rotation.set(-0.9, -a + Math.PI / 2, 0, 'YXZ') }
+  box(world, 0.01, 0.2, 0.2, mat(0x111111, { rough: 0.3 }), [RW - 0.14, 1.5, -1.25], [0, 0, -0.1], { r: 0.003 })
+
+  // affiche encadrée (coucher de soleil sur la mer), près de la baie
+  box(world, 0.03, 0.62, 0.46, mat(0x2a1b13, { rough: 0.5 }), [RW - 0.015, 2.3, -2.62], null, { r: 0.008 })
+  quad(world, 0.4, 0.56, mat(0xffffff, { map: canvasTex(320, 448, (g, w, h) => {
+    const sky = g.createLinearGradient(0, 0, 0, h * 0.62); sky.addColorStop(0, '#f2c38b'); sky.addColorStop(1, '#e8875a')
+    g.fillStyle = '#f3ead9'; g.fillRect(0, 0, w, h)
+    g.fillStyle = sky; g.fillRect(24, 24, w - 48, h * 0.62)
+    g.fillStyle = '#d4573a'; g.beginPath(); g.arc(w / 2, h * 0.5, 54, Math.PI, 0); g.fill()
+    g.fillStyle = '#2f4f6a'; g.fillRect(24, h * 0.5, w - 48, h * 0.62 - h * 0.5 + 24)
+    for (let k = 0; k < 6; k++) { g.fillStyle = 'rgba(242,195,139,.5)'; g.fillRect(w / 2 - 50 + k * 4, h * 0.53 + k * 9, 100 - k * 8, 3) }
+    g.fillStyle = '#2a1b13'; g.font = '600 26px "JetBrains Mono", monospace'; g.textAlign = 'center'; g.fillText('MARSEILLE · 2026', w / 2, h - 40)
+  }), bump: false, rough: 0.8 }), [RW - 0.032, 2.3, -2.62], [0, -Math.PI / 2, 0])
+
+  // horloge au-dessus du cadre
+  const clock = new Group(); clock.position.set(RW - 0.03, 2.38, -0.85); clock.rotation.y = -Math.PI / 2; world.add(clock)
+  cyl(clock, 0.16, 0.16, 0.04, mat(0x2a1b13, { rough: 0.5 }), [0, 0, 0], [Math.PI / 2, 0, 0], { seg: 32 })
+  cyl(clock, 0.14, 0.14, 0.045, mat(0xf3ead9, { rough: 0.8 }), [0, 0, 0.002], [Math.PI / 2, 0, 0], { seg: 32 })
+  for (let k = 0; k < 12; k++) { const a = (k / 12) * Math.PI * 2; box(clock, 0.006, k % 3 ? 0.012 : 0.024, 0.004, mat(0x2a1b13), [Math.sin(a) * 0.12, Math.cos(a) * 0.12, 0.026], [0, 0, -a], { cast: false }) }
+  const hourHand = box(clock, 0.008, 0.07, 0.004, mat(0x2a1b13), [0, 0, 0.03], null, { cast: false })
+  const minHand = box(clock, 0.005, 0.1, 0.004, mat(0xb4532a), [0, 0, 0.032], null, { cast: false })
+  hourHand.geometry.translate(0, 0.03, 0); minHand.geometry.translate(0, 0.045, 0)
+
+  // guitare posée contre le mur
+  const guitar = new Group(); guitar.position.set(RW - 0.16, 0, -0.42); guitar.rotation.set(0, -Math.PI / 2, 0.16); world.add(guitar)
+  const guitarWood = mat(0xffffff, { map: woodTex('#c98a4a', '90,45,15'), rough: 0.35 })
+  const lower = ball(guitar, 0.19, guitarWood, [0, 0.26, 0]); lower.scale.set(1, 1.05, 0.38)
+  const upper = ball(guitar, 0.145, guitarWood, [0, 0.52, 0]); upper.scale.set(1, 1.0, 0.38)
+  cyl(guitar, 0.055, 0.055, 0.01, mat(0x1a120d), [0, 0.47, 0.06], [Math.PI / 2, 0, 0], { cast: false })
+  box(guitar, 0.05, 0.5, 0.025, mat(0x3a2418, { rough: 0.5 }), [0, 0.88, 0.02], null, { r: 0.006 })
+  box(guitar, 0.08, 0.14, 0.025, mat(0x2a1b13), [0, 1.18, 0.01], null, { r: 0.01 })
+  box(guitar, 0.08, 0.015, 0.02, mat(0x1a120d), [0, 0.28, 0.072], null, { r: 0.003 })
+
+  // plante suspendue au plafond
+  cyl(world, 0.003, 0.003, 0.6, mat(0x8a6a4a), [-1.95, H - 0.3, -2.45], null, { cast: false })
+  cyl(world, 0.11, 0.08, 0.12, mat(0xf2ead9, { rough: 0.6 }), [-1.95, H - 0.66, -2.45])
+  for (let k = 0; k < 12; k++) {
+    const a = (k / 12) * 6.28, len = 0.25 + rnd() * 0.35
+    const vine = mesh(world, new PlaneGeometry(0.08, len), shelfLeaf, [-1.95 + Math.cos(a) * 0.1, H - 0.7 - len / 2, -2.45 + Math.sin(a) * 0.1], null, { cast: false })
+    vine.rotation.set(0, -a, 0)
+  }
+
   const server = obj('server', [1.3, 0.9, -1.0], { pos: [1.8, 0.85, 0.2], look: [1.3, 0.36, -1.0] })
   box(server, 0.26, 0.62, 0.42, mat(0x3a3f4a, { rough: 0.35, metal: 0.55 }), [1.3, 0.31, -1.0], [0, -0.25, 0], { r: 0.02 })
   // façade : baies de disques, grille d'aération, étiquette et LED
@@ -448,9 +524,6 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
   const leds = []
   for (let k = 0; k < 5; k++) leds.push(ball(front, 0.007, glow(k % 2 ? 0x86efac : 0x60a5fa), [-0.07 + k * 0.022, 0.295, 0.009], { cast: false, seg: 8 }))
   // la tour éclaire un peu le sol devant elle
-  const serverGlow = new PointLight(0x60a5fa, 0.25, 0.9, 2)
-  serverGlow.position.set(1.25, 0.3, -0.7)
-  world.add(serverGlow)
 
   // suspension au-dessus du bureau
   cyl(world, 0.004, 0.004, 0.95, mat(0x222222), [0, H - 0.47, 0.05], null, { cast: false })
@@ -460,7 +533,7 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
 
   // poussière qui flotte dans la lumière
   const dustGeo = new BufferGeometry()
-  const dustN = 220, dustPos = new Float32Array(dustN * 3)
+  const dustN = 110, dustPos = new Float32Array(dustN * 3)
   for (let i = 0; i < dustN; i++) { dustPos[i * 3] = (rnd() - 0.5) * 3.2; dustPos[i * 3 + 1] = 0.3 + rnd() * 2.4; dustPos[i * 3 + 2] = -1.8 + rnd() * 3.4 }
   dustGeo.setAttribute('position', new Float32BufferAttribute(dustPos, 3))
   const dust = new Points(dustGeo, new PointsMaterial({ color: 0xffd9a0, size: 0.012, transparent: true, opacity: 0.55, blending: AdditiveBlending, depthWrite: false }))
@@ -483,15 +556,7 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
   /* ---------- rendu avec halo (bloom) ---------- */
   const composer = new EffectComposer(renderer)
   composer.addPass(new RenderPass(scene, camera))
-  // ombres de contact (occlusion ambiante) : seulement sur les grands écrans, c'est coûteux
-  if (innerWidth >= 760 && !noAO) {
-    const gtao = new GTAOPass(scene, camera, canvas.clientWidth, canvas.clientHeight)
-    gtao.updateGtaoMaterial({ radius: 0.32, distanceExponent: 1.4, thickness: 1, scale: 1.1 })
-    gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: 16 })
-    gtao.blendIntensity = 0.85
-    composer.addPass(gtao)
-  }
-  const bloom = new UnrealBloomPass(new Vector2(256, 256), 0.5, 0.55, 0.92)
+  const bloom = new UnrealBloomPass(new Vector2(256, 256), 0.3, 0.4, 0.96)
   composer.addPass(bloom)
   const vignette = new ShaderPass(VignetteShader)
   vignette.uniforms.offset.value = 0.95
@@ -505,12 +570,13 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
     sky.color.set(day ? 0xffa060 : 0x9db4ff); sky.intensity = day ? 1.7 : 1.1
     sky.position.set(day ? 2.5 : -2.5, day ? 2.2 : 4.5, -8)
     hemi.intensity = day ? 0.9 : 0.35
-    deskLamp.intensity = day ? 2.5 : 5
-    floorLampL.intensity = day ? 1.2 : 3.2
-    pendantL.intensity = day ? 0.8 : 2.4
-    renderer.toneMappingExposure = day ? 0.95 : 1.0
+    deskLamp.intensity = day ? 1.6 : 2.8
+    floorLampL.intensity = day ? 0.5 : 1.3
+    pendantL.intensity = day ? 0.4 : 1.1
+    renderer.toneMappingExposure = day ? 0.92 : 0.95
     scene.environmentIntensity = day ? 0.3 : 0.12
-    bloom.strength = day ? 0.3 : 0.5
+    bloom.strength = day ? 0.18 : 0.3
+    renderer.shadowMap.needsUpdate = true
   }
 
   /* ---------- caméra ---------- */
@@ -587,11 +653,23 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
 
   /* ---------- boucle ---------- */
   const mGoal = homeMascot.clone()
-  let t = 0, last = performance.now(), music = false, armK = 0, frozen = false
+  let t = 0, last = performance.now(), music = false, armK = 0, frozen = false, frameN = 0, slowAcc = 0, slowN = 0
   const listeners = []
   function frame(now) {
-    const dt = Math.min(0.05, (now - last) / 1000)
-    last = now; t += dt
+    const raw = (now - last) / 1000
+    const dt = Math.min(0.05, raw)
+    last = now; t += dt; frameN++
+    // qualité adaptative : si l'appareil peine (moins de ~45 images/s), on baisse la résolution puis le halo
+    if (frameN > 30 && raw < 0.5) {
+      slowAcc += raw; slowN++
+      if (slowN === 60) {
+        if (slowAcc / slowN > 1 / 45) {
+          if (dpr > 1) { dpr = Math.max(1, dpr - 0.25); renderer.setPixelRatio(dpr); resize() }
+          else if (bloom.enabled) bloom.enabled = false
+        }
+        slowAcc = 0; slowN = 0
+      }
+    }
     const k = 1 - Math.pow(0.002, dt)
     cam.pos.lerp(goal.pos, k); cam.look.lerp(goal.look, k)
     yaw += (gYaw - yaw) * k; pitch += (gPitch - pitch) * k
@@ -605,7 +683,7 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
     eyes.scale.y = (t % 4.2) > 4.05 ? 0.15 : 1
     eyes.position.x = MathUtils.clamp(mouse.x * 0.012, -0.012, 0.012)
     leds.forEach((l, i) => { l.visible = Math.sin(t * (3 + i) + i) > -0.3 })
-    bulbs.forEach((b, i) => b.material.color.setScalar(0.75 + Math.sin(t * 1.6 + i * 0.7) * 0.25).multiply(new Color(i % 3 ? 0xffc46b : 0xff8a5c)))
+    if ((frameN & 3) === 0) { for (let i = 0; i < bulbN; i++) bulbs.setColorAt(i, tmpC.copy(bulbBase[i]).multiplyScalar(0.7 + Math.sin(t * 1.6 + i * 0.7) * 0.3)); bulbs.instanceColor.needsUpdate = true }
     neonGlow.material.opacity = 0.9 + Math.sin(t * 7) * 0.05 + (Math.random() < 0.004 ? -0.5 : 0)
     steam.forEach((s, i) => { const p = ((t * 0.25 + i / steam.length) % 1); s.position.set(-0.62 + Math.sin(p * 9 + i) * 0.015, 0.9 + p * 0.22, 0.28); s.material.opacity = Math.sin(p * Math.PI) * 0.14; s.scale.setScalar(0.04 + p * 0.09) })
     const dp = dustGeo.attributes.position
@@ -615,6 +693,7 @@ export async function createRoom(canvas, { snapshot, avatar, noAO = false }) {
     armK += ((music ? 1 : 0) - armK) * (1 - Math.pow(0.05, dt))
     arm.rotation.y = 0.55 - armK * 0.42
     platter.rotation.y -= dt * armK * 3.5
+    if ((frameN & 31) === 0) { const d = new Date(); minHand.rotation.z = -(d.getMinutes() / 60) * Math.PI * 2; hourHand.rotation.z = -((d.getHours() % 12) / 12 + d.getMinutes() / 720) * Math.PI * 2 }
     phone.position.x = (Math.floor(t * 10) % 40 < 4) ? Math.sin(t * 90) * 0.003 : 0
     macGlow.material.color.setScalar(0.9 + Math.sin(t * 1.5) * 0.06)
     lampBulb.scale.setScalar(1 + Math.sin(t * 3) * 0.02)

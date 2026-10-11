@@ -41,7 +41,8 @@ html:not(.dark) .room::before { opacity: 0; }
 }
 .hud > * { pointer-events: auto; }
 .hud-logo { display: flex; align-items: baseline; gap: 8px; text-decoration: none; font-weight: 800; font-size: 24px; letter-spacing: -0.04em; color: var(--text); }
-.hud-logo span { color: var(--accent); }
+.hud-logo .signature { color: #fff3df !important; text-shadow: 0 2px 14px rgba(0, 0, 0, .45); }
+html:not(.dark) .hud-logo .signature { color: #2a1a10 !important; text-shadow: none; }
 .hud-logo small { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 19px; letter-spacing: 0; color: var(--ink-2); }
 .hud-progress {
   display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-radius: 999px;

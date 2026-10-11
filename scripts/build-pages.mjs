@@ -86,13 +86,13 @@ function page(p, i) {
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet" />
   </head>
   <body class="cs-page" style="--p:${p.color};--p-deep:${p.deep};--p-soft:${p.soft}">
     <a class="skip" href="#main">Aller au contenu</a>
 
     <header class="nav cs-nav">
-      <a class="logo" href="/" aria-label="Retour au bureau">yanis<span>.</span><small>le bureau</small></a>
+      <a class="logo" href="/" aria-label="Retour au bureau"><span class="signature">Yanis</span><small>le bureau</small></a>
       <nav class="nav-links" aria-label="Navigation principale">
         <a href="/#${p.slug}" class="nav-pill">← Le bureau</a>
         <a href="/#carnet" class="nav-pill">Carnet</a>
