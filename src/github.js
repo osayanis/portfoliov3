@@ -16,7 +16,7 @@ const LANG_COLORS = {
   CSS: '#f3a6cf',
   HTML: '#f9a8a8',
 }
-const LEVELS = ['#ebe5d8', '#f9d3e6', '#f3a6cf', '#d877ab', '#c2337a']
+const LEVELS = ['var(--gh0)', '#f9d3e6', '#f3a6cf', '#d877ab', '#c2337a']
 
 const $ = (s, el = document) => el.querySelector(s)
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])

@@ -190,7 +190,7 @@
 /* ---------- ET ENSUITE ---------- */
 .cs-next-card {
   display: grid; grid-template-columns: .9fr 1.1fr; gap: clamp(24px, 4vw, 56px); align-items: center;
-  background: var(--ink); color: var(--paper); border-radius: 30px; padding: clamp(28px, 5vw, 56px);
+  background: var(--ink); color: var(--cream); border-radius: 30px; padding: clamp(28px, 5vw, 56px);
   box-shadow: 0 10px 0 var(--p-deep);
 }
 .cs-next-card h2 { margin: 0; font-size: clamp(30px, 4vw, 48px); letter-spacing: -0.04em; line-height: 1.05; }

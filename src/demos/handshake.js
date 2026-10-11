@@ -55,7 +55,7 @@ export default function handshake(root, { sound }) {
         return `<g class="${cls}"><path d="M${x1} ${y} L${x2} ${y}" marker-end="url(#hs-a)" ${st.both ? 'marker-start="url(#hs-a)"' : ''}/>
           <rect x="${mid - st.label.length * 3.7 - 10}" y="${y - 22}" width="${st.label.length * 7.4 + 20}" height="20" rx="10"/><text x="${mid}" y="${y - 8}" text-anchor="middle">${st.label}</text></g>`
       }).join('')
-    root.querySelector('.hs').classList.toggle('live', i === STEPS.length)
+    root.querySelector('.hs').classList.toggle('hs-done', i === STEPS.length)
   }
 
   function step() {
