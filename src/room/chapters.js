@@ -135,7 +135,7 @@ export const chapters = [
       <p>Je suis étudiant en BTS, en France, et <b>je donne vie à mes idées avec l'IA</b>. J'aime les interfaces claires et les projets qui touchent au réel : un notch de MacBook, un piano MIDI, un baladeur sur Raspberry Pi, un serveur Proxmox.</p>
       <p>Mon terrain de jeu va du navigateur (WebRTC, Next.js) jusqu'au système (Swift natif, Linux embarqué, Bash).</p>`,
     stats: [['34', 'dépôts GitHub'], ['5', 'apps OsaLabs'], ['9', 'projets lancés en 8 jours']],
-    links: [{ label: 'Le portfolio sur GitHub', url: 'https://github.com/osayanis/portfoliov3' }],
+    links: [{ label: 'Mon LinkedIn', url: 'https://www.linkedin.com/in/yansb/', primary: true }, { label: 'Le portfolio sur GitHub', url: 'https://github.com/osayanis/portfoliov3' }],
   },
   {
     id: 'phone',
