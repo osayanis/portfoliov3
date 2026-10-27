@@ -10,7 +10,7 @@ import { RECORDS } from './room/records.js'
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
 const order = chapters.map(c => c.id)
 // liens directs : /#osanotch, /#github… ouvrent l'objet correspondant
-const ALIASES = { osanotch: 'macbook', clavio: 'piano', openpod: 'openpod', proxmox: 'server', osaparty: 'neon', osadrop: 'neon', osacast: 'neon', osaboard: 'neon', osalabs: 'neon', github: 'calendar', contact: 'phone', apropos: 'frame', methode: 'keyboard', stack: 'keyboard', debuts: 'crt', lycee: 'notebook' }
+const ALIASES = { osanotch: 'macbook', osawallpaper: 'tablet', wallpaper: 'tablet', clavio: 'piano', openpod: 'openpod', proxmox: 'server', osaparty: 'neon', osadrop: 'neon', osacast: 'neon', osaboard: 'neon', osalabs: 'neon', github: 'calendar', contact: 'phone', apropos: 'frame', methode: 'keyboard', stack: 'keyboard', debuts: 'crt', lycee: 'notebook' }
 
 /* ================= progression ================= */
 let found = new Set()

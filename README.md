@@ -17,6 +17,7 @@ npm run build    # génère dist/
 | Le petit serveur | 2025 : BTS, Proxmox |
 | Le néon OsaLabs | 2026 : OsaParty, OsaDrop, OsaCast, OsaBoard |
 | Le MacBook | OsaNotch (avec l'aperçu interactif du notch) |
+| La tablette | OsaWallpaper (l'écran verrouillé, avec l'heure en direct) |
 | Le piano | Clavio |
 | Le baladeur | OpenPod OS |
 | Le calendrier | GitHub en direct |
@@ -42,12 +43,12 @@ La vue derrière la baie vitrée est une vidéo en boucle de [Mixkit](https://mi
 Chaque étude de cas s'ouvre sur une image du bureau cadrée sur l'objet du projet. Ces images (`public/media/bureau/`) se régénèrent avec le mode prise de vue : `/?shot=macbook`, `/?shot=piano`…
 
 
-Chaque projet a sa page : `/projets/<slug>/` (OsaNotch, OsaParty, OsaDrop, OsaCast, OsaBoard, Clavio, OpenPod OS, Proxmox).
+Chaque projet a sa page : `/projets/<slug>/` (OsaNotch, OsaWallpaper, OsaParty, OsaDrop, OsaCast, OsaBoard, Clavio, OpenPod OS, Proxmox).
 
 - Le contenu est dans `src/projects.js` : textes, chiffres, schéma d'architecture, journal de bord, défis.
 - `scripts/build-pages.mjs` génère le HTML statique dans `projets/` (lancé par `npm run dev` et `npm run build`, ou à la main avec `npm run pages`).
 - Chaque page a une démo interactive, chargée à la demande depuis `src/demos/`.
-- Les captures sont dans `public/media/<slug>/`.
+- Les captures sont dans `public/media/<slug>/`. Les photos d'OsaWallpaper viennent de Wallhaven (photographes crédités sur la page).
 
 ## Section GitHub
 
