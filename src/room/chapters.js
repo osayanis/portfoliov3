@@ -71,6 +71,22 @@ export const chapters = [
     ],
   },
   {
+    id: 'tablet',
+    object: 'La tablette',
+    era: 'Octobre 2026',
+    title: "OsaWallpaper : l'écran verrouillé, enfin à lui",
+    color: '#f0abfc',
+    say: "Cette tablette montre l'écran verrouillé de son Mac. Avant, c'était une photo floue. Maintenant il y a l'heure, la pochette et même les paroles !",
+    body: `
+      <p>Sur iPhone, l'écran verrouillé est à nous. Sur Mac, macOS n'y laisse presque rien changer. <b>OsaWallpaper</b> le redessine : l'heure en grand dans du verre, une photo, une vidéo ou un lien YouTube en fond, et quand la musique joue, la <b>pochette animée</b>, un lecteur et les <b>paroles synchronisées</b>.</p>
+      <p>Ma deuxième app en Swift natif, sortie en deux jours : 37 commits, 25 versions publiées avec mise à jour automatique, et des corrections faites à partir des retours des premiers utilisateurs.</p>`,
+    image: { src: '/media/osawallpaper/lock-music.webp', alt: "L'écran verrouillé d'OsaWallpaper : l'heure, la pochette, les paroles et le lecteur" },
+    links: [
+      { label: "L'étude de cas", url: '/projets/osawallpaper/', primary: true },
+      { label: 'Télécharger', url: 'https://osalabs.fr/wallpaper' },
+    ],
+  },
+  {
     id: 'piano',
     object: 'Le piano',
     era: 'Octobre 2026',
@@ -132,9 +148,9 @@ export const chapters = [
     color: '#f9a8a8',
     say: "Et voilà le patron. Étudiant, curieux, incapable de laisser une idée dans un coin. Moi je l'aime bien.",
     body: `
-      <p>Je suis étudiant en BTS, en France, et <b>je donne vie à mes idées avec l'IA</b>. J'aime les interfaces claires et les projets qui touchent au réel : un notch de MacBook, un piano MIDI, un baladeur sur Raspberry Pi, un serveur Proxmox.</p>
+      <p>Je suis étudiant en BTS, en France, et <b>je donne vie à mes idées avec l'IA</b>. J'aime les interfaces claires et les projets qui touchent au réel : un notch de MacBook, un écran verrouillé, un piano MIDI, un baladeur sur Raspberry Pi, un serveur Proxmox.</p>
       <p>Mon terrain de jeu va du navigateur (WebRTC, Next.js) jusqu'au système (Swift natif, Linux embarqué, Bash).</p>`,
-    stats: [['34', 'dépôts GitHub'], ['5', 'apps OsaLabs'], ['9', 'projets lancés en 8 jours']],
+    stats: [['42', 'dépôts GitHub'], ['6', 'apps OsaLabs'], ['9', 'projets lancés en 8 jours']],
     links: [{ label: 'Mon LinkedIn', url: 'https://www.linkedin.com/in/yansb/', primary: true }, { label: 'Le portfolio sur GitHub', url: 'https://github.com/osayanis/portfoliov3' }],
   },
   {

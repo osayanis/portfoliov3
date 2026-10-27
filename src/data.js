@@ -96,7 +96,7 @@ export const timeline = [
   { year: '2023', title: 'LectricMC', text: "J'adapte le launcher officiel de notre serveur Minecraft. Première fois que des gens utilisent un truc que je maintiens." },
   { year: '2024', title: 'Lycée & NSI', text: "Projets Python en NSI (labyrinthe, exos de listes), puis mes premiers sites web faits pour quelqu'un d'autre que moi." },
   { year: '2025', title: 'BTS & sysadmin', text: "Automatisation Proxmox en Bash, serveur d'impression CUPS avec quotas, deux versions de portfolio en React." },
-  { year: '2026', title: "OsaLabs prend forme", text: "Quatre apps WebRTC en ligne, OsaNotch en Swift natif, Clavio pour apprendre le piano et OpenPod qui démarre." },
+  { year: '2026', title: "OsaLabs prend forme", text: "Quatre apps WebRTC en ligne, OsaNotch et OsaWallpaper en Swift natif, Clavio pour apprendre le piano et OpenPod qui démarre." },
 ]
 
 export const method = [

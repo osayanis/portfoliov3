@@ -117,6 +117,122 @@ export const projects = [
 
   /* ------------------------------------------------------------------ */
   {
+    slug: 'osawallpaper',
+    name: 'OsaWallpaper',
+    letter: 'W',
+    color: '#f0abfc',
+    deep: '#c026d3',
+    soft: '#fdf4ff',
+    kicker: 'App macOS native · Swift',
+    tagline: "L'écran verrouillé, <em>enfin à toi.</em>",
+    summary: "OsaWallpaper redessine l'écran verrouillé du Mac façon iPhone : l'heure en grand dans du verre, une photo ou une vidéo en fond, et quand la musique joue, la pochette (animée si elle existe), un lecteur et les paroles synchronisées. Partout ailleurs, de petites pastilles pour les AirPods, la charge, le volume et la luminosité.",
+    meta: {
+      role: 'Conception, design et développement',
+      period: '26 → 27 octobre 2026',
+      status: 'Disponible en .dmg, mises à jour automatiques',
+    },
+    stack: ['Swift', 'SwiftUI', 'AppKit', 'SkyLight', 'AVFoundation', 'CoreAudio', 'Accessibility API'],
+    links: [
+      { label: 'Télécharger', url: 'https://osalabs.fr/wallpaper', primary: true },
+      { label: 'Voir le code', url: 'https://github.com/osayanis/osawallpaper' },
+    ],
+    stats: [
+      { n: '37', label: 'commits en 2 jours' },
+      { n: '5 538', label: 'lignes de Swift' },
+      { n: '25', label: 'versions publiées' },
+      { n: '0,4 %', label: 'de CPU pour la mascotte animée' },
+    ],
+    problem: {
+      quote: "Sur iPhone, l'écran verrouillé est à moi. Sur Mac, c'est une photo floue et un rond.",
+      text: [
+        "L'écran verrouillé d'un Mac, c'est l'écran qu'on voit le plus souvent sans rien faire : en revenant d'une pause, en écoutant de la musique, pendant que l'ordinateur tourne. Et macOS ne laisse presque rien y changer.",
+        "Je voulais retrouver ce que fait l'iPhone : l'heure en grand, un vrai fond (photo, vidéo, YouTube), et quand un morceau passe, sa pochette et ses paroles. Le tout sans toucher au champ du mot de passe, qui doit rester celui de macOS.",
+      ],
+    },
+    visuals: [
+      { type: 'shot', src: '/media/osawallpaper/lock-music.webp', alt: "Écran verrouillé avec l'heure, la pochette, les paroles et le lecteur", caption: 'Un morceau joue : la pochette, la ligne de paroles en cours et le lecteur en verre.' },
+      { type: 'shot', src: '/media/osawallpaper/lock-photo.webp', alt: 'Écran verrouillé avec une aurore boréale en fond', caption: "Sans musique : la photo choisie, l'heure, la météo et la batterie." },
+      { type: 'shot', src: '/media/osawallpaper/lock-both.webp', alt: 'Écran verrouillé avec la Voie lactée en fond et le lecteur', caption: 'La photo reste en fond et le lecteur se pose dessus.' },
+      { type: 'shot', src: '/media/osawallpaper/gallery.webp', alt: 'La galerie de fonds d’écran avec ses catégories et son aperçu', caption: 'La galerie : photos 4K, vidéos Apple, un lien YouTube ou tes propres fichiers, avec l’aperçu à droite.' },
+    ],
+    how: {
+      intro: "macOS ne prévoit aucune extension pour l'écran verrouillé. OsaWallpaper passe donc par les mêmes couches que le système, avec beaucoup de précautions.",
+      steps: [
+        { t: "Des fenêtres au-dessus de l'écran verrouillé", d: "Une API privée de SkyLight, le serveur de fenêtres de macOS, permet de confier une fenêtre à l'espace de l'écran verrouillé. Elle s'affiche alors par-dessus, sans jamais prendre le clavier." },
+        { t: 'Laisser le mot de passe à macOS', d: "L'app lit dans l'arbre d'Accessibilité où macOS dessine ta photo, ton nom et le champ du mot de passe. Elle redessine la photo et le nom au pixel près, et seul le champ reste ouvert sur macOS." },
+        { t: 'La musique et ses paroles', d: "Le morceau en cours vient de Music ou Spotify, la pochette de l'API iTunes, la pochette animée d'Apple Music (une vidéo mise en cache), et les paroles de LRCLIB, calées sur ce que tu entends vraiment, latence Bluetooth comprise." },
+        { t: 'Un fond qui couvre tout', d: "En plein écran, l'image affichée devient aussi le fond de macOS le temps du verrouillage : plus aucun bord ne trahit l'ancien fond. Le tien revient au déverrouillage." },
+        { t: 'Des mises à jour sûres', d: "L'app lit la dernière version publiée sur GitHub, la télécharge et vérifie sa signature avant de se remplacer." },
+      ],
+      diagram: {
+        w: 820, h: 380,
+        nodes: [
+          { id: 'app', x: 410, y: 190, w: 210, h: 84, label: 'OsaWallpaper', sub: 'SwiftUI + AppKit', c: '#f0abfc' },
+          { id: 'sky', x: 130, y: 70, w: 210, h: 72, label: 'SkyLight', sub: "espace de l'écran verrouillé", c: '#e5e7eb' },
+          { id: 'ax', x: 130, y: 310, w: 210, h: 72, label: 'Accessibilité', sub: 'photo, nom, mot de passe', c: '#fde68a' },
+          { id: 'music', x: 690, y: 70, w: 210, h: 72, label: 'Music · Spotify', sub: 'morceau et position', c: '#a7e8bd' },
+          { id: 'api', x: 690, y: 310, w: 210, h: 72, label: 'iTunes · LRCLIB', sub: 'pochettes et paroles', c: '#f3a6cf' },
+          { id: 'gh', x: 410, y: 40, w: 190, h: 56, label: 'GitHub Releases', sub: 'mises à jour', c: '#93c5fd' },
+        ],
+        edges: [
+          { from: 'app', to: 'sky', label: 'fenêtres' },
+          { from: 'ax', to: 'app', label: 'où est la connexion ?' },
+          { from: 'music', to: 'app', label: 'en cours' },
+          { from: 'api', to: 'app' },
+          { from: 'gh', to: 'app', dashed: true },
+        ],
+      },
+    },
+    demo: {
+      kind: 'lock',
+      title: 'Verrouille, pour voir',
+      intro: "Une reproduction de l'écran verrouillé. Change de fond, lance la musique, passe du fondu au plein écran : c'est ce que voit le Mac quand tu reviens.",
+    },
+    challenges: [
+      {
+        title: 'Le halo noir',
+        problem: "Des utilisateurs voyaient par moments un halo sombre autour de la connexion, surtout après avoir laissé le Mac un long moment.",
+        solution: "Quand le Mac reste inactif, macOS cache la connexion et lance l'économiseur d'écran. L'app ouvrait quand même une zone autour du mot de passe, et on voyait l'économiseur à travers. Désormais rien n'est ouvert tant que la connexion n'est pas localisée, et l'économiseur est détecté et recouvert.",
+      },
+      {
+        title: '14 % de CPU pour une mascotte',
+        problem: "Dans la barre des menus, la mascotte qui marche en rond changeait l'image du bouton 20 fois par seconde : 14 % de CPU en permanence.",
+        solution: "Les 100 images du tour sont dessinées une seule fois, puis Core Animation les fait défiler sur un calque. L'app ne fait plus rien à chaque image : 0,4 %.",
+      },
+      {
+        title: 'Des paroles en retard',
+        problem: "Les paroles tombaient parfois sur une autre version du morceau, et avec des AirPods elles arrivaient avant le son.",
+        solution: "Recherche filtrée par artiste et par durée (à 4 s près), latence de la sortie audio lue dans CoreAudio, et recalage dès qu'on dérive de plus d'un quart de seconde.",
+      },
+      {
+        title: 'Une vidéo qui ne repart plus',
+        problem: "Après plusieurs verrouillages de suite, le fond vidéo restait parfois figé.",
+        solution: "Un chien de garde vérifie que la vidéo avance vraiment, et la relance sur place, sans écran noir, si elle s'est arrêtée.",
+      },
+    ],
+    journal: [
+      { d: '26 oct · 09h41', t: 'Première version', x: "Horloge en verre, pochette, lecteur, paroles, AirPods, charge, plusieurs écrans." },
+      { d: '26 oct · 09h53', t: "Rien que l'écran verrouillé", x: 'Le fond ne s’affiche que verrouillé, les pastilles partout, et une fenêtre de bienvenue.' },
+      { d: '26 oct · 10h32', t: 'Volume, luminosité, mises à jour', x: 'Des pastilles qui remplacent les indicateurs de macOS, et des mises à jour via GitHub.' },
+      { d: '26 oct · 11h22', t: 'Pochettes animées', x: "Les vidéos des pochettes d'Apple Music en fond d'écran." },
+      { d: '26 oct · 12h04', t: 'La galerie', x: 'Photos HD, vidéos Apple, YouTube, MP4 et fichiers, avec des noms et une recherche en français.' },
+      { d: '26 oct · 16h14', t: 'Version 0.2', x: 'Le fond peut aussi aller sur le bureau, animé ou en image fixe.' },
+      { d: '27 oct · 08h43', t: 'Fondu ou plein écran', x: 'Au choix : un fondu vers le fond de macOS en bas, ou un fond qui couvre tout.' },
+      { d: '27 oct · 10h04', t: 'Retours des utilisateurs', x: "Écran allumé plus longtemps une fois verrouillé, icône selon le modèle d'AirPods." },
+      { d: '27 oct · 10h39', t: 'Pochette plein écran', x: 'La pochette couvre tout l’écran, les paroles sont mieux calées et le lecteur ne bouge plus.' },
+      { d: '27 oct · 11h20', t: 'La mascotte en 3D', x: 'Elle marche en rond dans la barre des menus, et la vidéo repart toute seule si elle s’arrête.' },
+      { d: '27 oct · 13h39', t: 'Plus de halo', x: "Version 0.2.23 : plus rien d'ouvert quand macOS cache la connexion.", now: true },
+    ],
+    next: [
+      'Tester sur plus de configurations : écrans externes, anciennes versions de macOS.',
+      "Plus de styles d'horloge et de lecteur.",
+      'Afficher les paroles directement depuis Apple Music et Spotify si une API le permet un jour.',
+    ],
+    credits: 'Photos des captures et de la démo : Johannes Groll, Sam Ferrara, Keith Hardy et Nathan Anderson, via Wallhaven. Le morceau « Nuit d’été » des Osa est inventé pour la démo.',
+  },
+
+  /* ------------------------------------------------------------------ */
+  {
     slug: 'osaparty',
     name: 'OsaParty',
     letter: 'P',
@@ -373,7 +489,7 @@ export const projects = [
       steps: [
         { t: "Capture de l'écran", d: "Le diffuseur choisit un écran, une fenêtre ou un onglet avec <code>getDisplayMedia</code>, son compris." },
         { t: 'Un code de session', d: 'Le serveur crée une session, et le spectateur la rejoint par code ou QR code.' },
-        { t: 'La poignée de main', d: 'Offre, réponse et candidats ICE transitent par Socket.io.' },
+        { t: 'La poignée de main', d: "Offre, réponse et candidats ICE transitent par Socket.io. Si la connexion décroche, une nouvelle offre repart avec le même flux." },
         { t: 'Le flux direct', d: "La vidéo part en pair-à-pair, à 30 images par seconde. Si le réseau bloque la connexion directe, un serveur relais TURN prend le relais." },
         { t: 'Regarder confortablement', d: "Le lecteur suit le format du flux (portrait ou paysage), passe en plein écran ou en image dans l'image pour continuer à travailler à côté." },
       ],
@@ -405,6 +521,11 @@ export const projects = [
         solution: "Le conteneur vidéo suit le ratio réel du flux, en portrait comme en paysage.",
       },
       {
+        title: 'La session qui saute',
+        problem: "En pleine visio, le flux coupait parfois d'un coup, et il fallait recréer une session.",
+        solution: "Une coupure passagère du réseau (état <code>disconnected</code>) n'arrête plus rien : on attend quelques secondes, puis le diffuseur renégocie la connexion avec le même flux. Si le serveur de signalisation redémarre, chacun revient dans la même session tout seul.",
+      },
+      {
         title: 'Un flux qui survit',
         problem: "Dans OsaNotch, replier l'île coupait le partage.",
         solution: "Le flux vit dans la WebView pont, indépendamment de l'interface : il continue quand le notch se replie, et un mode cinéma l'agrandit.",
@@ -415,6 +536,7 @@ export const projects = [
       { d: '5 oct · 16h37', t: 'Portrait et paysage', x: 'Le lecteur suit le ratio du flux.' },
       { d: '8 oct · 14h18', t: 'Pont OsaNotch', x: "Le notch peut diffuser et regarder avec le même moteur." },
       { d: '9 oct · 15h16', t: 'Nouvelle interface', x: "Mascotte vivante, image dans l'image et relais TURN pour les réseaux difficiles." },
+      { d: '27 oct · 13h57', t: 'Une session qui ne saute plus', x: 'Tolérance aux coupures passagères, renégociation automatique et retour dans la session après une coupure du serveur. Le notch en profite aussi.' },
     ],
     next: ['Un pointeur partagé pour montrer un endroit précis de l\'écran.', 'Plusieurs spectateurs pour une même diffusion.'],
   },

@@ -132,6 +132,48 @@ const podScreen = () => screenTex((g, w, h) => {
   g.fillStyle = '#f5f5f4'; g.font = '600 26px "JetBrains Mono", monospace'
   ;['Musique', 'Albums', 'Artistes', 'Réglages'].forEach((l, i) => { if (i === 0) { g.fillRect(0, 22, w, 40); g.fillStyle = '#0b0b0c' } else g.fillStyle = '#f5f5f4'; g.fillText(l, 14, 52 + i * 46) })
 }, 240, 300)
+// l'écran verrouillé d'OsaWallpaper sur la tablette, avec la vraie heure
+function lockScreen() {
+  const c = document.createElement('canvas'); c.width = 300; c.height = 420
+  const g = c.getContext('2d'), tex = new CanvasTexture(c)
+  tex.colorSpace = SRGBColorSpace; tex.anisotropy = 8
+  let shown = '', acc = 1
+  function draw() {
+    const now = new Date(), w = 300, h = 420
+    const bg = g.createLinearGradient(0, 0, 0, h)
+    bg.addColorStop(0, '#2a1838'); bg.addColorStop(0.45, '#7a4a5c'); bg.addColorStop(0.75, '#5a4fb0'); bg.addColorStop(1, '#8b46c9')
+    g.fillStyle = bg; g.fillRect(0, 0, w, h)
+    const halo = g.createRadialGradient(w * 0.7, h * 0.35, 0, w * 0.7, h * 0.35, 160); halo.addColorStop(0, 'rgba(255,170,120,.45)'); halo.addColorStop(1, 'rgba(255,170,120,0)')
+    g.fillStyle = halo; g.fillRect(0, 0, w, h)
+    g.fillStyle = '#fff'; g.textAlign = 'center'
+    g.font = '600 15px "Bricolage Grotesque", sans-serif'
+    const day = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
+    g.fillText(day.charAt(0).toUpperCase() + day.slice(1), w / 2, 46)
+    g.font = '800 76px "Bricolage Grotesque", sans-serif'
+    g.fillText(now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }), w / 2, 118)
+    // la pochette (inventée) : un sommet au coucher du soleil
+    const ax = 95, ay = 140, as = 110
+    g.save(); g.beginPath(); g.roundRect(ax, ay, as, as, 12); g.clip()
+    const sky = g.createLinearGradient(0, ay, 0, ay + as); sky.addColorStop(0, '#3b2a5c'); sky.addColorStop(0.6, '#f59e8b'); sky.addColorStop(1, '#fcd3a1')
+    g.fillStyle = sky; g.fillRect(ax, ay, as, as)
+    g.fillStyle = '#2b2d42'; g.beginPath(); g.moveTo(ax, ay + as); g.lineTo(ax + 50, ay + 52); g.lineTo(ax + 68, ay + 70); g.lineTo(ax + as, ay + 60); g.lineTo(ax + as, ay + as); g.fill()
+    g.fillStyle = '#f4f1ea'; g.beginPath(); g.moveTo(ax + 38, ay + 64); g.lineTo(ax + 50, ay + 52); g.lineTo(ax + 60, ay + 62); g.lineTo(ax + 50, ay + 60); g.fill()
+    g.restore()
+    g.font = '700 13px "Bricolage Grotesque", sans-serif'; g.fillText('La ville s’allume pour nous', w / 2, 274)
+    // le lecteur en verre
+    g.fillStyle = 'rgba(255,236,225,.22)'; g.beginPath(); g.roundRect(56, 288, 188, 64, 14); g.fill()
+    g.fillStyle = '#fff'; g.font = '700 12px "Bricolage Grotesque", sans-serif'; g.fillText('Nuit d’été', w / 2, 306)
+    g.font = '500 10px "Bricolage Grotesque", sans-serif'; g.fillStyle = 'rgba(255,255,255,.75)'; g.fillText('Les Osa', w / 2, 319)
+    const p = (now.getSeconds() + now.getMinutes() * 60) % 210 / 210
+    g.fillStyle = 'rgba(255,255,255,.3)'; g.fillRect(72, 328, 156, 3); g.fillStyle = '#fff'; g.fillRect(72, 328, 156 * p, 3)
+    g.font = '700 12px sans-serif'; g.fillText('⏮   ❚❚   ⏭', w / 2, 346)
+    // la connexion de macOS
+    g.fillStyle = 'rgba(255,255,255,.85)'; g.beginPath(); g.arc(w / 2, 376, 13, 0, 7); g.fill()
+    g.fillStyle = 'rgba(255,255,255,.25)'; g.beginPath(); g.roundRect(w / 2 - 52, 396, 104, 14, 7); g.fill()
+    tex.needsUpdate = true
+  }
+  return { tex, tick(dt) { acc += dt; if (acc < 1) return; acc = 0; const k = new Date().getSeconds(); if (k === shown) return; shown = k; draw() } }
+}
 const neonTex = () => canvasTex(1024, 300, (g, w, h) => {
   g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '800 170px "Bricolage Grotesque", sans-serif'
   g.shadowColor = '#ff5fae'; g.shadowBlur = 30; g.strokeStyle = '#ff8cc6'; g.lineWidth = 10; g.strokeText('OsaLabs', w / 2, h / 2)
@@ -448,6 +490,17 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   const phoneBody = box(phone, 0.09, 0.012, 0.18, mat(0x18181b, { rough: 0.3, metal: 0.4 }), [0.62, 0.797, 0.22], [0, -0.4, 0], { r: 0.012 })
   quad(phoneBody, 0.08, 0.17, glow(0xffffff, { map: phoneScreen() }), [0, 0.007, 0], [-Math.PI / 2, 0, 0])
 
+  // tablette sur son support : l'écran verrouillé d'OsaWallpaper, tourné vers le visiteur
+  const tablet = obj('tablet', [-0.47, 0.95, -0.3], null)
+  const tab = new Group(); tab.position.set(-0.47, 0.79, -0.3); tab.rotation.y = Math.PI - 0.3; tablet.add(tab)
+  box(tab, 0.1, 0.01, 0.075, alu, [0, 0.005, -0.005], null, { r: 0.004 })
+  box(tab, 0.1, 0.014, 0.008, alu, [0, 0.012, 0.032], null, { r: 0.003 })
+  box(tab, 0.05, 0.11, 0.006, alu, [0, 0.055, -0.028], [-0.45, 0, 0], { r: 0.002 })
+  const slab = new Group(); slab.position.set(0, 0.098, 0); slab.rotation.x = -0.25; tab.add(slab)
+  box(slab, 0.13, 0.18, 0.007, mat(0x1c1c1f, { rough: 0.3, metal: 0.3 }), [0, 0, 0], null, { r: 0.006 })
+  const lock = lockScreen()
+  quad(slab, 0.12, 0.168, glow(0xffffff, { map: lock.tex }), [0, 0, 0.0037])
+
   // on pivote le bureau et tout ce qui est posé dessus : l'écran regarde Yanis, pas le visiteur
   const deskEnd = world.children.length
   const deskSet = new Group()
@@ -455,7 +508,7 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   world.add(deskSet)
   deskSet.rotation.y = Math.PI
   deskSet.updateMatrixWorld(true)
-  ;[macbook, keyboard, notebook, phone].forEach(g => deskSet.localToWorld(g.userData.anchor))
+  ;[macbook, keyboard, notebook, phone, tablet].forEach(g => deskSet.localToWorld(g.userData.anchor))
   deskLamp.position.set(-0.78, 1.16, 0.12)
   deskLamp.target.position.set(-0.15, 0.76, -0.2)
   // points de vue : depuis le fauteuil pour l'écran et le clavier, depuis le visiteur pour le reste
@@ -463,6 +516,7 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   keyboard.userData.view = { pos: [-0.25, 1.22, -0.78], look: [-0.25, 0.8, -0.28] }
   notebook.userData.view = { pos: [0.62, 1.25, 0.72], look: [0.62, 0.8, -0.02] }
   phone.userData.view = { pos: [-0.4, 1.18, 0.5], look: [-0.62, 0.8, -0.22] }
+  tablet.userData.view = { pos: [0.3, 1.08, 0.88], look: [0.47, 0.88, 0.3] }
 
   /* ===== mur de gauche : bibliothèque, vieil écran, baladeur, calendrier ===== */
   const shelfWood = mat(0xffffff, { map: woodTex('#8a5a36', '50,26,12'), rough: 0.6 })
@@ -1001,6 +1055,7 @@ export async function createRoom(canvas, { snapshot, avatar }) {
     phone.position.x = (Math.floor(t * 10) % 40 < 4) ? Math.sin(t * 90) * 0.003 : 0
     macGlow.material.color.setScalar(0.92)
     snake.tick(dt)
+    lock.tick(dt)
     lampBulb.scale.setScalar(1 + Math.sin(t * 3) * 0.02)
     renderer.render(scene, camera)
     listeners.forEach(f => f())
