@@ -5,7 +5,7 @@ import { projects } from '../src/projects.js'
 
 const SITE = 'https://yanis.pro'
 // l'objet du bureau qui représente chaque projet (image du haut de page)
-const OBJECTS = { osanotch: 'le MacBook', osawallpaper: 'la tablette', osaparty: 'le tourne-disque', osadrop: 'le téléphone', osacast: 'le néon OsaLabs', osaboard: 'le cahier', clavio: 'le piano', openpod: 'le baladeur', proxmox: 'le petit serveur' }
+const OBJECTS = { osanotch: 'le MacBook', osawallpaper: 'la tablette', osaboot: 'la clé USB', osaparty: 'le tourne-disque', osadrop: 'le téléphone', osacast: 'le néon OsaLabs', osaboard: 'le cahier', clavio: 'le piano', openpod: 'le baladeur', proxmox: 'le petit serveur' }
 const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const strip = s => String(s).replace(/<[^>]+>/g, '')
 
