@@ -233,6 +233,114 @@ export const projects = [
 
   /* ------------------------------------------------------------------ */
   {
+    slug: 'osaboot',
+    name: 'OsaBoot',
+    letter: 'B',
+    color: '#f9a8d4',
+    deep: '#db2777',
+    soft: '#fdf2f8',
+    kicker: 'App macOS native · Swift',
+    tagline: "Une clé USB qui démarre, <em>même Windows.</em>",
+    summary: "OsaBoot copie une image .iso ou .img sur une clé USB et vérifie le résultat, comme balenaEtcher. Et il sait aussi faire ce qu'Etcher ne fait pas : préparer une vraie clé d'installation Windows 10 / 11 depuis un Mac. Au milieu de la fenêtre, la mascotte d'OsaLabs fait le travail avec toi.",
+    meta: {
+      role: 'Conception, design et développement',
+      period: '28 octobre 2026',
+      status: 'Bêta publiée en .dmg, mises à jour proposées par l’app',
+    },
+    stack: ['Swift', 'SwiftUI', 'DiskArbitration', 'authopen', 'CryptoKit', 'wimlib'],
+    links: [
+      { label: 'Télécharger', url: 'https://osalabs.fr/boot', primary: true },
+      { label: 'Voir le code', url: 'https://github.com/osayanis/osaboot' },
+    ],
+    stats: [
+      { n: '1', label: 'journée, de l’idée à la bêta' },
+      { n: '2 114', label: 'lignes de Swift' },
+      { n: '1,3 Mo', label: 'le .dmg, wimlib compris' },
+      { n: '2 %', label: 'de CPU au repos, mascotte comprise' },
+    ],
+    problem: {
+      quote: "Etcher sait copier une image. Mais pour installer Windows depuis un Mac, il n'y a rien.",
+      text: [
+        "Pour une image Linux ou Raspberry Pi, balenaEtcher fait très bien le travail : il copie l'image octet par octet et vérifie. Mais une ISO Windows copiée comme ça ne démarre pas, et sur Mac il n'existe pas d'équivalent simple à Rufus.",
+        "Je voulais une seule app pour les deux, qui ne puisse jamais effacer le mauvais disque, et qui donne envie de s'en servir plutôt qu'une fenêtre grise avec une barre de progression.",
+      ],
+    },
+    visuals: [
+      { type: 'shot', src: '/media/osaboot/ready.webp', alt: "OsaBoot avec une ISO Windows 11 et une clé SanDisk choisies, la mascotte prête", caption: "Une ISO Windows 11 et une clé : la mascotte annonce ce qu'elle va faire." },
+      { type: 'shot', src: '/media/osaboot/working.webp', alt: 'OsaBoot pendant la copie : le disque tourne, la clé se remplit', caption: 'Pendant la copie : le disque tourne, les données voyagent, la clé se remplit.' },
+      { type: 'shot', src: '/media/osaboot/done.webp', alt: 'La clé est prête : confettis et mascotte qui lève les bras', caption: 'C’est prêt : confettis, et la touche à presser au démarrage du PC.' },
+    ],
+    how: {
+      intro: "Deux chemins selon l'image, et beaucoup de garde-fous autour du seul geste dangereux : effacer une clé.",
+      steps: [
+        { t: 'Reconnaître l’image', d: "OsaBoot lit les signatures du fichier (MBR, GPT, ISO 9660), puis monte l'ISO en lecture seule : s'il y trouve <code>boot.wim</code> et <code>install.wim</code>, c'est un installateur Windows." },
+        { t: 'Ne proposer que des clés', d: "Les disques viennent de <code>diskutil</code> et de DiskArbitration, rafraîchis dès qu'une clé arrive. Le disque du Mac, le disque de démarrage et les images montées sont exclus, et la clé est relue juste avant d'effacer." },
+        { t: 'Écrire sans être root', d: "L'app ouvre <code>/dev/rdisk</code> via <code>authopen</code> : macOS demande le mot de passe dans sa propre fenêtre et renvoie un descripteur de fichier par un socket Unix. Puis tout est relu et comparé en SHA-256." },
+        { t: 'Le cas Windows', d: "Clé formatée en FAT32 / MBR, fichiers copiés, et <code>install.wim</code> découpé par wimlib s'il dépasse les 4 Go permis par FAT32. En option, un fichier de réponse permet d'installer Windows 11 sans TPM." },
+        { t: 'Une interface qui vit', d: "SwiftUI : la mascotte suit la souris, saute, travaille, fête la fin. Les animations en boucle ne tournent que pendant l'écriture, d'où 2 % de CPU au repos." },
+      ],
+      diagram: {
+        w: 820, h: 380,
+        nodes: [
+          { id: 'app', x: 410, y: 190, w: 210, h: 84, label: 'OsaBoot', sub: 'SwiftUI', c: '#f9a8d4' },
+          { id: 'iso', x: 130, y: 70, w: 210, h: 72, label: 'Image', sub: '.iso · .img', c: '#e5e7eb' },
+          { id: 'disk', x: 130, y: 310, w: 210, h: 72, label: 'diskutil · DiskArbitration', sub: 'clés externes', c: '#fde68a' },
+          { id: 'auth', x: 690, y: 70, w: 210, h: 72, label: 'authopen', sub: 'écriture brute', c: '#a7e8bd' },
+          { id: 'wim', x: 690, y: 310, w: 210, h: 72, label: 'wimlib', sub: 'découpe install.wim', c: '#93c5fd' },
+          { id: 'key', x: 410, y: 40, w: 190, h: 56, label: 'Clé USB', sub: 'vérifiée', c: '#f3a6cf' },
+        ],
+        edges: [
+          { from: 'iso', to: 'app', label: 'lue' },
+          { from: 'disk', to: 'app', label: 'branchée' },
+          { from: 'app', to: 'auth', label: 'raw' },
+          { from: 'app', to: 'wim', label: 'Windows' },
+          { from: 'app', to: 'key' },
+        ],
+      },
+    },
+    demo: {
+      kind: 'flash',
+      title: 'Flashe une clé, pour voir',
+      intro: "Une reproduction de la fenêtre d'OsaBoot. Choisis une image et lance le flash : la mascotte te dit ce qu'elle fait, étape par étape. Rien n'est écrit, évidemment.",
+    },
+    challenges: [
+      {
+        title: 'Le dossier fantôme',
+        problem: "Sur une vraie clé, un dossier <code>.Spotlight-V100</code> apparaissait pendant la copie de Windows, et le fichier censé l'empêcher ne suffisait pas.",
+        solution: "Spotlight est coupé sur la clé (<code>mdutil -i off</code>) juste après le formatage, puis les fichiers cachés de macOS sont nettoyés avant l'éjection.",
+      },
+      {
+        title: 'install.wim fait 6 Go',
+        problem: "FAT32, le seul format que tous les PC savent lire au démarrage, refuse les fichiers de plus de 4 Go. Et l'ISO officielle de Windows 11 en contient un.",
+        solution: "wimlib découpe le fichier en morceaux <code>.swm</code> que l'installateur de Windows réunit tout seul. L'outil est embarqué dans l'app, et OsaBoot refuse avant d'effacer quoi que ce soit s'il manque.",
+      },
+      {
+        title: 'Ne jamais effacer le mauvais disque',
+        problem: "Mon Mac a des coffres chiffrés et des simulateurs montés comme disques « externes ». Un faux pas, et c'est eux qu'on efface.",
+        solution: "Les images disque montées sont exclues d'office, sauf une liste blanche en mode test, et la clé est relue juste avant d'effacer : si elle a changé, on s'arrête. Les tests passent par des disques en mémoire.",
+      },
+      {
+        title: '« L’interface est vraiment horrible »',
+        problem: "La première version marchait, mais c'était trois cartes grises : rien ne donnait envie.",
+        solution: "Refaite le jour même : fond noir, une scène avec le disque, la mascotte et la clé, un flux de données animé, une confirmation dans la fenêtre et des confettis. Et toujours 2 % de CPU au repos.",
+      },
+    ],
+    journal: [
+      { d: '28 oct · 09h46', t: 'Première version', x: 'Écriture brute vérifiée en SHA-256, clé Windows en FAT32, découpe d’install.wim.' },
+      { d: '28 oct · 10h05', t: 'Sur une vraie clé', x: 'Image brute et clé Windows testées sur une vraie clé USB, sans dossier Spotlight.' },
+      { d: '28 oct · 10h09', t: 'wimlib embarqué', x: 'Plus rien à installer : l’outil de découpe est dans l’app.' },
+      { d: '28 oct · 10h26', t: 'Nouvelle interface', x: 'Scène noire, mascotte vivante, confirmation intégrée, confettis.' },
+      { d: '28 oct · 10h40', t: 'Bêta publiée', x: 'Version 0.1 en .dmg, README avec captures, page sur osalabs.fr.', now: true },
+    ],
+    next: [
+      'Démarrer un vrai PC sur une vraie ISO Windows 11 (pas encore testé).',
+      'Une version pour les Mac Intel.',
+      'Lire directement les images compressées (.img.xz, .zip) sans les décompresser avant.',
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
+  {
     slug: 'osaparty',
     name: 'OsaParty',
     letter: 'P',

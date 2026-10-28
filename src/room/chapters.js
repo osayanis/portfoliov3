@@ -87,6 +87,22 @@ export const chapters = [
     ],
   },
   {
+    id: 'usbkey',
+    object: 'La clé USB',
+    era: 'Octobre 2026',
+    title: 'OsaBoot : une clé qui démarre, même Windows',
+    color: '#f9a8d4',
+    say: "Tu vois la clé rose branchée sur le Mac ? Elle sort d'OsaBoot. Je l'ai aidé à la préparer, j'ai même eu droit à des confettis !",
+    body: `
+      <p>balenaEtcher copie une image sur une clé USB, mais une ISO Windows copiée comme ça ne démarre pas. <b>OsaBoot</b> fait les deux : Linux et Raspberry Pi copiés puis <b>vérifiés en SHA-256</b>, et une vraie <b>clé d'installation Windows 10 / 11</b> préparée depuis un Mac.</p>
+      <p>Ma troisième app en Swift natif, de l'idée à la bêta en une journée, testée sur une vraie clé USB. Et au milieu de la fenêtre, la mascotte fait le travail avec toi.</p>`,
+    image: { src: '/media/osaboot/working.webp', alt: "OsaBoot en train de préparer une clé Windows 11 : le disque tourne, la mascotte travaille, la clé se remplit" },
+    links: [
+      { label: "L'étude de cas", url: '/projets/osaboot/', primary: true },
+      { label: 'Télécharger', url: 'https://osalabs.fr/boot' },
+    ],
+  },
+  {
     id: 'piano',
     object: 'Le piano',
     era: 'Octobre 2026',
@@ -148,9 +164,9 @@ export const chapters = [
     color: '#f9a8a8',
     say: "Et voilà le patron. Étudiant, curieux, incapable de laisser une idée dans un coin. Moi je l'aime bien.",
     body: `
-      <p>Je suis étudiant en BTS, en France, et <b>je donne vie à mes idées avec l'IA</b>. J'aime les interfaces claires et les projets qui touchent au réel : un notch de MacBook, un écran verrouillé, un piano MIDI, un baladeur sur Raspberry Pi, un serveur Proxmox.</p>
+      <p>Je suis étudiant en BTS, en France, et <b>je donne vie à mes idées avec l'IA</b>. J'aime les interfaces claires et les projets qui touchent au réel : un notch de MacBook, un écran verrouillé, une clé USB qui démarre, un piano MIDI, un baladeur sur Raspberry Pi, un serveur Proxmox.</p>
       <p>Mon terrain de jeu va du navigateur (WebRTC, Next.js) jusqu'au système (Swift natif, Linux embarqué, Bash).</p>`,
-    stats: [['42', 'dépôts GitHub'], ['6', 'apps OsaLabs'], ['9', 'projets lancés en 8 jours']],
+    stats: [['43', 'dépôts GitHub'], ['7', 'apps OsaLabs'], ['9', 'projets lancés en 8 jours']],
     links: [{ label: 'Mon LinkedIn', url: 'https://www.linkedin.com/in/yansb/', primary: true }, { label: 'Le portfolio sur GitHub', url: 'https://github.com/osayanis/portfoliov3' }],
   },
   {

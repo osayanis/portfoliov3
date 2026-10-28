@@ -501,6 +501,13 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   const lock = lockScreen()
   quad(slab, 0.12, 0.168, glow(0xffffff, { map: lock.tex }), [0, 0, 0.0037])
 
+  // clé USB d'OsaBoot, branchée sur le côté du MacBook, avec son voyant qui clignote
+  const usbkey = obj('usbkey', [0.17, 0.86, -0.14], null)
+  box(usbkey, 0.018, 0.006, 0.014, alu, [0.137, 0.795, -0.14], null, { r: 0.001 })
+  box(usbkey, 0.062, 0.013, 0.026, mat(0xf472b6, { rough: 0.35 }), [0.176, 0.795, -0.14], null, { r: 0.005 })
+  box(usbkey, 0.012, 0.0135, 0.012, mat(0xfdfcf7, { rough: 0.5 }), [0.2, 0.795, -0.14], null, { r: 0.004 })
+  const usbLed = quad(usbkey, 0.006, 0.006, glow(0x86efac), [0.158, 0.8022, -0.14], [-Math.PI / 2, 0, 0])
+
   // on pivote le bureau et tout ce qui est posé dessus : l'écran regarde Yanis, pas le visiteur
   const deskEnd = world.children.length
   const deskSet = new Group()
@@ -508,7 +515,7 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   world.add(deskSet)
   deskSet.rotation.y = Math.PI
   deskSet.updateMatrixWorld(true)
-  ;[macbook, keyboard, notebook, phone, tablet].forEach(g => deskSet.localToWorld(g.userData.anchor))
+  ;[macbook, keyboard, notebook, phone, tablet, usbkey].forEach(g => deskSet.localToWorld(g.userData.anchor))
   deskLamp.position.set(-0.78, 1.16, 0.12)
   deskLamp.target.position.set(-0.15, 0.76, -0.2)
   // points de vue : depuis le fauteuil pour l'écran et le clavier, depuis le visiteur pour le reste
@@ -517,6 +524,7 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   notebook.userData.view = { pos: [0.62, 1.25, 0.72], look: [0.62, 0.8, -0.02] }
   phone.userData.view = { pos: [-0.4, 1.18, 0.5], look: [-0.62, 0.8, -0.22] }
   tablet.userData.view = { pos: [0.3, 1.08, 0.88], look: [0.47, 0.88, 0.3] }
+  usbkey.userData.view = { pos: [-0.36, 0.95, 0.32], look: [-0.15, 0.8, 0.1] }
 
   /* ===== mur de gauche : bibliothèque, vieil écran, baladeur, calendrier ===== */
   const shelfWood = mat(0xffffff, { map: woodTex('#8a5a36', '50,26,12'), rough: 0.6 })
@@ -1056,6 +1064,7 @@ export async function createRoom(canvas, { snapshot, avatar }) {
     macGlow.material.color.setScalar(0.92)
     snake.tick(dt)
     lock.tick(dt)
+    usbLed.material.color.setHex(Math.floor(t * 2.5) % 3 ? 0x86efac : 0x1f3d2b)
     lampBulb.scale.setScalar(1 + Math.sin(t * 3) * 0.02)
     renderer.render(scene, camera)
     listeners.forEach(f => f())

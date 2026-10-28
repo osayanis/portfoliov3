@@ -18,6 +18,7 @@ npm run build    # génère dist/
 | Le néon OsaLabs | 2026 : OsaParty, OsaDrop, OsaCast, OsaBoard |
 | Le MacBook | OsaNotch (avec l'aperçu interactif du notch) |
 | La tablette | OsaWallpaper (l'écran verrouillé, avec l'heure en direct) |
+| La clé USB | OsaBoot (branchée sur le MacBook, son voyant clignote) |
 | Le piano | Clavio |
 | Le baladeur | OpenPod OS |
 | Le calendrier | GitHub en direct |
@@ -43,7 +44,7 @@ La vue derrière la baie vitrée est une vidéo en boucle de [Mixkit](https://mi
 Chaque étude de cas s'ouvre sur une image du bureau cadrée sur l'objet du projet. Ces images (`public/media/bureau/`) se régénèrent avec le mode prise de vue : `/?shot=macbook`, `/?shot=piano`…
 
 
-Chaque projet a sa page : `/projets/<slug>/` (OsaNotch, OsaWallpaper, OsaParty, OsaDrop, OsaCast, OsaBoard, Clavio, OpenPod OS, Proxmox).
+Chaque projet a sa page : `/projets/<slug>/` (OsaNotch, OsaWallpaper, OsaBoot, OsaParty, OsaDrop, OsaCast, OsaBoard, Clavio, OpenPod OS, Proxmox).
 
 - Le contenu est dans `src/projects.js` : textes, chiffres, schéma d'architecture, journal de bord, défis.
 - `scripts/build-pages.mjs` génère le HTML statique dans `projets/` (lancé par `npm run dev` et `npm run build`, ou à la main avec `npm run pages`).
