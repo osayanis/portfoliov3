@@ -476,6 +476,130 @@ export const projects = [
     },
   },
 
+  /* ------------------------------------------------------------------ */
+  {
+    slug: 'osahub',
+    name: 'OsaHUB',
+    letter: 'H',
+    color: '#cbd5e1',
+    deep: '#475569',
+    soft: '#f1f5f9',
+    kicker: 'App macOS native · SwiftUI',
+    tagline: "Toutes mes apps Mac, <em>au même endroit.</em>",
+    summary: "OsaHUB installe et met à jour les apps OsaLabs pour Mac : OsaNotch, OsaWallpaper, OsaBoot, et bientôt OsaWeight. Il les télécharge depuis leurs releases GitHub, vérifie que c'est bien la bonne app avant de la ranger, et se met à jour tout seul. Dans la barre des menus, il ne reste qu'une seule mascotte pour toute la suite.",
+    meta: {
+      role: 'Conception, design et développement',
+      period: '3 – 4 novembre 2026',
+      status: 'Publiée en .dmg, se met à jour toute seule',
+    },
+    stack: ['Swift', 'SwiftUI', 'AppKit', 'API GitHub', 'codesign', 'Notifications distribuées'],
+    links: [
+      { label: 'Télécharger OsaHUB', url: 'https://github.com/osayanis/osahub/releases/latest/download/OsaHUB.dmg', primary: true },
+      { label: 'Voir le code', url: 'https://github.com/osayanis/osahub' },
+      { label: 'Le site', url: 'https://osalabs.fr/osahub' },
+    ],
+    stats: [
+      { n: '2', label: 'jours, du 3 au 4 novembre' },
+      { n: '4', label: 'apps de la suite, OsaWeight comprise' },
+      { n: '2,2 Mo', label: 'le .dmg' },
+      { n: '0', label: 'dépendance : SwiftUI et AppKit' },
+    ],
+    problem: {
+      quote: "Quatre apps, quatre façons de les installer et de les mettre à jour. Il fallait une maison commune.",
+      text: [
+        "À force de faire des apps Mac, je me retrouvais avec OsaNotch, OsaWallpaper et OsaBoot, chacune avec son .dmg, sa page de téléchargement et sa façon de proposer les mises à jour. Pour quelqu'un qui les installe toutes, c'était pénible.",
+        "Et dans la barre des menus, chaque app voulait sa place : deux mascottes côte à côte, ça faisait beaucoup.",
+        "Je voulais une seule app d'où tout installer, qui garde la suite à jour sans y penser, et qui ait la même sobriété que les autres : noir et blanc, la couleur seulement pour dire qu'un état va bien.",
+      ],
+    },
+    visuals: [
+      { type: 'shot', wide: true, src: '/media/osahub/accueil.webp', alt: "L'écran principal d'OsaHUB : la mascotte annonce que tout est à jour, puis les cartes d'OsaNotch, OsaWallpaper, OsaBoot et OsaWeight", caption: 'L’écran principal : la mascotte dit où on en est, chaque app a sa carte et sa version.' },
+      { type: 'shot', src: '/media/osahub/merci.webp', alt: "L'accueil d'OsaHUB : la mascotte et « Merci d'utiliser la suite Osa. »", caption: 'Au premier lancement, l’accueil commence par un merci.' },
+      { type: 'shot', src: '/media/osahub/suite.webp', alt: "L'accueil d'OsaHUB : les quatre apps en orbite autour du logo aux quatre tuiles", caption: 'Puis la suite en orbite autour du logo : une suite, pas juste des apps.' },
+      { type: 'shot', src: '/media/osahub/preparer.webp', alt: "L'accueil d'OsaHUB : choisir les apps à installer, ouvrir OsaHUB à la connexion, le mettre à jour tout seul", caption: 'Et on coche les apps à installer tout de suite.' },
+    ],
+    how: {
+      intro: "Un catalogue en ligne, les releases GitHub de chaque app, et beaucoup de vérifications avant de toucher au dossier Applications.",
+      steps: [
+        { t: 'Un catalogue en ligne', d: "La liste des apps est un fichier <code>catalog.json</code> lu sur GitHub au lancement : pour ajouter une app, pas besoin de republier OsaHUB. Une copie embarquée sert hors ligne." },
+        { t: 'Ménager l’API GitHub', d: "Sans compte, GitHub permet 60 requêtes par heure. Chaque réponse est gardée avec son ETag, et une réponse « rien n'a changé » ne compte pas. Si la limite est atteinte, OsaHUB ressert la dernière réponse connue." },
+        { t: 'Installer sans se tromper', d: "OsaHUB télécharge l'archive de la release, vérifie l'identifiant de l'app et sa signature (<code>codesign --verify</code>), puis la range dans Applications. Si elle tournait, il la quitte et la relance." },
+        { t: 'Une seule mascotte', d: "OsaHUB et OsaWallpaper se parlent par notifications distribuées : tant qu'OsaHUB tourne, OsaWallpaper cache son icône et range son menu dans celui d'OsaHUB. Si OsaHUB s'arrête, l'icône revient." },
+        { t: 'Il se met à jour lui-même', d: "Fenêtre fermée et rien en cours, OsaHUB installe sa nouvelle version et se relance caché (<code>open -g</code>). Toutes les 6 heures, il vérifie le reste de la suite." },
+      ],
+      diagram: {
+        w: 820, h: 380,
+        nodes: [
+          { id: 'gh', x: 130, y: 70, w: 210, h: 72, label: 'GitHub', sub: 'releases · catalog.json', c: '#e5e7eb' },
+          { id: 'hub', x: 410, y: 190, w: 210, h: 84, label: 'OsaHUB', sub: 'SwiftUI · AppKit', c: '#cbd5e1' },
+          { id: 'check', x: 680, y: 70, w: 230, h: 72, label: 'Vérification', sub: 'identifiant · signature', c: '#a7e8bd' },
+          { id: 'suite', x: 680, y: 310, w: 250, h: 72, label: 'La suite Osa', sub: 'OsaNotch · OsaWallpaper · OsaBoot', c: '#c4b5fd' },
+          { id: 'menu', x: 130, y: 310, w: 210, h: 72, label: 'Barre des menus', sub: 'une seule mascotte', c: '#fde68a' },
+        ],
+        edges: [
+          { from: 'gh', to: 'hub', label: 'ETag' },
+          { from: 'hub', to: 'check', label: 'archive' },
+          { from: 'check', to: 'suite', label: 'installe' },
+          { from: 'suite', to: 'hub', label: 'son menu', dashed: true },
+          { from: 'hub', to: 'menu' },
+        ],
+      },
+    },
+    demo: {
+      kind: 'hub',
+      title: 'Mets la suite à jour, pour voir',
+      intro: "Une reproduction de la fenêtre d'OsaHUB. Installe, mets à jour, ouvre une app au clic, ou au clavier : ⌘K pour chercher, puis 1, 2, 3 pour ouvrir (⌘1, ⌘2… dans la vraie app). Rien n'est installé, évidemment.",
+    },
+    challenges: [
+      {
+        title: '« La palette, c’est trop »',
+        problem: "La première version avait une couleur par app : lilas, rose, menthe, des dégradés. À côté d'OsaWallpaper, tout en noir et blanc, ça ne faisait pas partie de la même famille.",
+        solution: "Refaite sur le modèle d'OsaWallpaper : fond presque noir, du blanc à différentes opacités, des boutons blancs au texte noir. La couleur ne sert plus qu'à dire qu'un état va bien, en vert.",
+      },
+      {
+        title: 'Deux mascottes dans la barre',
+        problem: "OsaWallpaper avait déjà sa mascotte dans la barre des menus. Avec OsaHUB, il y en avait deux, côte à côte.",
+        solution: "Les deux apps se parlent par notifications distribuées : OsaWallpaper cache son icône quand OsaHUB tourne et lui confie son menu. Si OsaHUB quitte ou plante, l'icône d'OsaWallpaper revient.",
+      },
+      {
+        title: '« GitHub me demande de patienter »',
+        problem: "À force de relancer l'app pendant les tests, j'ai épuisé les 60 requêtes par heure que GitHub accorde sans compte. Plus rien ne se chargeait.",
+        solution: "Chaque réponse est gardée en cache avec son ETag : une réponse « rien n'a changé » ne compte pas dans la limite. Et si elle est atteinte, OsaHUB affiche la dernière réponse connue et l'heure à laquelle il pourra revérifier.",
+      },
+      {
+        title: 'Une app qui disait toujours 0.1',
+        problem: "OsaHUB compare la version installée à la dernière publiée. Mais jusqu'à la 1.0.4, OsaNotch annonçait « 0.1 » dans ses informations : une mise à jour était proposée en boucle.",
+        solution: "Corrigé à la source dans la fabrication d'OsaNotch, et OsaHUB retient en plus la release qu'il a lui-même installée.",
+      },
+    ],
+    journal: [
+      { d: '3 nov · 14h57', t: 'Première version', x: 'Le catalogue, l’installation depuis les releases GitHub, l’identifiant et la signature vérifiés.' },
+      { d: '3 nov · 15h32', t: 'OsaHUB prend vie', x: 'Logo animé, mascotte, ⌘K, tout mettre à jour, versions précédentes, état des sites OsaLabs.' },
+      { d: '4 nov · 14h16', t: 'Une seule mascotte', x: 'Le menu d’OsaWallpaper fusionne avec celui d’OsaHUB, par notifications distribuées.' },
+      { d: '4 nov · 14h23', t: 'Il se met à jour tout seul', x: 'Fenêtre fermée, sans rien interrompre, puis relance cachée.' },
+      { d: '4 nov · 15h17', t: 'Version 0.4', x: 'L’accueil des nouveaux (un merci, la suite en orbite, le choix des apps), le lancement rapide ⌘1…⌘9, le journal des versions et des fiches d’app complètes.', now: true },
+    ],
+    next: [
+      'Accueillir OsaWeight dans la suite, dès sa première version publiée.',
+      "Notariser l'app auprès d'Apple pour supprimer le « clic droit → Ouvrir » au premier lancement.",
+      'Une version pour les Mac Intel : aujourd’hui, il faut un Mac Apple Silicon (macOS 14 ou plus).',
+    ],
+    related: {
+      kicker: 'Ce qu’il range',
+      title: 'Une maison pour <em>toute la suite.</em>',
+      text: [
+        "OsaHUB installe et garde à jour mes autres apps Mac : OsaNotch, qui rend l'encoche vivante, OsaWallpaper, l'écran verrouillé façon iPhone, et OsaBoot, qui prépare des clés USB (et fabrique EraseKEY). Chacune a son étude de cas.",
+      ],
+      links: [
+        { label: 'OsaNotch', url: '/projets/osanotch/' },
+        { label: 'OsaWallpaper', url: '/projets/osawallpaper/' },
+        { label: 'OsaBoot', url: '/projets/osaboot/' },
+      ],
+      image: '/media/osahub/suite.webp',
+      color: '#cbd5e1',
+    },
+  },
+
 
   /* ------------------------------------------------------------------ */
   {

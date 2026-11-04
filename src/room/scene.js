@@ -520,6 +520,21 @@ export async function createRoom(canvas, { snapshot, avatar }) {
     g.font = '700 40px "JetBrains Mono", monospace'; g.textBaseline = 'middle'; g.fillText('EraseKEY', 64, h / 2 + 2)
   }) }), [-0.005, 0.0057, 0], [-Math.PI / 2, 0, Math.PI])
 
+  // station OsaHUB : un socle noir et les quatre tuiles de son logo, la flèche dans la dernière
+  const osahub = obj('osahub', [0.5, 0.86, -0.17], null)
+  const hb = new Group(); hb.position.set(0.5, 0.79, -0.17); hb.rotation.y = -0.25; osahub.add(hb)
+  box(hb, 0.11, 0.012, 0.11, mat(0x0e0e13, { rough: 0.35, metal: 0.2 }), [0, 0.006, 0], null, { r: 0.005 })
+  quad(hb, 0.005, 0.005, glow(0x86efac), [0, 0.0122, -0.047], [-Math.PI / 2, 0, 0])
+  const hubWhite = mat(0xf4f4f5, { rough: 0.45 }), hubGrey = mat(0x6b6b72, { rough: 0.45 })
+  const hubArrow = canvasTex(128, 128, (g, w, h) => {
+    g.fillStyle = '#f4f4f5'; g.fillRect(0, 0, w, h)
+    g.strokeStyle = '#111114'; g.lineWidth = 15; g.lineCap = 'round'; g.lineJoin = 'round'
+    g.beginPath(); g.moveTo(64, 30); g.lineTo(64, 96); g.moveTo(38, 72); g.lineTo(64, 98); g.lineTo(90, 72); g.stroke()
+  })
+  // dans le logo : en haut à gauche blanc, puis gris, gris, et la flèche en bas à droite (le haut du logo est côté fenêtre)
+  const hubTiles = [[-1, -1, hubWhite], [1, -1, hubGrey], [-1, 1, hubGrey], [1, 1, hubWhite]].map(([c, r, m]) => box(hb, 0.04, 0.014, 0.04, m, [-c * 0.0235, 0.019, -r * 0.0235], null, { r: 0.0065 }))
+  quad(hubTiles[3], 0.032, 0.032, mat(0xffffff, { bump: false, rough: 0.45, map: hubArrow }), [0, 0.0072, 0], [-Math.PI / 2, 0, Math.PI])
+
   // on pivote le bureau et tout ce qui est posé dessus : l'écran regarde Yanis, pas le visiteur
   const deskEnd = world.children.length
   const deskSet = new Group()
@@ -527,7 +542,7 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   world.add(deskSet)
   deskSet.rotation.y = Math.PI
   deskSet.updateMatrixWorld(true)
-  ;[macbook, keyboard, notebook, phone, tablet, usbkey, erasekey].forEach(g => deskSet.localToWorld(g.userData.anchor))
+  ;[macbook, keyboard, notebook, phone, tablet, usbkey, erasekey, osahub].forEach(g => deskSet.localToWorld(g.userData.anchor))
   deskLamp.position.set(-0.78, 1.16, 0.12)
   deskLamp.target.position.set(-0.15, 0.76, -0.2)
   // points de vue : depuis le fauteuil pour l'écran et le clavier, depuis le visiteur pour le reste
@@ -538,6 +553,7 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   tablet.userData.view = { pos: [0.3, 1.08, 0.88], look: [0.47, 0.88, 0.3] }
   usbkey.userData.view = { pos: [-0.36, 0.95, 0.32], look: [-0.15, 0.8, 0.1] }
   erasekey.userData.view = { pos: [-0.4, 0.91, 0.15], look: [-0.25, 0.8, -0.03] }
+  osahub.userData.view = { pos: [-0.46, 0.98, 0.43], look: [-0.5, 0.8, 0.16] }
 
   /* ===== mur de gauche : bibliothèque, vieil écran, baladeur, calendrier ===== */
   const shelfWood = mat(0xffffff, { map: woodTex('#8a5a36', '50,26,12'), rough: 0.6 })
@@ -1078,6 +1094,8 @@ export async function createRoom(canvas, { snapshot, avatar }) {
     snake.tick(dt)
     lock.tick(dt)
     usbLed.material.color.setHex(Math.floor(t * 2.5) % 3 ? 0x86efac : 0x1f3d2b)
+    // les tuiles d'OsaHUB se soulèvent l'une après l'autre, comme le logo qui se déplie
+    hubTiles.forEach((m, i) => { const p = (t * 0.8) % 5 - i * 0.16; m.position.y = 0.019 + (p > 0 && p < 0.5 ? Math.sin(p / 0.5 * Math.PI) * 0.007 : 0) })
     lampBulb.scale.setScalar(1 + Math.sin(t * 3) * 0.02)
     renderer.render(scene, camera)
     listeners.forEach(f => f())

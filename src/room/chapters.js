@@ -119,6 +119,22 @@ export const chapters = [
     ],
   },
   {
+    id: 'osahub',
+    object: 'La station OsaHUB',
+    era: 'Novembre 2026',
+    title: 'OsaHUB : toutes mes apps Mac au même endroit',
+    color: '#cbd5e1',
+    say: "Les quatre tuiles, c'est le logo d'OsaHUB : la maison de toutes les apps Mac de Yanis. Et dans la barre des menus, il n'y a plus qu'une mascotte : moi !",
+    body: `
+      <p>À force de faire des apps Mac, il en fallait une pour les ranger. <b>OsaHUB</b> installe et met à jour <b>OsaNotch, OsaWallpaper et OsaBoot</b> (bientôt OsaWeight) depuis leurs releases GitHub, en vérifiant l'<b>identifiant et la signature</b> de chaque app avant de la ranger.</p>
+      <p>Il se met à jour tout seul en arrière-plan, accueille les nouveaux avec un écran animé, s'utilise au clavier (<b>⌘K</b>, <b>⌘1…⌘9</b>), et fusionne avec OsaWallpaper pour ne laisser qu'<b>une seule mascotte</b> dans la barre des menus.</p>`,
+    image: { src: '/media/osahub/accueil.webp', alt: "L'écran principal d'OsaHUB : la mascotte annonce que tout est à jour, avec les cartes des apps de la suite" },
+    links: [
+      { label: "L'étude de cas", url: '/projets/osahub/', primary: true },
+      { label: 'Télécharger', url: 'https://github.com/osayanis/osahub/releases/latest/download/OsaHUB.dmg' },
+    ],
+  },
+  {
     id: 'piano',
     object: 'Le piano',
     era: 'Octobre 2026',
