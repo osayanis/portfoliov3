@@ -5,7 +5,7 @@ import { projects } from '../src/projects.js'
 
 const SITE = 'https://yanis.pro'
 // l'objet du bureau qui représente chaque projet (image du haut de page)
-const OBJECTS = { osanotch: 'le MacBook', osawallpaper: 'la tablette', osaboot: 'la clé USB', osaparty: 'le tourne-disque', osadrop: 'le téléphone', osacast: 'le néon OsaLabs', osaboard: 'le cahier', clavio: 'le piano', openpod: 'le baladeur', proxmox: 'le petit serveur' }
+const OBJECTS = { osanotch: 'le MacBook', osawallpaper: 'la tablette', osaboot: 'la clé USB', erasekey: 'la clé EraseKEY', osaparty: 'le tourne-disque', osadrop: 'le téléphone', osacast: 'le néon OsaLabs', osaboard: 'le cahier', clavio: 'le piano', openpod: 'le baladeur', proxmox: 'le petit serveur' }
 const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const strip = s => String(s).replace(/<[^>]+>/g, '')
 
@@ -56,6 +56,8 @@ function visual(v) {
   let frame
   if (v.type === 'browser') frame = `<div class="frame-browser"><div class="fb-bar"><i></i><i></i><i></i><span>${esc(v.url)}</span></div>${img}</div>`
   else if (v.type === 'phone') frame = `<div class="frame-phone"><span class="fp-notch"></span>${img}</div>`
+  // capture d'une console (écran noir et blanc) : présentée dans un petit moniteur
+  else if (v.type === 'screen') frame = `<button type="button" class="frame-screen" data-zoom="${v.src}" aria-label="Agrandir : ${esc(v.alt)}"><span class="fs-glass">${img}</span><span class="fs-chin" aria-hidden="true"><i></i></span></button>`
   else if (v.type === 'shot') frame = `<button type="button" class="frame-shot" data-zoom="${v.src}" aria-label="Agrandir : ${esc(v.alt)}">${img}</button>`
   else frame = `<div class="frame-image${v.dark ? ' dark' : ''}">${img}</div>`
   return `<figure class="vis vis-${v.type}${v.wide ? ' wide' : ''} reveal">${frame}<figcaption>${esc(v.caption)}</figcaption></figure>`
@@ -139,7 +141,7 @@ function page(p, i) {
       ${p.visuals.length ? `<!-- VISUELS -->
       <section class="cs-section cs-visuals">
         <div class="cs-head reveal"><p class="eyebrow"><span class="num">02</span>En images</p><h2>À quoi ça <em>ressemble.</em></h2></div>
-        <div class="vis-grid vis-grid-${p.visuals.some(v => v.type === 'shot') ? 'shots' : 'mixed'}">${p.visuals.map(visual).join('')}</div>
+        <div class="vis-grid vis-grid-${p.visuals.some(v => v.type === 'screen') ? 'screens' : p.visuals.some(v => v.type === 'shot') ? 'shots' : 'mixed'}">${p.visuals.map(visual).join('')}</div>
       </section>` : ''}
 
       <!-- FONCTIONNEMENT -->
@@ -169,7 +171,20 @@ function page(p, i) {
         </div>
       </section>
 
-      <!-- JOURNAL -->
+      ${p.related ? `<!-- PROJET LIÉ -->
+      <section class="cs-section cs-related">
+        <div class="cs-related-card reveal" style="--c:${p.related.color}">
+          ${p.related.image ? `<a class="cs-related-shot" href="${p.related.url}" tabindex="-1" aria-hidden="true"><span class="fs-glass"><img src="${p.related.image}" alt="" loading="lazy" decoding="async"></span></a>` : ''}
+          <div>
+            <p class="eyebrow"><span class="num">+</span>${esc(p.related.kicker)}</p>
+            <h2>${p.related.title}</h2>
+            ${p.related.text.map(t => `<p>${t}</p>`).join('')}
+            <a class="btn btn-dark" href="${p.related.url}">${esc(p.related.label)} <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+      </section>
+
+      ` : ''}<!-- JOURNAL -->
       <section class="cs-section cs-journal">
         <div class="cs-head reveal"><p class="eyebrow"><span class="num">⏱</span>Journal de bord</p><h2>Comment c'est <em>arrivé.</em></h2></div>
         <ol class="journal">

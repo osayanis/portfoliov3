@@ -103,6 +103,22 @@ export const chapters = [
     ],
   },
   {
+    id: 'erasekey',
+    object: 'La clé EraseKEY',
+    era: 'Novembre 2026',
+    title: 'EraseKEY : une clé qui efface les disques',
+    color: '#e7e5e4',
+    say: "La clé noire, c'est EraseKEY. Sur l'écran du PC, c'est moi en pixels qui t'aide à tout effacer. Et je ne touche jamais à la clé elle-même !",
+    body: `
+      <p>Une clé USB fabriquée par <b>OsaBoot</b>, qui démarre n'importe quel PC (UEFI ou BIOS) directement sur une <b>interface en français</b> pour <b>effacer complètement un ou plusieurs disques</b>. Rien n'est installé sur le PC.</p>
+      <p>Dessous, il y a ShredOS et nwipe ; par-dessus, mon interface en <b>Go</b> : on choisit les disques, la méthode, on tape EFFACER, et à la fin un <b>rapport PDF</b> par disque est enregistré sur la clé. Testée en machines virtuelles, puis sur un vrai PC Dell : il a fallu trois clés USB pour y arriver.</p>`,
+    image: { src: '/media/erasekey/effacement.webp', alt: "L'interface d'EraseKEY pendant l'effacement de deux disques : la mascotte en pixels, les barres de progression, le débit et le temps restant" },
+    links: [
+      { label: "L'étude de cas", url: '/projets/erasekey/', primary: true },
+      { label: 'Le site', url: 'https://osalabs.fr/erasekey' },
+    ],
+  },
+  {
     id: 'piano',
     object: 'Le piano',
     era: 'Octobre 2026',
@@ -164,7 +180,7 @@ export const chapters = [
     color: '#f9a8a8',
     say: "Et voilà le patron. Étudiant, curieux, incapable de laisser une idée dans un coin. Moi je l'aime bien.",
     body: `
-      <p>Je suis étudiant en BTS, en France, et <b>je donne vie à mes idées avec l'IA</b>. J'aime les interfaces claires et les projets qui touchent au réel : un notch de MacBook, un écran verrouillé, une clé USB qui démarre, un piano MIDI, un baladeur sur Raspberry Pi, un serveur Proxmox.</p>
+      <p>Je suis étudiant en BTS, en France, et <b>je donne vie à mes idées avec l'IA</b>. J'aime les interfaces claires et les projets qui touchent au réel : un notch de MacBook, un écran verrouillé, une clé USB qui démarre, une autre qui efface les disques, un piano MIDI, un baladeur sur Raspberry Pi, un serveur Proxmox.</p>
       <p>Mon terrain de jeu va du navigateur (WebRTC, Next.js) jusqu'au système (Swift natif, Linux embarqué, Bash).</p>`,
     stats: [['43', 'dépôts GitHub'], ['7', 'apps OsaLabs'], ['9', 'projets lancés en 8 jours']],
     links: [{ label: 'Mon LinkedIn', url: 'https://www.linkedin.com/in/yansb/', primary: true }, { label: 'Le portfolio sur GitHub', url: 'https://github.com/osayanis/portfoliov3' }],

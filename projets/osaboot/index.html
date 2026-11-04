@@ -40,7 +40,7 @@
           <p class="cs-object"><span class="dot" style="--c:#f9a8d4"></span>Dans le bureau : <b>la clé USB</b></p>
           <h1 class="cs-title"><span style="view-transition-name: t-osaboot">OsaBoot</span></h1>
           <p class="cs-tagline">Une clé USB qui démarre, <em>même Windows.</em></p>
-          <p class="lead">OsaBoot copie une image .iso ou .img sur une clé USB et vérifie le résultat, comme balenaEtcher. Et il sait aussi faire ce qu'Etcher ne fait pas : préparer une vraie clé d'installation Windows 10 / 11 depuis un Mac. Au milieu de la fenêtre, la mascotte d'OsaLabs fait le travail avec toi.</p>
+          <p class="lead">OsaBoot copie une image .iso ou .img sur une clé USB et vérifie le résultat, comme balenaEtcher. Et il sait aussi faire ce qu'Etcher ne fait pas : préparer une vraie clé d'installation Windows 10 / 11 depuis un Mac. Au milieu de la fenêtre, la mascotte d'OsaLabs fait le travail avec toi. Depuis la version 0.2, il fabrique aussi EraseKEY, une clé qui efface les disques d'un PC.</p>
           <div class="btn-row"><a class="btn btn-dark" href="https://osalabs.fr/boot" target="_blank" rel="noopener">Télécharger <span aria-hidden="true">↗</span></a><a class="btn" href="https://github.com/osayanis/osaboot" target="_blank" rel="noopener">Voir le code <span aria-hidden="true">↗</span></a></div>
         </div>
         <dl class="cs-meta">
@@ -147,11 +147,24 @@
         </div>
       </section>
 
+      <!-- PROJET LIÉ -->
+      <section class="cs-section cs-related">
+        <div class="cs-related-card reveal" style="--c:#e7e5e4">
+          <a class="cs-related-shot" href="/projets/erasekey/" tabindex="-1" aria-hidden="true"><span class="fs-glass"><img src="/media/erasekey/effacement.webp" alt="" loading="lazy" decoding="async"></span></a>
+          <div>
+            <p class="eyebrow"><span class="num">+</span>Et maintenant, il efface aussi</p>
+            <h2>OsaBoot fabrique <em>EraseKEY.</em></h2>
+            <p>Depuis la version 0.2, OsaBoot sait préparer une clé un peu spéciale : EraseKEY. Branchée sur n'importe quel PC (UEFI ou BIOS), elle démarre directement sur une interface en français, avec la mascotte en pixels, pour effacer complètement un ou plusieurs disques. Rien n'est installé sur le PC.</p><p>Pour y arriver, OsaBoot a dû apprendre à reconstruire une clé au format standard, et sa vérification après écriture a démasqué une clé USB défectueuse en route.</p>
+            <a class="btn btn-dark" href="/projets/erasekey/">L’étude de cas EraseKEY <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+      </section>
+
       <!-- JOURNAL -->
       <section class="cs-section cs-journal">
         <div class="cs-head reveal"><p class="eyebrow"><span class="num">⏱</span>Journal de bord</p><h2>Comment c'est <em>arrivé.</em></h2></div>
         <ol class="journal">
-          <li class="reveal"><time>28 oct · 09h46</time><span class="j-dot" aria-hidden="true"></span><div><h3>Première version</h3><p>Écriture brute vérifiée en SHA-256, clé Windows en FAT32, découpe d’install.wim.</p></div></li><li class="reveal"><time>28 oct · 10h05</time><span class="j-dot" aria-hidden="true"></span><div><h3>Sur une vraie clé</h3><p>Image brute et clé Windows testées sur une vraie clé USB, sans dossier Spotlight.</p></div></li><li class="reveal"><time>28 oct · 10h09</time><span class="j-dot" aria-hidden="true"></span><div><h3>wimlib embarqué</h3><p>Plus rien à installer : l’outil de découpe est dans l’app.</p></div></li><li class="reveal"><time>28 oct · 10h26</time><span class="j-dot" aria-hidden="true"></span><div><h3>Nouvelle interface</h3><p>Scène noire, mascotte vivante, confirmation intégrée, confettis.</p></div></li><li class="reveal now"><time>28 oct · 10h40</time><span class="j-dot" aria-hidden="true"></span><div><h3>Bêta publiée</h3><p>Version 0.1 en .dmg, README avec captures, page sur osalabs.fr.</p></div></li>
+          <li class="reveal"><time>28 oct · 09h46</time><span class="j-dot" aria-hidden="true"></span><div><h3>Première version</h3><p>Écriture brute vérifiée en SHA-256, clé Windows en FAT32, découpe d’install.wim.</p></div></li><li class="reveal"><time>28 oct · 10h05</time><span class="j-dot" aria-hidden="true"></span><div><h3>Sur une vraie clé</h3><p>Image brute et clé Windows testées sur une vraie clé USB, sans dossier Spotlight.</p></div></li><li class="reveal"><time>28 oct · 10h09</time><span class="j-dot" aria-hidden="true"></span><div><h3>wimlib embarqué</h3><p>Plus rien à installer : l’outil de découpe est dans l’app.</p></div></li><li class="reveal"><time>28 oct · 10h26</time><span class="j-dot" aria-hidden="true"></span><div><h3>Nouvelle interface</h3><p>Scène noire, mascotte vivante, confirmation intégrée, confettis.</p></div></li><li class="reveal"><time>28 oct · 10h40</time><span class="j-dot" aria-hidden="true"></span><div><h3>Bêta publiée</h3><p>Version 0.1 en .dmg, README avec captures, page sur osalabs.fr.</p></div></li><li class="reveal now"><time>3 – 4 nov</time><span class="j-dot" aria-hidden="true"></span><div><h3>EraseKEY</h3><p>Versions 0.2 et 0.3 : OsaBoot fabrique aussi une clé qui efface les disques d’un PC, avec son interface en français.</p></div></li>
         </ol>
       </section>
 
@@ -172,8 +185,8 @@
         <a class="pager-key prev" href="/projets/osawallpaper/" style="--c:#f0abfc" data-key="ArrowLeft">
           <span class="pager-top"><small>← Projet précédent</small><b>OsaWallpaper</b></span>
         </a>
-        <a class="pager-key next" href="/projets/osaparty/" style="--c:#f3a6cf" data-key="ArrowRight">
-          <span class="pager-top"><small>Projet suivant →</small><b>OsaParty</b></span>
+        <a class="pager-key next" href="/projets/erasekey/" style="--c:#e7e5e4" data-key="ArrowRight">
+          <span class="pager-top"><small>Projet suivant →</small><b>EraseKEY</b></span>
         </a>
       </nav>
       <p class="pager-hint">Astuce : les flèches <kbd>←</kbd> <kbd>→</kbd> de ton clavier passent d'un projet à l'autre.</p>

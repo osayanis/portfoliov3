@@ -508,6 +508,18 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   box(usbkey, 0.012, 0.0135, 0.012, mat(0xfdfcf7, { rough: 0.5 }), [0.2, 0.795, -0.14], null, { r: 0.004 })
   const usbLed = quad(usbkey, 0.006, 0.006, glow(0x86efac), [0.158, 0.8022, -0.14], [-Math.PI / 2, 0, 0])
 
+  // clé EraseKEY, posée à côté : noire et blanche comme son interface, avec le logo en pixels
+  const erasekey = obj('erasekey', [0.3, 0.86, 0.03], null)
+  const ek = new Group(); ek.position.set(0.3, 0.7955, 0.03); ek.rotation.y = 0.55; erasekey.add(ek)
+  box(ek, 0.016, 0.005, 0.0125, alu, [-0.037, -0.001, 0], null, { r: 0.001 })
+  box(ek, 0.058, 0.011, 0.024, mat(0x161618, { rough: 0.4 }), [0, 0, 0], null, { r: 0.004 })
+  box(ek, 0.01, 0.0115, 0.0245, mat(0xf4f4f5, { rough: 0.5 }), [0.026, 0, 0], null, { r: 0.004 })
+  quad(ek, 0.036, 0.014, mat(0xffffff, { bump: false, rough: 0.6, map: canvasTex(256, 100, (g, w, h) => {
+    g.fillStyle = '#161618'; g.fillRect(0, 0, w, h)
+    g.fillStyle = '#fafafa'; g.fillRect(14, 30, 18, 18); g.fillRect(32, 48, 18, 18)
+    g.font = '700 40px "JetBrains Mono", monospace'; g.textBaseline = 'middle'; g.fillText('EraseKEY', 64, h / 2 + 2)
+  }) }), [-0.005, 0.0057, 0], [-Math.PI / 2, 0, Math.PI])
+
   // on pivote le bureau et tout ce qui est posé dessus : l'écran regarde Yanis, pas le visiteur
   const deskEnd = world.children.length
   const deskSet = new Group()
@@ -515,7 +527,7 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   world.add(deskSet)
   deskSet.rotation.y = Math.PI
   deskSet.updateMatrixWorld(true)
-  ;[macbook, keyboard, notebook, phone, tablet, usbkey].forEach(g => deskSet.localToWorld(g.userData.anchor))
+  ;[macbook, keyboard, notebook, phone, tablet, usbkey, erasekey].forEach(g => deskSet.localToWorld(g.userData.anchor))
   deskLamp.position.set(-0.78, 1.16, 0.12)
   deskLamp.target.position.set(-0.15, 0.76, -0.2)
   // points de vue : depuis le fauteuil pour l'écran et le clavier, depuis le visiteur pour le reste
@@ -525,6 +537,7 @@ export async function createRoom(canvas, { snapshot, avatar }) {
   phone.userData.view = { pos: [-0.4, 1.18, 0.5], look: [-0.62, 0.8, -0.22] }
   tablet.userData.view = { pos: [0.3, 1.08, 0.88], look: [0.47, 0.88, 0.3] }
   usbkey.userData.view = { pos: [-0.36, 0.95, 0.32], look: [-0.15, 0.8, 0.1] }
+  erasekey.userData.view = { pos: [-0.4, 0.91, 0.15], look: [-0.25, 0.8, -0.03] }
 
   /* ===== mur de gauche : bibliothèque, vieil écran, baladeur, calendrier ===== */
   const shelfWood = mat(0xffffff, { map: woodTex('#8a5a36', '50,26,12'), rough: 0.6 })

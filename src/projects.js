@@ -241,7 +241,7 @@ export const projects = [
     soft: '#fdf2f8',
     kicker: 'App macOS native · Swift',
     tagline: "Une clé USB qui démarre, <em>même Windows.</em>",
-    summary: "OsaBoot copie une image .iso ou .img sur une clé USB et vérifie le résultat, comme balenaEtcher. Et il sait aussi faire ce qu'Etcher ne fait pas : préparer une vraie clé d'installation Windows 10 / 11 depuis un Mac. Au milieu de la fenêtre, la mascotte d'OsaLabs fait le travail avec toi.",
+    summary: "OsaBoot copie une image .iso ou .img sur une clé USB et vérifie le résultat, comme balenaEtcher. Et il sait aussi faire ce qu'Etcher ne fait pas : préparer une vraie clé d'installation Windows 10 / 11 depuis un Mac. Au milieu de la fenêtre, la mascotte d'OsaLabs fait le travail avec toi. Depuis la version 0.2, il fabrique aussi EraseKEY, une clé qui efface les disques d'un PC.",
     meta: {
       role: 'Conception, design et développement',
       period: '28 octobre 2026',
@@ -330,14 +330,152 @@ export const projects = [
       { d: '28 oct · 10h05', t: 'Sur une vraie clé', x: 'Image brute et clé Windows testées sur une vraie clé USB, sans dossier Spotlight.' },
       { d: '28 oct · 10h09', t: 'wimlib embarqué', x: 'Plus rien à installer : l’outil de découpe est dans l’app.' },
       { d: '28 oct · 10h26', t: 'Nouvelle interface', x: 'Scène noire, mascotte vivante, confirmation intégrée, confettis.' },
-      { d: '28 oct · 10h40', t: 'Bêta publiée', x: 'Version 0.1 en .dmg, README avec captures, page sur osalabs.fr.', now: true },
+      { d: '28 oct · 10h40', t: 'Bêta publiée', x: 'Version 0.1 en .dmg, README avec captures, page sur osalabs.fr.' },
+      { d: '3 – 4 nov', t: 'EraseKEY', x: 'Versions 0.2 et 0.3 : OsaBoot fabrique aussi une clé qui efface les disques d’un PC, avec son interface en français.', now: true },
     ],
     next: [
       'Démarrer un vrai PC sur une vraie ISO Windows 11 (pas encore testé).',
       'Une version pour les Mac Intel.',
       'Lire directement les images compressées (.img.xz, .zip) sans les décompresser avant.',
     ],
+    related: {
+      kicker: 'Et maintenant, il efface aussi',
+      title: 'OsaBoot fabrique <em>EraseKEY.</em>',
+      text: [
+        "Depuis la version 0.2, OsaBoot sait préparer une clé un peu spéciale : EraseKEY. Branchée sur n'importe quel PC (UEFI ou BIOS), elle démarre directement sur une interface en français, avec la mascotte en pixels, pour effacer complètement un ou plusieurs disques. Rien n'est installé sur le PC.",
+        "Pour y arriver, OsaBoot a dû apprendre à reconstruire une clé au format standard, et sa vérification après écriture a démasqué une clé USB défectueuse en route.",
+      ],
+      url: '/projets/erasekey/',
+      label: 'L’étude de cas EraseKEY',
+      image: '/media/erasekey/effacement.webp',
+      color: '#e7e5e4',
+    },
   },
+
+  /* ------------------------------------------------------------------ */
+  {
+    slug: 'erasekey',
+    name: 'EraseKEY',
+    letter: 'E',
+    color: '#e7e5e4',
+    deep: '#57534e',
+    soft: '#fafaf9',
+    kicker: 'Clé USB de démarrage · Go',
+    tagline: "Une clé qui efface les disques, <em>en français.</em>",
+    summary: "EraseKEY est une clé USB fabriquée par OsaBoot. Elle démarre n'importe quel PC x86-64, en UEFI comme en BIOS, directement sur une interface console en français, avec la mascotte d'OsaLabs en pixels, pour effacer complètement un ou plusieurs disques. Rien n'est installé sur le PC.",
+    meta: {
+      role: 'Conception, design et développement',
+      period: '3 – 4 novembre 2026',
+      status: 'Fabriquée par OsaBoot 0.3.5, testée sur un vrai PC',
+    },
+    stack: ['Go', 'Bubble Tea', 'Lip Gloss', 'ShredOS', 'nwipe', 'GRUB', 'Swift (OsaBoot)'],
+    links: [
+      { label: 'Le site', url: 'https://osalabs.fr/erasekey', primary: true },
+      { label: 'Voir le code', url: 'https://github.com/osayanis/erasekey' },
+      { label: 'Télécharger OsaBoot', url: 'https://github.com/osayanis/osaboot/releases/latest/download/OsaBoot.dmg' },
+    ],
+    stats: [
+      { n: '2', label: 'jours, du 3 au 4 novembre' },
+      { n: '3,5 Mo', label: 'l’interface : un seul binaire Go' },
+      { n: '3', label: 'clés USB pour le premier vrai effacement' },
+      { n: '0', label: 'logiciel à installer sur le PC' },
+    ],
+    problem: {
+      quote: "Effacer un disque pour de bon, sans rien installer, et sans pouvoir se tromper de disque.",
+      text: [
+        "Quand on donne ou revend un PC, supprimer ses fichiers ne suffit pas : tant qu'ils n'ont pas été écrasés, on peut les récupérer. Il faut réécrire tout le disque.",
+        "<a href=\"https://github.com/PartialVolume/shredos.x86_64\" target=\"_blank\" rel=\"noopener\">ShredOS</a> fait ça très bien : un mini Linux qui démarre sur une clé et lance nwipe. Mais on passe par un menu de démarrage, puis par l'écran de nwipe, en anglais et plein d'options. La première version d'EraseKEY, dans OsaBoot 0.2.0, affichait encore l'écran d'origine de nwipe.",
+        "Je voulais garder ce moteur, qui a fait ses preuves, et mettre devant une interface à moi : en français, au style OsaLabs, où chaque étape est expliquée et où la clé elle-même ne peut pas être effacée.",
+      ],
+    },
+    visuals: [
+      { type: 'screen', src: '/media/erasekey/disques.webp', alt: "EraseKEY, étape 1 : la liste des disques du PC, la clé EraseKEY grisée et protégée", caption: 'Les disques du PC. La clé EraseKEY est grisée : impossible de la cocher.' },
+      { type: 'screen', src: '/media/erasekey/disques-deux.webp', alt: 'EraseKEY : deux disques cochés', caption: 'On peut effacer plusieurs disques à la fois : Espace pour cocher.' },
+      { type: 'screen', src: '/media/erasekey/methode.webp', alt: 'EraseKEY, étape 2 : le choix de la méthode (Conseillée, Rapide, Renforcée)', caption: 'Trois méthodes. La conseillée suffit pour un disque qu’on donne ou qu’on vend.' },
+      { type: 'screen', src: '/media/erasekey/confirmation.webp', alt: 'EraseKEY, étape 3 : cadre rouge, liste des disques et des partitions, le mot EFFACER tapé pour confirmer', caption: 'Dernière vérification en rouge : il faut taper EFFACER.' },
+      { type: 'screen', src: '/media/erasekey/effacement.webp', alt: "EraseKEY, étape 4 : deux barres de progression, 412 Mo/s, environ 3 h 54 restantes", caption: 'L’avancement en direct : pourcentage, débit, temps restant.' },
+      { type: 'screen', src: '/media/erasekey/fin.webp', alt: 'EraseKEY, étape 5 : les deux disques effacés avec succès, journal et rapport PDF sur la clé', caption: 'Fini : un résultat par disque, et les rapports PDF sont sur la clé.' },
+    ],
+    how: {
+      intro: "OsaBoot fabrique la clé sur le Mac. Sur le PC, la clé démarre un mini Linux, et mon interface remplace l'écran de nwipe.",
+      steps: [
+        { t: 'Partir de ShredOS', d: "OsaBoot télécharge l'image officielle de ShredOS : un mini Linux avec nwipe, le moteur d'effacement (GPL, © PartialVolume). Je ne réécris pas l'effacement, je m'appuie dessus." },
+        { t: 'Reconstruire une clé standard', d: "Au lieu de copier l'image telle quelle, OsaBoot refait la clé au format standard : une partition active alignée au secteur 2048, du FAT32 formaté par macOS, et le code de démarrage BIOS de GRUB conservé. C'est ce qui permet à un vrai PC de la voir." },
+        { t: 'Glisser mon interface', d: "Elle arrive dans un petit <code>initrd</code> chargé après le noyau, et prend la place de l'écran de nwipe. Le menu de GRUB est caché : le PC démarre directement sur EraseKEY." },
+        { t: 'Une interface en Go', d: "Écrite avec Bubble Tea et Lip Gloss, compilée en un binaire statique d'environ 3,5 Mo. Les disques utilisés par le système et la clé elle-même sont protégés, et rien ne part sans le mot <code>EFFACER</code>." },
+        { t: 'Suivre et garder une trace', d: "L'avancement est lu dans <code>/proc/diskstats</code> : pourcentage, débit, temps restant. À la fin, un journal et un rapport PDF par disque sont enregistrés sur la clé. Sur les écrans haute définition, l'interface double elle-même la police de la console." },
+      ],
+      diagram: {
+        w: 820, h: 380,
+        nodes: [
+          { id: 'shred', x: 130, y: 70, w: 210, h: 72, label: 'ShredOS', sub: 'image officielle', c: '#e5e7eb' },
+          { id: 'boot', x: 130, y: 310, w: 210, h: 72, label: 'OsaBoot', sub: 'app Mac', c: '#f9a8d4' },
+          { id: 'key', x: 380, y: 190, w: 210, h: 84, label: 'Clé EraseKEY', sub: 'FAT32 · GRUB caché', c: '#e7e5e4' },
+          { id: 'ui', x: 700, y: 70, w: 200, h: 72, label: 'Interface Go', sub: 'Bubble Tea · initrd', c: '#a7e8bd' },
+          { id: 'nwipe', x: 700, y: 190, w: 200, h: 72, label: 'nwipe', sub: "moteur d'effacement", c: '#fde68a' },
+          { id: 'disks', x: 700, y: 310, w: 200, h: 72, label: 'Disques du PC', sub: 'UEFI ou BIOS', c: '#fca5a5' },
+        ],
+        edges: [
+          { from: 'shred', to: 'boot', label: 'téléchargée' },
+          { from: 'boot', to: 'key', label: 'reconstruit' },
+          { from: 'key', to: 'ui', label: 'démarre' },
+          { from: 'ui', to: 'nwipe', label: 'pilote' },
+          { from: 'nwipe', to: 'disks', label: 'efface' },
+          { from: 'disks', to: 'key', label: 'rapports PDF', dashed: true },
+        ],
+      },
+    },
+    demo: {
+      kind: 'erase',
+      title: 'Efface un disque, pour voir',
+      intro: "Une reproduction de l'interface d'EraseKEY, en accéléré. Clique dans l'écran et utilise le clavier (flèches, Espace, Entrée), ou clique directement sur les lignes. Rien n'est effacé, évidemment.",
+    },
+    challenges: [
+      {
+        title: 'La clé qui écrivait au mauvais endroit',
+        problem: "Première clé USB, premier essai : la copie se termine, mais la clé est défectueuse. Elle recopiait des données au mauvais endroit.",
+        solution: "C'est la vérification d'OsaBoot, qui relit toute la clé après l'écriture, qui l'a détecté : l'app a signalé que le contenu ne correspondait pas, au lieu de dire que la clé était prête.",
+      },
+      {
+        title: 'Le Dell ne voyait pas la clé',
+        problem: "Dans les machines virtuelles, tout marchait. Sur le vrai Dell Latitude 5175, la clé n'apparaissait même pas au démarrage : l'image de ShredOS a une mise en page inhabituelle.",
+        solution: "OsaBoot ne copie plus l'image telle quelle : il reconstruit une clé standard (partition active au secteur 2048, FAT32 formaté par macOS, code de démarrage BIOS de GRUB gardé), que les PC savent lire.",
+      },
+      {
+        title: 'Une deuxième clé, un 1,6 Mo perdu',
+        problem: "La clé suivante a perdu son premier 1,6 Mo : le tout début de la clé, là où se trouve justement de quoi démarrer.",
+        solution: "Troisième clé, fiable cette fois : le Dell démarre directement sur l'interface EraseKEY et efface un vrai disque.",
+      },
+      {
+        title: 'Illisible sur un grand écran',
+        problem: "Sur un écran haute définition, la police de la console Linux est minuscule : l'interface devenait difficile à lire.",
+        solution: "Sur les écrans haute définition, l'interface double elle-même la police de la console. Le texte plus gros est arrivé avec OsaBoot 0.3.5.",
+      },
+    ],
+    journal: [
+      { d: '3 nov', t: 'OsaBoot 0.2.0', x: 'Première EraseKEY : la clé démarre sur ShredOS, avec l’écran d’origine de nwipe.' },
+      { d: '3 – 4 nov', t: 'Machines virtuelles', x: 'Tests dans QEMU, en BIOS et en UEFI : effacement vérifié octet par octet.' },
+      { d: '3 – 4 nov', t: 'OsaBoot 0.3.x', x: 'Mon interface en Go remplace celle de nwipe, puis les correctifs pour le vrai matériel : clé reconstruite au format standard, menu GRUB caché.' },
+      { d: '3 – 4 nov', t: 'Sur un vrai PC', x: 'Après deux clés défectueuses, le Dell Latitude 5175 démarre sur EraseKEY et efface un vrai disque.' },
+      { d: '4 nov', t: 'OsaBoot 0.3.5', x: 'Texte deux fois plus gros sur les écrans haute définition.', now: true },
+    ],
+    next: [
+      'L’essayer sur d’autres PC : pour l’instant, le Dell Latitude 5175 est le seul vrai PC testé.',
+      'Fabriquer la clé depuis un Mac Intel : aujourd’hui, OsaBoot demande un Mac Apple Silicon (macOS 14 ou plus).',
+    ],
+    related: {
+      kicker: 'Elle sort d’OsaBoot',
+      title: 'La clé est fabriquée par <em>OsaBoot.</em>',
+      text: [
+        "EraseKEY ne se télécharge pas à part : c'est OsaBoot, mon app Mac qui prépare des clés USB, qui la fabrique. Il télécharge ShredOS, reconstruit la clé au format standard et y ajoute l'interface.",
+      ],
+      url: '/projets/osaboot/',
+      label: 'L’étude de cas OsaBoot',
+      image: '/media/osaboot/ready.webp',
+      color: '#f9a8d4',
+    },
+  },
+
 
   /* ------------------------------------------------------------------ */
   {
